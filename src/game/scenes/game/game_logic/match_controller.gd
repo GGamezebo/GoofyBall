@@ -151,13 +151,15 @@ func _fault_too_many_touches(side: int) -> void:
 	# Same convention as floor land: the faulting side "loses" the rally.
 	round_active = false
 	_reset_touches()
-	if ball and "freeze" in ball:
+	if ball is Ball:
+		(ball as Ball).explode()
+	elif ball and "freeze" in ball:
 		ball.freeze = true
-	if game_events:
-		var who := "Blue" if side == 0 else "Red"
-		if game_config and game_config.vs_ai:
-			who = "You" if side == 0 else "AI"
-		game_events.ev_message.emit("%s: too many touches!" % who)
+
+	var who := "Blue" if side == 0 else "Red"
+	if game_config and game_config.vs_ai:
+		who = "You" if side == 0 else "AI"
+	pending_point_message = "%s: too many touches!" % who
 	ev_point_scored.emit(side)
 
 
