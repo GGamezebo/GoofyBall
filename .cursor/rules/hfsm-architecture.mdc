@@ -1,0 +1,58 @@
+---
+description: HFSM library architecture — modules, transitions, entity/scene bindings
+globs: "core/lib/hfsm/**/*"
+alwaysApply: false
+---
+
+# HFSM library (`core/lib/hfsm`)
+
+Port of Library `GDScript/HFSM` / `Python3/HFSM`. Keep transition semantics in sync.
+
+## Modules
+
+| File | Role |
+|------|------|
+| `state_node.gd` / `state_tree.gd` | Config data — bindings + optional `scene` |
+| `loader.gd` | JSON/dict → tree; reserved: `enter`, `leave`, `consume`, `states`, `scene` |
+| `hfsm.gd` | Queue, transitions, entity + scene lifecycle |
+| `binding_registry.gd` | Light BoundEntity lifecycle |
+| `scene_registry.gd` | Godot scene mount (`Node`); async load |
+| `bound_entity.gd` | Base: `on_event`, `deinit`; registered as `{ slot: { name: Script } }` |
+| `iscene.gd` | Base Node: `initialize` / `deinit` / `on_event` (+ isolated F6); id via paths map |
+| `event.gd` / `utils.gd` / `consts.gd` | Event + pattern helpers |
+
+## Public API
+
+- `HFSM.new(tree, entities, scene_config={})`
+  - `entities`: `{ slot: { name: Script } }` — names match JSON binding values
+  - `scene_config`: `{ host: Node, paths: {id: path}, loading_screen?, min_load_time? }`
+- `add_event`, `get_active_path()`, `get_active_scene()`, `get_mounted_scene(state)`, `get_binding`, `reset()`, `clear()`
+
+## Scene lifecycle (automatic)
+
+- Mounted nodes should extend `IScene` (`initialize` / `deinit` / `on_event`)
+- State `scene: { id, loading_screen, async_loading, on_event }` → on enter: load/instantiate under nearest ancestor scene (else host), `initialize(data)`, then optional `hfsm.add_event(on_event, data)`
+- Mounted node tree mirrors HFSM hierarchy; sibling order follows JSON `states` key order
+- on leave: `deinit()` + `queue_free`
+- on event (non-`sys.enter`): scene method `on_event(name, data)` on mounted node
+- `paths[id]` resolves `.tscn`; unknown id → error
+- `loading_screen: true` → optional loading overlay on `_mount_async`; `async_loading` default `true`, `false` → `_mount` sync one-frame load
+- Cancel via per-state mount token when leave/re-enter races
+
+## Transition semantics (do not change casually)
+
+- Post-order: children before parent
+- `leave` → scene leave + entity `deinit`, then deactivate
+- Matching child `enter` → activate + entity/scene enter + `on_event` (except `sys.enter`)
+- `consume`: stop bubble unless event also matches this state's enter/leave
+- Auto-activate children with `enter` exactly `["sys.enter"]` **only when their parent is activated** (`_activate` / root `reset`) — not after every event
+
+## Entities
+
+- Light logic only (`RefCounted`); do **not** mount scenes from entities
+- Scenes own heavy UI via `scene` keyword
+
+## Must / avoid
+
+- No Quizmatik types in `core/lib/hfsm` (paths dict is injected by host)
+- `HfsmSceneRegistry` is the only Node helper in the lib (needs SceneTree for async)

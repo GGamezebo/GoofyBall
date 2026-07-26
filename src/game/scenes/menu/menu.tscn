@@ -1,0 +1,83 @@
+[gd_scene load_steps=6 format=3 uid="uid://bvmenu001"]
+
+[ext_resource type="Script" path="res://src/game/scenes/menu/menu.gd" id="1"]
+[ext_resource type="Resource" path="res://src/game/scenes/app_root/root_events.tres" id="2"]
+[ext_resource type="Resource" path="res://src/game/account/persistent_data.tres" id="3"]
+[ext_resource type="Resource" path="res://src/common/game_config_two_player.tres" id="4"]
+[ext_resource type="Resource" path="res://src/common/game_config_vs_ai.tres" id="5"]
+
+[node name="Menu" type="Control" node_paths=PackedStringArray("play_two_button", "play_ai_button", "stats_label", "exit_button")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+root_events = ExtResource("2")
+pdata = ExtResource("3")
+two_player_config = ExtResource("4")
+vs_ai_config = ExtResource("5")
+play_two_button = NodePath("Center/VBox/PlayTwoButton")
+play_ai_button = NodePath("Center/VBox/PlayAiButton")
+stats_label = NodePath("Center/VBox/StatsLabel")
+exit_button = NodePath("Center/VBox/ExitButton")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.35, 0.62, 0.88, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 48
+text = "Blobby Valley"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.85)
+theme_override_font_sizes/font_size = 18
+text = "Bouncy side-view volleyball"
+horizontal_alignment = 1
+
+[node name="PlayTwoButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Play Together"
+
+[node name="PlayAiButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Play vs AI"
+
+[node name="StatsLabel" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.8)
+theme_override_font_sizes/font_size = 14
+text = "Matches: 0"
+horizontal_alignment = 1
+
+[node name="ExitButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+text = "Exit"

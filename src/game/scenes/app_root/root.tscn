@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://bvapproot001"]
+
+[ext_resource type="Script" path="res://src/game/scenes/app_root/root.gd" id="1"]
+[ext_resource type="Script" path="res://src/game/scenes/app_root/save_manager.gd" id="2"]
+[ext_resource type="Script" path="res://src/game/account/save_data.gd" id="3"]
+[ext_resource type="Resource" path="res://src/game/account/persistent_data.tres" id="4"]
+[ext_resource type="Resource" path="res://src/game/scenes/app_root/root_events.tres" id="5"]
+
+[node name="AppRoot" type="Node"]
+script = ExtResource("1")
+root_events = ExtResource("5")
+pdata = ExtResource("4")
+
+[node name="Account" type="Node" parent="."]
+
+[node name="SaveManager" type="Node" parent="Account"]
+script = ExtResource("2")
+_pdata = ExtResource("4")
+_root_events = ExtResource("5")
+
+[node name="Save" type="Node" parent="Account/SaveManager"]
+script = ExtResource("3")
+use_integrity_checksum = false
+auto_load_on_ready = false

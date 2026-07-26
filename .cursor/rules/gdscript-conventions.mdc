@@ -1,0 +1,40 @@
+---
+description: GDScript conventions for Blobby Valley — signals, lifecycle, wiring
+globs: "**/*.{gd,tscn}"
+alwaysApply: false
+---
+
+# GDScript conventions
+
+## Avoid brittle `res://` paths
+
+- Prefer `class_name` for shared scripts
+- Prefer `@export` / PackedScene refs set in the editor
+- Prefer relative `preload("sibling.gd")` only when colocated
+
+## Naming
+
+- Signals: `ev_*`
+- Files: `snake_case.gd`; scene colocated
+- Types: `PascalCase` + `class_name`
+- FSM state IDs: `static func get_state() -> String`
+
+## Patterns
+
+- Wire with `@export` (editor-first)
+- UI in the editor; scripts update existing nodes
+- Pure logic → `RefCounted`
+- Signal subscriptions → `EventListener`; tear down in `deinit`
+- Config copies → `ResourceUtils.update_resource()`
+
+## Must
+
+- Feature code in `src/features/{name}/`
+- `core/` must not reference `src/`
+- Every `.tscn` runs isolated (F6) with `.tres` defaults
+
+## Avoid
+
+- Autoloads for flow (`RootEvents` / `GameEvents` instead)
+- Cross-feature internal imports
+- Parallel FSM beside match `GameManager`

@@ -1,0 +1,38 @@
+---
+description: Keep architecture rules accurate when the project structure changes
+alwaysApply: true
+---
+
+# Maintain architecture rules
+
+When a change alters structure, contracts, or placement conventions, update `.cursor/rules/` in the **same** task. Stale rules waste tokens and cause wrong edits.
+
+## Update when
+
+- New/renamed folder under `src/`, `core/`, `tools/`, `concepts/`
+- Visual art direction / UI look conventions (`concepts/ART_DIRECTION.md`)
+- New context, feature, event bus, or FSM state
+- Feature isolation or `core/` project-agnostic boundary changes
+- Scene-isolation / Resource-default / parent-override-via-events contract changes
+- Editor-first UI policy changes (scene nodes vs programmatic UI)
+- Target platforms (Mobile / Steam / HTML) or cross-platform playability rules change
+- HFSM library semantics or JSON config conventions change (`core/lib/hfsm`, `hfsm-*.mdc`)
+- Battle start payload / `IScene` / progress schema changes
+- Level layout or `LevelsConfig` container IDs change
+- Entry point or main-scene wiring changes
+- Path-resolution convention (`class_name` / `@export` vs hardcoded `res://`)
+- A convention in these rules is deliberately broken or replaced
+
+## How
+
+1. Edit the smallest relevant rule file (prefer patch over rewrite).
+2. Keep each rule under ~50 lines; one concern per file.
+3. Prefer paths + must/never over prose.
+4. If a rule becomes wrong, fix or delete it — never leave contradictions.
+5. After structural work, briefly confirm rules still match reality.
+
+## Do not
+
+- Duplicate the same map across many rule files
+- Document one-off bugs or temporary hacks as architecture
+- Expand rules with unused library details (e.g. unused FSM Conditional)

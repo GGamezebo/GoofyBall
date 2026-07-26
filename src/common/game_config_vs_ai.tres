@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="GameConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/common/game_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+vs_ai = true
+win_score = 7
+serve_height = 5.0

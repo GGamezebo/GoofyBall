@@ -1,0 +1,39 @@
+---
+description: HFSM JSON config schema and conventions
+globs: "**/*hfsm*.json"
+alwaysApply: false
+---
+
+# HFSM JSON config
+
+## Shape
+
+- Exactly **one** root state key per file
+- Reserved keys: `enter`, `leave`, `consume`, `states`, `scene`
+- Any other key = **binding slot** → entity name string (registered in host `{ slot: { name: Script } }`)
+
+## `scene`
+
+```json
+"scene": { "id": "game", "loading_screen": true, "async_loading": true, "on_event": "ev.open_menu" }
+```
+
+- `id` → host path map (`HfsmScenePaths.PATHS`)
+- `loading_screen` optional (default `false`) — show loading overlay while mounting (async path)
+- `async_loading` optional (default `true`) — `_mount_async` (threaded); `false` → `_mount` sync `load()` in one frame
+- `on_event` optional — HFSM event fired right after scene `initialize(data)`
+- HFSM auto-mounts on enter / releases on leave; forwards events to scene `on_event`
+
+## Events
+
+- Prefer `ev.*`; omit `enter` → `["sys.enter"]`
+- Wildcards: trailing `*` only
+
+## Design
+
+- Heavy screens: `scene`; light logic: BoundEntity slots when needed
+- Prefer shallow trees
+- Do not put menu UI windows in HFSM — use `WindowStackManager`
+- Platform hooks: nested state under `App`; `WEB` enters on `ev.open_web` emitted by AppRoot after `OS.has_feature("web")`
+- Platform states use the shared `context` slot, e.g. `"context": "WEBContext"`
+

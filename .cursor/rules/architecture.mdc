@@ -1,0 +1,80 @@
+---
+description: Blobby Valley architecture map — where code lives and how systems connect
+alwaysApply: true
+---
+
+# Architecture (Blobby Valley / Godot 4.7)
+
+Side-view volleyball prototype. Prefer the smallest change that fits existing patterns. Do not invent parallel systems.
+
+Godot 4.x only: `@export`/`@onready`, `signal.connect(cb)`, `instantiate()`, typed GDScript, `Input` actions.
+
+## Stable references (critical)
+
+- Prefer `class_name` + typed use over `preload("res://path/script.gd")`
+- Prefer `@export` / `@export_file` / PackedScene assigned in the editor
+- Do not add new path constants for scripts/resources unless no other option
+
+## Target platforms
+
+Ship for **Mobile**, **desktop**, **HTML5**. Prefer InputMap actions; keep UI readable on phone landscape.
+
+## #1 Scene isolation (critical)
+
+**Every scene must open and run alone in the editor without crashes.**
+
+- Bake safe defaults into **Resource files** (`.tres`) and `@export` them
+- Parents override at runtime via events / `initialize(data)` + `ResourceUtils.update_resource`
+- No required autoloads or sibling scenes to boot
+
+## Entry & folders
+
+| Path | Role |
+|------|------|
+| `main.tscn` → `src/game/main.gd` | HFSM bootstrap host |
+| `src/game/scenes/` | Screens: `app_root`, `menu`, `game`, `post_battle` |
+| `src/features/` | Isolated gameplay (`blob_player`, `ball`, `ai_opponent`) |
+| `src/common/` | Shared Resources (`GameConfig`, settings) |
+| `src/ui/` | Shared UI (loading screen) |
+| `core/` | Project-agnostic (HFSM, FSM, EventListener, ResourceUtils) |
+| `addons/GodotSavesAddon` | Save plugin — do not edit casually |
+
+## Layer contracts
+
+### `src/features/`
+- One folder = one feature; keep deps inside
+- Public surface: signals `ev_*`, `initialize`/`setup`, exported scenes
+- Features must not import other features' internals
+
+### `core/`
+- Must not depend on `src/`
+
+### `src/game/scenes/`
+- Orchestration only; wire features + config
+- Each scene ships default Resources; parents override via `RootEvents`
+
+## Context flow
+
+```
+Menu --ev.start_game--> Battle --ev.exit_game--> PostBattle
+PostBattle --ev.return_to_menu--> Menu
+PostBattle --ev.start_game--> Battle (retry)
+```
+
+- `main.gd` boots HFSM only
+- `app_root` bridges `RootEvents` → `hfsm.add_event`
+- Battle payload: `{ "custom_battle": GameConfig }` (vs_ai flag inside)
+- In-match: `GameEvents` + `GameManager` FSM (not HFSM)
+
+## Match loop
+
+`GameManager` FSM: `Serve` → `Play` → `Point` → (`Serve` | `MatchEnd`).
+Do not drive win/lose with ad-hoc flags outside the FSM.
+
+## Placement
+
+- New gameplay unit → `src/features/{name}/`
+- New screen → `src/game/scenes/{name}/`
+- Shared Resource → `src/common/`
+- Generic util → `core/lib/`
+- Progress disk write only via `RootEvents.ev_save_progress` → `SaveManager`

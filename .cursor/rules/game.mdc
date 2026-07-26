@@ -1,0 +1,32 @@
+---
+description: Match loop and GameScene change rules
+globs: "src/game/scenes/game/**/*"
+alwaysApply: false
+---
+
+# Game scene / match
+
+## Ownership
+
+- Orchestration: `game.gd` applies `GameConfig` via `ResourceUtils.update_resource`
+- Live `game_config.tres` on the scene = standalone defaults
+- States: `GameManager` FSM only (`Serve` / `Play` / `Point` / `MatchEnd`)
+- Features: `blob_player`, `ball`, `ai_opponent` — scene wires and reacts to `ev_*`
+
+## Change guide
+
+| Goal | Touch |
+|------|--------|
+| Round / match transitions | FSM states + `FSMGameEvents` |
+| Scoring / 3-touch fault | `MatchController` + `PointState` |
+| Player feel | `src/features/blob_player/` |
+| Ball physics | `src/features/ball/` |
+| Bot | `src/features/ai_opponent/` |
+| HUD | `ui/` — listen to `GameEvents` |
+
+## Constraints
+
+- Exit match via `root_events.ev_exit_game` with post-battle payload
+- `vs_ai` / `max_touches` come from `GameConfig`, not hardcoded
+- Prefer small `RefCounted` helpers over growing states
+- More than `max_touches` (default 3) on one side → fault, opponent scores

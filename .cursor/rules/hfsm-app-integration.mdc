@@ -1,0 +1,25 @@
+---
+description: App-level HFSM integration (main.gd bootstrap)
+globs: "{src/game/main.gd,src/game/hfsm/**/*,src/game/scenes/app_root/**/*}"
+alwaysApply: false
+---
+
+# App HFSM integration
+
+## Wiring
+
+- Entry: `main.tscn` → `src/game/main.gd`
+- Config: `src/game/hfsm/app_hfsm.json`
+- Paths: `HfsmScenePaths`
+- Bridge: `RootEvents.ev_*` → `hfsm.add_event` on **app_root**
+
+## Scenes
+
+- `app_root` → saves + event bridge
+- `menu` / `game` / `post_battle`
+- Start payload: `{ "custom_battle": GameConfig }` (`vs_ai` inside)
+
+## Must
+
+- Keep match `GameManager` FSM separate from HFSM
+- New app phase → JSON `scene` + `HfsmScenePaths` export

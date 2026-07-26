@@ -1,0 +1,22 @@
+{
+	"App": {
+		"scene": { "id": "app_root", "async_loading": false, "on_event": "ev.open_menu" },
+		"states": {
+			"Menu": {
+				"scene": { "id": "menu", "loading_screen": true },
+				"enter": ["ev.open_menu"],
+				"leave": ["ev.start_game"]
+			},
+			"Battle": {
+				"scene": { "id": "game", "async_loading": true, "loading_screen": true },
+				"enter": ["ev.start_game"],
+				"leave": ["ev.exit_game", "ev.start_game"]
+			},
+			"PostBattle": {
+				"scene": { "id": "post_battle", "async_loading": false },
+				"enter": ["ev.exit_game"],
+				"leave": ["ev.open_menu", "ev.start_game"]
+			}
+		}
+	}
+}

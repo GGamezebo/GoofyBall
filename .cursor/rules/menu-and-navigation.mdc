@@ -1,0 +1,24 @@
+---
+description: Menu and RootEvents navigation for Blobby Valley
+globs: "{src/game/scenes/menu/**/*,src/game/scenes/app_root/**/*,src/game/scenes/post_battle/**/*}"
+alwaysApply: false
+---
+
+# Menu & navigation
+
+## Layers
+
+1. **Scenes** (Menu/Game/PostBattle) — only via `RootEvents`
+2. **Dialogs/overlays** — not a second router
+
+## Game start
+
+- Versus human: `{ "custom_battle": GameConfig }` with `vs_ai = false`
+- Versus AI: `{ "custom_battle": GameConfig }` with `vs_ai = true`
+- Return: `ev_return_to_menu`
+- Quit match: `ev_exit_game` with result payload
+
+## Avoid
+
+- Loading `GameScene` from menu scripts directly
+- Building full UI trees in GDScript when a `.tscn` template works
