@@ -16,7 +16,7 @@ const STOP_DIST := 0.12
 ## How fast external_axis catches up to the desired value.
 const AXIS_SMOOTH := 10.0
 const JUMP_RANGE_X := 1.4
-const JUMP_HEIGHT_MAX := 3.2
+const JUMP_HEIGHT_MAX := 4.5
 const LEAD_TIME := 0.22
 
 var _axis: float = 0.0

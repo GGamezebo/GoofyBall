@@ -9,12 +9,14 @@ extends CharacterBody3D
 @export var use_player_input: bool = true
 
 const MOVE_SPEED := 6.5
-const JUMP_VELOCITY := 9.5
+const JUMP_VELOCITY := 10.5
 const GRAVITY := 22.0
 const AIR_CONTROL := 0.55
 const HIT_SPEED := 5.5
 const HIT_MIN_UP := 3.0
 const PLANE_Z := 0.0
+## Keep each blob on its own half (radius + half-net + margin).
+const NET_LIMIT_X := 0.55
 
 @onready var mesh_root: Node3D = $MeshRoot
 
@@ -54,6 +56,7 @@ func _physics_process(delta: float) -> void:
 	var was_on_floor := on_floor
 	move_and_slide()
 	global_position.z = PLANE_Z
+	_clamp_to_own_half()
 
 	if not was_on_floor and is_on_floor():
 		_squash = 0.62
@@ -65,6 +68,19 @@ func _physics_process(delta: float) -> void:
 		mesh_root.scale = Vector3(_stretch, _squash, _stretch)
 
 	external_jump = false
+
+
+func _clamp_to_own_half() -> void:
+	if player_index == 0:
+		if global_position.x > -NET_LIMIT_X:
+			global_position.x = -NET_LIMIT_X
+			if velocity.x > 0.0:
+				velocity.x = 0.0
+	else:
+		if global_position.x < NET_LIMIT_X:
+			global_position.x = NET_LIMIT_X
+			if velocity.x < 0.0:
+				velocity.x = 0.0
 
 
 func apply_ball_hit(ball: RigidBody3D, hit_normal: Vector3) -> void:
