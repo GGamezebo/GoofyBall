@@ -9,10 +9,12 @@ extends IScene
 @export var score_label: Label
 @export var message_label: Label
 @export var hint_label: Label
+@export var timer_label: Label
 
 var _listener: EventListener = EventListener.new()
 var _flash_tween: Tween
 var _flash_mat: StandardMaterial3D
+var _timer_pulse_tween: Tween
 
 @onready var _flash_left: MeshInstance3D = get_node_or_null("Court/FloorFlashLeft")
 @onready var _flash_right: MeshInstance3D = get_node_or_null("Court/FloorFlashRight")
@@ -49,9 +51,11 @@ func initialize(data: Dictionary) -> void:
 	_listener.add(game_events.ev_message, _on_message)
 	_listener.add(game_events.ev_match_over, _on_match_over)
 	_listener.add(game_events.ev_point_scored, _on_point_scored)
+	_listener.add(game_events.ev_round_time_changed, _on_round_time)
 
 	root_events.ev_battle_started.emit()
 	_on_score(0, 0)
+	_on_round_time(int(game_config.round_duration_sec) if game_config else 60)
 
 
 func deinit() -> void:
@@ -74,6 +78,30 @@ func _on_score(score_left: int, score_right: int) -> void:
 func _on_message(text: String) -> void:
 	if message_label:
 		message_label.text = text
+
+
+func _on_round_time(seconds_left: int) -> void:
+	if timer_label == null:
+		return
+	timer_label.text = str(seconds_left)
+	var alarm := seconds_left <= 5 and seconds_left > 0
+	if alarm:
+		timer_label.add_theme_color_override("font_color", Color(1.0, 0.15, 0.2, 1.0))
+		timer_label.add_theme_color_override("font_shadow_color", Color(1.0, 0.0, 0.2, 0.75))
+		if _timer_pulse_tween == null or not is_instance_valid(_timer_pulse_tween):
+			_timer_pulse_tween = create_tween().set_loops()
+			_timer_pulse_tween.tween_property(timer_label, "modulate", Color(1.4, 0.7, 0.7, 1.0), 0.18)
+			_timer_pulse_tween.tween_property(timer_label, "modulate", Color.WHITE, 0.18)
+	else:
+		if _timer_pulse_tween and is_instance_valid(_timer_pulse_tween):
+			_timer_pulse_tween.kill()
+			_timer_pulse_tween = null
+		timer_label.modulate = Color.WHITE
+		if seconds_left <= 0:
+			timer_label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.25, 1.0))
+		else:
+			timer_label.add_theme_color_override("font_color", Color(0.35, 0.95, 1.0, 1.0))
+			timer_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.45, 0.8, 0.7))
 
 
 ## `side` is the rally loser (0 = left/Blue, 1 = right/Red). Blink that half neon red.

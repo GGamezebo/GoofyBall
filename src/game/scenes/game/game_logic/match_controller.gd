@@ -19,6 +19,8 @@ var _match_finished: bool = false
 ## Consecutive touches on the current side (resets when the other side hits).
 var _touch_side: int = -1
 var _touch_count: int = 0
+## Optional override for the next apply_point() banner.
+var pending_point_message: String = ""
 
 
 func initialize(config: GameConfig) -> void:
@@ -28,6 +30,7 @@ func initialize(config: GameConfig) -> void:
 	serving_left = true
 	round_active = false
 	_match_finished = false
+	pending_point_message = ""
 	_reset_touches()
 	if ball:
 		if ball.has_signal("landed") and not ball.landed.is_connected(_on_ball_landed):
@@ -52,16 +55,40 @@ func apply_point(side: int) -> void:
 	if side == 0:
 		score_right += 1
 		serving_left = false
-		if game_events:
-			game_events.ev_message.emit("Point for Red!")
 	else:
 		score_left += 1
 		serving_left = true
-		if game_events:
-			game_events.ev_message.emit("Point for Blue!")
-	_emit_score()
+
 	if game_events:
+		var msg := pending_point_message
+		pending_point_message = ""
+		if msg.is_empty():
+			msg = "Point for Red!" if side == 0 else "Point for Blue!"
+		game_events.ev_message.emit(msg)
 		game_events.ev_point_scored.emit(side)
+	_emit_score()
+
+
+## Round clock hit zero: explode ball; side under the ball loses.
+func resolve_timeout_explosion() -> void:
+	if not round_active or _match_finished:
+		return
+	round_active = false
+	_reset_touches()
+
+	var side := 0
+	if ball:
+		side = 0 if ball.global_position.x < 0.0 else 1
+		if ball is Ball:
+			(ball as Ball).explode()
+		elif "freeze" in ball:
+			ball.freeze = true
+
+	var who := "Blue" if side == 0 else "Red"
+	if game_config and game_config.vs_ai:
+		who = "You" if side == 0 else "AI"
+	pending_point_message = "Time's up! %s exploded!" % who
+	ev_point_scored.emit(side)
 
 
 func is_match_over() -> bool:

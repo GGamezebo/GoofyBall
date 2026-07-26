@@ -164,7 +164,7 @@ fog_sky_affect = 0.45
 fog_height = 0.0
 fog_height_density = 0.0
 
-[node name="Game" type="Node3D" node_paths=PackedStringArray("game_manager", "match_controller", "ai_opponent", "score_label", "message_label", "hint_label")]
+[node name="Game" type="Node3D" node_paths=PackedStringArray("game_manager", "match_controller", "ai_opponent", "score_label", "message_label", "hint_label", "timer_label")]
 script = ExtResource("1_game")
 game_config = ExtResource("11_cfg")
 root_events = ExtResource("12_root")
@@ -175,6 +175,7 @@ ai_opponent = NodePath("GameLogic/AiOpponent")
 score_label = NodePath("UI/ScoreLabel")
 message_label = NodePath("UI/MessageLabel")
 hint_label = NodePath("UI/HintLabel")
+timer_label = NodePath("UI/TimerLabel")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_main")
@@ -351,6 +352,18 @@ script = ExtResource("10_end")
 script = ExtResource("6_ai")
 
 [node name="UI" type="CanvasLayer" parent="."]
+
+[node name="TimerLabel" type="Label" parent="UI"]
+offset_left = 24.0
+offset_top = 16.0
+offset_right = 140.0
+offset_bottom = 64.0
+theme_override_colors/font_color = Color(0.35, 0.95, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.45, 0.8, 0.7)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 36
+text = "60"
 
 [node name="Title" type="Label" parent="UI"]
 offset_left = 480.0

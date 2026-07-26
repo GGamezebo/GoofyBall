@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://ballscene001"]
+[gd_scene load_steps=10 format=3 uid="uid://ballscene001"]
 
 [ext_resource type="Script" path="res://src/features/ball/ball.gd" id="1_ball"]
 
@@ -38,6 +38,36 @@ outer_radius = 0.33
 rings = 20
 ring_segments = 12
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 0.55, 0.12, 1)
+emission_enabled = true
+emission = Color(1, 0.35, 0.05, 1)
+emission_energy_multiplier = 3.5
+disable_receive_shadows = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_spark"]
+material = SubResource("StandardMaterial3D_spark")
+radius = 0.06
+height = 0.12
+radial_segments = 8
+rings = 4
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_sparks"]
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 5.0
+initial_velocity_max = 11.0
+angular_velocity_min = -180.0
+angular_velocity_max = 180.0
+gravity = Vector3(0, -6, 0)
+damping_min = 1.5
+damping_max = 3.5
+scale_min = 0.35
+scale_max = 1.1
+color = Color(1, 0.65, 0.2, 1)
+
 [node name="Ball" type="RigidBody3D"]
 collision_layer = 4
 collision_mask = 7
@@ -71,3 +101,14 @@ shadow_enabled = true
 shadow_blur = 2.2
 omni_range = 3.5
 omni_attenuation = 1.35
+
+[node name="ExplosionSparks" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 56
+lifetime = 0.7
+one_shot = true
+explosiveness = 1.0
+randomness = 0.4
+visibility_aabb = AABB(-4, -4, -4, 8, 8, 8)
+process_material = SubResource("ParticleProcessMaterial_sparks")
+draw_pass_1 = SubResource("SphereMesh_spark")

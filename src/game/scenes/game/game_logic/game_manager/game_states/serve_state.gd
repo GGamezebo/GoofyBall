@@ -15,6 +15,9 @@ func enter(_prev_state: FSMState, _event_data: Dictionary) -> void:
 	var controller := game_manager.match_controller
 	if controller:
 		controller.begin_serve()
+		if controller.game_events:
+			var duration := int(game_config.round_duration_sec) if game_config else 60
+			controller.game_events.ev_round_time_changed.emit(duration)
 
 	_seconds_left = COUNTDOWN_SEC
 	_tick_countdown()

@@ -6,3 +6,4 @@ extends Resource
 @warning_ignore("unused_signal") signal ev_point_scored(side: int)
 @warning_ignore("unused_signal") signal ev_match_over(winner_side: int)
 @warning_ignore("unused_signal") signal ev_message(text: String)
+@warning_ignore("unused_signal") signal ev_round_time_changed(seconds_left: int)
