@@ -1,0 +1,33 @@
+---
+description: Dark-neon visual language for game world and UI
+globs: "{src/**/*.tscn,src/**/*.gd,concepts/ART_DIRECTION.md}"
+alwaysApply: false
+---
+
+# Visual style
+
+Source of truth: `concepts/ART_DIRECTION.md`.
+
+## World
+
+- Near-black sky/background and dark metallic court
+- Side walls + ceiling: subtle transparent cyan glass
+- Ball / blobs / net: bright albedo + soft emission (not high bloom)
+- Blue side = cyan; red/AI side = magenta; ball/score = yellow
+- Colored contact lights under ball/blobs so shadows stay readable
+- Soft ambient smoke behind court + light fog (atmosphere only)
+- Sparse floating ash motes through play volume (Upside-Down vibe)
+- Restrained glow; preserve crisp silhouettes
+
+## UI
+
+- Near-black panels/backgrounds
+- Cyan borders and focus; magenta active accents
+- Secondary copy uses muted steel blue
+- Must remain readable on phone landscape
+
+## Never
+
+- Daylight sky, green hills, brown court
+- Opaque bright arena boundaries
+- Bloom that hides object edges

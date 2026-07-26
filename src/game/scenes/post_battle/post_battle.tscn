@@ -3,6 +3,32 @@
 [ext_resource type="Script" path="res://src/game/scenes/post_battle/post_battle.gd" id="1"]
 [ext_resource type="Resource" path="res://src/game/scenes/app_root/root_events.tres" id="2"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+bg_color = Color(0.015, 0.025, 0.065, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.02, 0.78, 1, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+bg_color = Color(0.18, 0.015, 0.18, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.05, 0.7, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(1, 0, 0.7, 0.4)
+shadow_size = 8
+
 [node name="PostBattle" type="Control" node_paths=PackedStringArray("title_label", "score_label", "menu_button", "repeat_button")]
 layout_mode = 3
 anchors_preset = 15
@@ -24,7 +50,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.12, 0.16, 0.28, 0.92)
+color = Color(0.002, 0.004, 0.016, 0.97)
 
 [node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -40,14 +66,17 @@ theme_override_constants/separation = 18
 
 [node name="Title" type="Label" parent="Center/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.9, 0.35, 1)
+theme_override_colors/font_color = Color(1, 0.08, 0.72, 1)
+theme_override_colors/font_shadow_color = Color(0.7, 0, 0.8, 0.7)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 40
 text = "Match over"
 horizontal_alignment = 1
 
 [node name="Score" type="Label" parent="Center/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(1, 0.9, 0.25, 1)
 theme_override_font_sizes/font_size = 32
 text = "0  :  0"
 horizontal_alignment = 1
@@ -55,9 +84,19 @@ horizontal_alignment = 1
 [node name="RepeatButton" type="Button" parent="Center/VBox"]
 custom_minimum_size = Vector2(240, 44)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.95, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
 text = "Play Again"
 
 [node name="MenuButton" type="Button" parent="Center/VBox"]
 custom_minimum_size = Vector2(240, 44)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.95, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
 text = "Main Menu"

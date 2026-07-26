@@ -1,0 +1,104 @@
+[gd_scene load_steps=12 format=3 uid="uid://ambient_ash_fx"]
+
+[ext_resource type="Shader" path="res://src/game/scenes/game/fx/ash_billboard.gdshader" id="1_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ash_cool"]
+render_priority = -2
+shader = ExtResource("1_shader")
+shader_parameter/ash_tint = Color(0.55, 0.78, 1, 0.28)
+shader_parameter/core_softness = 4.2
+shader_parameter/glow_softness = 1.7
+shader_parameter/twinkle_speed = 1.2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ash_warm"]
+render_priority = -1
+shader = ExtResource("1_shader")
+shader_parameter/ash_tint = Color(0.95, 0.55, 0.85, 0.22)
+shader_parameter/core_softness = 3.6
+shader_parameter/glow_softness = 1.5
+shader_parameter/twinkle_speed = 1.6
+
+[sub_resource type="QuadMesh" id="QuadMesh_ash_cool"]
+material = SubResource("ShaderMaterial_ash_cool")
+size = Vector2(1, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_ash_warm"]
+material = SubResource("ShaderMaterial_ash_warm")
+size = Vector2(1, 1)
+
+[sub_resource type="Gradient" id="Gradient_fade"]
+offsets = PackedFloat32Array(0, 0.12, 0.75, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0.85, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_fade"]
+gradient = SubResource("Gradient_fade")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_near"]
+emission_shape = 3
+emission_box_extents = Vector3(6.8, 3.2, 3.5)
+direction = Vector3(0, 0.2, 0)
+spread = 180.0
+initial_velocity_min = 0.04
+initial_velocity_max = 0.22
+angular_velocity_min = -20.0
+angular_velocity_max = 20.0
+gravity = Vector3(0, -0.015, 0)
+damping_min = 0.05
+damping_max = 0.18
+scale_min = 0.035
+scale_max = 0.09
+color = Color(0.85, 0.92, 1, 1)
+color_ramp = SubResource("GradientTexture1D_fade")
+turbulence_enabled = true
+turbulence_noise_strength = 0.55
+turbulence_noise_scale = 1.4
+turbulence_influence_min = 0.08
+turbulence_influence_max = 0.22
+turbulence_initial_displacement_min = 0.0
+turbulence_initial_displacement_max = 0.4
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_far"]
+emission_shape = 3
+emission_box_extents = Vector3(7.5, 3.6, 2.2)
+direction = Vector3(0.1, 0.15, 0)
+spread = 180.0
+initial_velocity_min = 0.03
+initial_velocity_max = 0.16
+angular_velocity_min = -12.0
+angular_velocity_max = 12.0
+gravity = Vector3(0.01, -0.01, 0)
+damping_min = 0.04
+damping_max = 0.14
+scale_min = 0.02
+scale_max = 0.055
+color = Color(1, 0.8, 0.95, 1)
+color_ramp = SubResource("GradientTexture1D_fade")
+turbulence_enabled = true
+turbulence_noise_strength = 0.4
+turbulence_noise_scale = 1.8
+turbulence_influence_min = 0.06
+turbulence_influence_max = 0.18
+turbulence_initial_displacement_min = 0.0
+turbulence_initial_displacement_max = 0.35
+
+[node name="AmbientAsh" type="Node3D"]
+
+[node name="NearAsh" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 2.2)
+amount = 70
+lifetime = 11.0
+preprocess = 9.0
+randomness = 0.7
+visibility_aabb = AABB(-10, -1, -4, 20, 12, 12)
+process_material = SubResource("ParticleProcessMaterial_near")
+draw_pass_1 = SubResource("QuadMesh_ash_cool")
+
+[node name="FarAsh" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.6, -1.8)
+amount = 55
+lifetime = 13.0
+preprocess = 11.0
+randomness = 0.75
+visibility_aabb = AABB(-11, -1, -5, 22, 12, 12)
+process_material = SubResource("ParticleProcessMaterial_far")
+draw_pass_1 = SubResource("QuadMesh_ash_warm")

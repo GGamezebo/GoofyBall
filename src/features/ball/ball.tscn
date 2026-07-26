@@ -10,9 +10,12 @@ bounce = 0.48
 radius = 0.35
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ball"]
-albedo_color = Color(0.96, 0.84, 0.2, 1)
-roughness = 0.35
-metallic = 0.05
+albedo_color = Color(1, 0.82, 0.12, 1)
+roughness = 0.28
+metallic = 0.12
+emission_enabled = true
+emission = Color(0.75, 0.35, 0.02, 1)
+emission_energy_multiplier = 0.7
 
 [sub_resource type="SphereMesh" id="SphereMesh_ball"]
 material = SubResource("StandardMaterial3D_ball")
@@ -22,7 +25,11 @@ radial_segments = 28
 rings = 14
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stripe"]
-albedo_color = Color(0.85, 0.45, 0.1, 1)
+albedo_color = Color(0.95, 0.78, 0.2, 1)
+roughness = 0.28
+emission_enabled = true
+emission = Color(0.7, 0.45, 0.05, 1)
+emission_energy_multiplier = 0.85
 
 [sub_resource type="TorusMesh" id="TorusMesh_stripe"]
 material = SubResource("StandardMaterial3D_stripe")
@@ -55,3 +62,12 @@ mesh = SubResource("TorusMesh_stripe")
 [node name="Stripe2" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
 mesh = SubResource("TorusMesh_stripe")
+
+[node name="GlowLight" type="OmniLight3D" parent="."]
+light_color = Color(1, 0.72, 0.12, 1)
+light_energy = 1.6
+light_indirect_energy = 0.7
+shadow_enabled = true
+shadow_blur = 2.2
+omni_range = 3.5
+omni_attenuation = 1.35

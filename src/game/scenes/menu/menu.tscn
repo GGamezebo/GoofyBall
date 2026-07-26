@@ -6,6 +6,44 @@
 [ext_resource type="Resource" path="res://src/common/game_config_two_player.tres" id="4"]
 [ext_resource type="Resource" path="res://src/common/game_config_vs_ai.tres" id="5"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+bg_color = Color(0.015, 0.025, 0.065, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.02, 0.75, 1, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+bg_color = Color(0.02, 0.12, 0.2, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.12, 0.9, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0.7, 1, 0.45)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
+bg_color = Color(0.28, 0.01, 0.22, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.05, 0.7, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [node name="Menu" type="Control" node_paths=PackedStringArray("play_two_button", "play_ai_button", "stats_label", "exit_button")]
 layout_mode = 3
 anchors_preset = 15
@@ -30,7 +68,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.35, 0.62, 0.88, 1)
+color = Color(0.002, 0.004, 0.016, 1)
 
 [node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -46,14 +84,17 @@ theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="Center/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.05, 0.9, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.65, 1, 0.7)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 48
 text = "Blobby Valley"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="Center/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.85)
+theme_override_colors/font_color = Color(1, 0.08, 0.72, 0.9)
 theme_override_font_sizes/font_size = 18
 text = "Bouncy side-view volleyball"
 horizontal_alignment = 1
@@ -61,18 +102,30 @@ horizontal_alignment = 1
 [node name="PlayTwoButton" type="Button" parent="Center/VBox"]
 custom_minimum_size = Vector2(280, 48)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.95, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
 text = "Play Together"
 
 [node name="PlayAiButton" type="Button" parent="Center/VBox"]
 custom_minimum_size = Vector2(280, 48)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.95, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
 text = "Play vs AI"
 
 [node name="StatsLabel" type="Label" parent="Center/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.8)
+theme_override_colors/font_color = Color(0.38, 0.58, 0.72, 0.9)
 theme_override_font_sizes/font_size = 14
 text = "Matches: 0"
 horizontal_alignment = 1
@@ -80,4 +133,9 @@ horizontal_alignment = 1
 [node name="ExitButton" type="Button" parent="Center/VBox"]
 custom_minimum_size = Vector2(280, 40)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.25, 0.72, 0.9)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
 text = "Exit"

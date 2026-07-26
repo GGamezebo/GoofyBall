@@ -11,6 +11,11 @@ extends IScene
 @export var hint_label: Label
 
 var _listener: EventListener = EventListener.new()
+var _flash_tween: Tween
+var _flash_mat: StandardMaterial3D
+
+@onready var _flash_left: MeshInstance3D = get_node_or_null("Court/FloorFlashLeft")
+@onready var _flash_right: MeshInstance3D = get_node_or_null("Court/FloorFlashRight")
 
 
 func _ready() -> void:
@@ -43,6 +48,7 @@ func initialize(data: Dictionary) -> void:
 	_listener.add(game_events.ev_score_changed, _on_score)
 	_listener.add(game_events.ev_message, _on_message)
 	_listener.add(game_events.ev_match_over, _on_match_over)
+	_listener.add(game_events.ev_point_scored, _on_point_scored)
 
 	root_events.ev_battle_started.emit()
 	_on_score(0, 0)
@@ -70,6 +76,34 @@ func _on_message(text: String) -> void:
 		message_label.text = text
 
 
+## `side` is the rally loser (0 = left/Blue, 1 = right/Red). Blink that half neon red.
+func _on_point_scored(side: int) -> void:
+	var flash := _flash_left if side == 0 else _flash_right
+	if flash == null:
+		return
+	var mat := flash.material_override as StandardMaterial3D
+	if mat == null:
+		return
+
+	if _flash_tween and is_instance_valid(_flash_tween):
+		_flash_tween.kill()
+	_flash_mat = mat
+	_set_flash(0.0)
+
+	_flash_tween = create_tween()
+	for i in 3:
+		_flash_tween.tween_method(_set_flash, 0.0, 1.0, 0.1)
+		_flash_tween.tween_method(_set_flash, 1.0, 0.12, 0.22)
+	_flash_tween.tween_method(_set_flash, 0.12, 0.0, 0.35)
+
+
+func _set_flash(value: float) -> void:
+	if _flash_mat == null:
+		return
+	_flash_mat.albedo_color = Color(1.0, 0.05, 0.12, value * 0.8)
+	_flash_mat.emission_energy_multiplier = value * 3.5
+
+
 func _on_match_over(_winner_side: int) -> void:
 	await get_tree().create_timer(1.4).timeout
 	if root_events:
@@ -80,6 +114,7 @@ func _align_ceiling_to_screen_top(cam: Camera3D) -> void:
 	var ceiling_shape := get_node_or_null("Court/Ceiling/CollisionShape3D") as CollisionShape3D
 	if ceiling_shape == null:
 		return
+	var ceiling_glass := get_node_or_null("Court/Ceiling/Glass") as MeshInstance3D
 	var screen_top := Vector2(get_viewport().get_visible_rect().size.x * 0.5, 0.0)
 	var origin := cam.project_ray_origin(screen_top)
 	var dir := cam.project_ray_normal(screen_top)
@@ -89,6 +124,8 @@ func _align_ceiling_to_screen_top(cam: Camera3D) -> void:
 	var box := ceiling_shape.shape as BoxShape3D
 	var half_h := 0.2 if box == null else box.size.y * 0.5
 	ceiling_shape.position.y = hit.y + half_h
+	if ceiling_glass:
+		ceiling_glass.position.y = ceiling_shape.position.y
 
 
 func _default_data() -> Dictionary:

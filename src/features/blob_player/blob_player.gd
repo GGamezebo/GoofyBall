@@ -99,7 +99,14 @@ func _apply_color() -> void:
 	if mat is StandardMaterial3D:
 		var colored: StandardMaterial3D = (mat as StandardMaterial3D).duplicate()
 		colored.albedo_color = blob_color
+		colored.emission_enabled = true
+		colored.emission = blob_color.darkened(0.35)
+		colored.emission_energy_multiplier = 0.55
 		body.set_surface_override_material(0, colored)
+
+	var glow := get_node_or_null("GlowLight") as OmniLight3D
+	if glow:
+		glow.light_color = blob_color
 
 
 func _read_move_input() -> float:

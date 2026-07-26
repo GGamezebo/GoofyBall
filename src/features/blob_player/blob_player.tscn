@@ -6,8 +6,12 @@
 radius = 0.42
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_blob"]
-albedo_color = Color(0.35, 0.62, 0.95, 1)
-roughness = 0.4
+albedo_color = Color(0.02, 0.75, 0.95, 1)
+roughness = 0.32
+metallic = 0.12
+emission_enabled = true
+emission = Color(0.01, 0.35, 0.55, 1)
+emission_energy_multiplier = 0.55
 
 [sub_resource type="SphereMesh" id="SphereMesh_blob"]
 material = SubResource("StandardMaterial3D_blob")
@@ -17,7 +21,8 @@ radial_segments = 24
 rings = 12
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eye"]
-albedo_color = Color(1, 1, 1, 1)
+albedo_color = Color(0.92, 0.96, 1, 1)
+roughness = 0.25
 
 [sub_resource type="SphereMesh" id="SphereMesh_eye"]
 material = SubResource("StandardMaterial3D_eye")
@@ -27,7 +32,8 @@ radial_segments = 12
 rings = 8
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pupil"]
-albedo_color = Color(0.1, 0.1, 0.15, 1)
+albedo_color = Color(0.005, 0.008, 0.02, 1)
+roughness = 0.2
 
 [sub_resource type="SphereMesh" id="SphereMesh_pupil"]
 material = SubResource("StandardMaterial3D_pupil")
@@ -65,3 +71,14 @@ mesh = SubResource("SphereMesh_eye")
 [node name="Pupil" type="MeshInstance3D" parent="MeshRoot/EyeR"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.02, 0, 0.045)
 mesh = SubResource("SphereMesh_pupil")
+
+[node name="GlowLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0.2)
+light_color = Color(0.02, 0.75, 0.95, 1)
+light_energy = 1.4
+light_indirect_energy = 0.6
+light_volumetric_fog_energy = 0.0
+shadow_enabled = true
+shadow_blur = 2.0
+omni_range = 3.2
+omni_attenuation = 1.4

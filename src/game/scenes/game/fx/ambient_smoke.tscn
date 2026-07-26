@@ -1,0 +1,77 @@
+[gd_scene load_steps=10 format=3 uid="uid://ambient_smoke_fx"]
+
+[ext_resource type="Shader" path="res://src/game/scenes/game/fx/smoke_billboard.gdshader" id="1_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cool"]
+render_priority = -8
+shader = ExtResource("1_shader")
+shader_parameter/smoke_tint = Color(0.18, 0.34, 0.62, 0.09)
+shader_parameter/softness = 2.5
+shader_parameter/noise_strength = 0.4
+shader_parameter/drift_speed = 0.07
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_warm"]
+render_priority = -7
+shader = ExtResource("1_shader")
+shader_parameter/smoke_tint = Color(0.32, 0.12, 0.42, 0.07)
+shader_parameter/softness = 2.7
+shader_parameter/noise_strength = 0.45
+shader_parameter/drift_speed = 0.05
+
+[sub_resource type="QuadMesh" id="QuadMesh_cool"]
+material = SubResource("ShaderMaterial_cool")
+size = Vector2(1, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_warm"]
+material = SubResource("ShaderMaterial_warm")
+size = Vector2(1, 1)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_cool"]
+emission_shape = 3
+emission_box_extents = Vector3(8.5, 2.2, 1.4)
+direction = Vector3(0.18, 1, 0)
+spread = 30.0
+initial_velocity_min = 0.1
+initial_velocity_max = 0.32
+angular_velocity_min = -8.0
+angular_velocity_max = 8.0
+gravity = Vector3(0.05, 0.06, 0)
+scale_min = 2.8
+scale_max = 5.2
+color = Color(0.75, 0.85, 1, 1)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_warm"]
+emission_shape = 3
+emission_box_extents = Vector3(7.5, 1.8, 1.0)
+direction = Vector3(-0.14, 1, 0)
+spread = 34.0
+initial_velocity_min = 0.06
+initial_velocity_max = 0.24
+angular_velocity_min = -6.0
+angular_velocity_max = 6.0
+gravity = Vector3(-0.04, 0.04, 0)
+scale_min = 3.2
+scale_max = 5.8
+color = Color(0.95, 0.7, 1, 1)
+
+[node name="AmbientSmoke" type="Node3D"]
+
+[node name="CoolLayer" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.4, -4.6)
+amount = 30
+lifetime = 15.0
+preprocess = 12.0
+randomness = 0.55
+visibility_aabb = AABB(-14, -2, -5, 28, 14, 10)
+process_material = SubResource("ParticleProcessMaterial_cool")
+draw_pass_1 = SubResource("QuadMesh_cool")
+
+[node name="WarmLayer" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, -5.8)
+amount = 20
+lifetime = 17.0
+preprocess = 14.0
+randomness = 0.6
+visibility_aabb = AABB(-13, -2, -5, 26, 14, 10)
+process_material = SubResource("ParticleProcessMaterial_warm")
+draw_pass_1 = SubResource("QuadMesh_warm")
