@@ -146,5 +146,5 @@ func _read_jump_input() -> bool:
 	if not use_player_input:
 		return external_jump
 	if player_index == 0:
-		return Input.is_action_just_pressed("p1_jump")
-	return Input.is_action_just_pressed("p2_jump")
+		return Input.is_action_pressed("p1_jump")
+	return Input.is_action_pressed("p2_jump")

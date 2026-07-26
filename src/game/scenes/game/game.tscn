@@ -375,7 +375,7 @@ theme_override_colors/font_shadow_color = Color(0, 0.6, 1, 0.65)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 32
-text = "Blobby Valley"
+text = "Goofy Ball"
 horizontal_alignment = 1
 
 [node name="ScoreLabel" type="Label" parent="UI"]

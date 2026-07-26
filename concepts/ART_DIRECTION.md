@@ -1,4 +1,4 @@
-# Blobby Valley — Art direction
+# Goofy Ball — Art direction
 
 ## Core look
 

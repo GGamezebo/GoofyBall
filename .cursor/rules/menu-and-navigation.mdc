@@ -1,5 +1,5 @@
 ---
-description: Menu and RootEvents navigation for Blobby Valley
+description: Menu and RootEvents navigation for Goofy Ball
 globs: "{src/game/scenes/menu/**/*,src/game/scenes/app_root/**/*,src/game/scenes/post_battle/**/*}"
 alwaysApply: false
 ---

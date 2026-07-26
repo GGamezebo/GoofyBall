@@ -1,4 +1,4 @@
-# Blobby Valley
+# Goofy Ball
 
 Лёгкий прототип side-view волейбола на рельсах **quizmatik**: HFSM + FSM + GodotSavesAddon.
 
