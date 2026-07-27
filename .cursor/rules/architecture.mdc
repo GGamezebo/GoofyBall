@@ -18,6 +18,8 @@ Godot 4.x only: `@export`/`@onready`, `signal.connect(cb)`, `instantiate()`, typ
 ## Target platforms
 
 Ship for **Mobile**, **desktop**, **HTML5**. Prefer InputMap actions; keep UI readable on phone landscape.
+Touch (`virtual_controls`) is **P1 only** (left half move, right half jump) — local same-screen 2P is not dual-player touch.
+
 
 ## #1 Scene isolation (critical)
 
@@ -33,7 +35,7 @@ Ship for **Mobile**, **desktop**, **HTML5**. Prefer InputMap actions; keep UI re
 |------|------|
 | `main.tscn` → `src/game/main.gd` | HFSM bootstrap host |
 | `src/game/scenes/` | Screens: `app_root`, `menu`, `game`, `post_battle` |
-| `src/features/` | Isolated gameplay (`blob_player`, `ball`, `ai_opponent`) |
+| `src/features/` | Isolated gameplay (`blob_player`, `ball`, `ai_opponent`, `virtual_controls`) |
 | `src/common/` | Shared Resources (`GameConfig`, settings) |
 | `src/ui/` | Shared UI (loading screen) |
 | `core/` | Project-agnostic (HFSM, FSM, EventListener, ResourceUtils) |

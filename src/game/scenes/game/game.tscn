@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://bvgame001"]
+[gd_scene load_steps=30 format=3 uid="uid://bvgame001"]
 
 [ext_resource type="Script" path="res://src/game/scenes/game/game.gd" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://blobplayer01" path="res://src/features/blob_player/blob_player.tscn" id="2_player"]
@@ -15,6 +15,7 @@
 [ext_resource type="Resource" path="res://src/game/scenes/game/game_events.tres" id="13_gev"]
 [ext_resource type="PackedScene" uid="uid://ambient_smoke_fx" path="res://src/game/scenes/game/fx/ambient_smoke.tscn" id="14_smoke"]
 [ext_resource type="PackedScene" uid="uid://ambient_ash_fx" path="res://src/game/scenes/game/fx/ambient_ash.tscn" id="15_ash"]
+[ext_resource type="PackedScene" uid="uid://virtualctrl01" path="res://src/features/virtual_controls/virtual_controls.tscn" id="16_vc"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_court"]
 friction = 0.85
@@ -352,6 +353,8 @@ script = ExtResource("10_end")
 script = ExtResource("6_ai")
 
 [node name="UI" type="CanvasLayer" parent="."]
+
+[node name="VirtualControls" parent="UI" instance=ExtResource("16_vc")]
 
 [node name="TimerLabel" type="Label" parent="UI"]
 offset_left = 24.0
