@@ -119,7 +119,7 @@ omni_attenuation = 1.35
 
 [node name="ExplosionSparks" type="GPUParticles3D" parent="." unique_id=1258748978]
 emitting = false
-amount = 56
+amount = 24
 lifetime = 0.7
 one_shot = true
 explosiveness = 1.0

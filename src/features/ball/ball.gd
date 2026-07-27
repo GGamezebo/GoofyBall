@@ -46,6 +46,16 @@ func _ready() -> void:
 		_sparks.emitting = false
 	if _ground_shadow:
 		_ground_shadow.top_level = true
+		_ground_shadow.transparency = 0.55
+	if PerformanceTune.is_constrained():
+		if _glow:
+			_glow.visible = false
+		if _mesh:
+			_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if _stripe:
+			_stripe.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if _stripe2:
+			_stripe2.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 
 func _physics_process(delta: float) -> void:
@@ -70,10 +80,8 @@ func _update_ground_shadow() -> void:
 	if _ground_shadow == null:
 		return
 	_ground_shadow.global_position = Vector3(global_position.x, SHADOW_FLOOR_Y, PLANE_Z)
-	_ground_shadow.global_rotation = Vector3.ZERO
-	var t := clampf(1.0 - (global_position.y - 0.35) / 6.0, 0.35, 1.0)
+	var t := clampf(1.0 - (global_position.y - 0.35) / 6.0, 0.4, 1.0)
 	_ground_shadow.scale = Vector3(t, 1.0, t)
-	_ground_shadow.transparency = 1.0 - lerpf(0.18, 0.55, t)
 
 
 func set_alarm(enabled: bool) -> void:

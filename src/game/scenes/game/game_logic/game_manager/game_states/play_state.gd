@@ -7,6 +7,7 @@ static func get_state() -> String:
 var _time_left: float = 0.0
 var _alarm_on: bool = false
 var _timed_out: bool = false
+var _last_emitted_sec: int = -1
 
 
 func enter(_prev_state: FSMState, _event_data: Dictionary) -> void:
@@ -18,6 +19,7 @@ func enter(_prev_state: FSMState, _event_data: Dictionary) -> void:
 
 	_timed_out = false
 	_alarm_on = false
+	_last_emitted_sec = -1
 	_time_left = game_config.round_duration_sec if game_config else 60.0
 	_emit_time()
 	set_process(true)
@@ -66,9 +68,13 @@ func _on_point(side: int) -> void:
 
 
 func _emit_time() -> void:
+	var sec := maxi(0, ceili(_time_left))
+	if sec == _last_emitted_sec:
+		return
+	_last_emitted_sec = sec
 	var controller := game_manager.match_controller if game_manager else null
 	if controller and controller.game_events:
-		controller.game_events.ev_round_time_changed.emit(maxi(0, ceili(_time_left)))
+		controller.game_events.ev_round_time_changed.emit(sec)
 
 
 func _stop_alarm() -> void:

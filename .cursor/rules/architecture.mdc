@@ -80,3 +80,4 @@ Do not drive win/lose with ad-hoc flags outside the FSM.
 - Shared Resource → `src/common/`
 - Generic util → `core/lib/`
 - Progress disk write only via `RootEvents.ev_save_progress` → `SaveManager`
+- Mobile/Web quality: `PerformanceTune` (disable glow/fog/sun-shadows/omni fill, 3D scale 0.7)

@@ -51,10 +51,18 @@ func _ready() -> void:
 	_apply_color()
 	if _ground_shadow:
 		_ground_shadow.top_level = true
+		_ground_shadow.transparency = 0.55
 	if _sparks:
 		_sparks.emitting = false
 	if _blast_flash:
 		_blast_flash.visible = false
+	if PerformanceTune.is_constrained():
+		if _glow:
+			_glow.visible = false
+		if mesh_root:
+			for child in mesh_root.get_children():
+				if child is MeshInstance3D:
+					(child as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 
 ## Called at match start — revive and restore last-chance charge.
@@ -269,10 +277,8 @@ func _update_ground_shadow() -> void:
 	if _ground_shadow == null or _destroyed:
 		return
 	_ground_shadow.global_position = Vector3(global_position.x, SHADOW_FLOOR_Y, PLANE_Z)
-	_ground_shadow.global_rotation = Vector3.ZERO
-	var t := clampf(1.0 - (global_position.y - 0.42) / 5.5, 0.4, 1.0)
+	var t := clampf(1.0 - (global_position.y - 0.42) / 5.5, 0.45, 1.0)
 	_ground_shadow.scale = Vector3(t, 1.0, t)
-	_ground_shadow.transparency = 1.0 - lerpf(0.2, 0.55, t)
 
 
 func _clamp_to_own_half() -> void:

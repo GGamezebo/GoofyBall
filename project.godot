@@ -87,5 +87,7 @@ p2_jump={
 
 [rendering]
 
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="mobile"
 rendering_device/driver.windows="d3d12"
 textures/vram_compression/import_etc2_astc=true

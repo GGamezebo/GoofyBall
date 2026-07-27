@@ -15,12 +15,16 @@ var _listener: EventListener = EventListener.new()
 var _flash_tween: Tween
 var _flash_mat: StandardMaterial3D
 var _timer_pulse_tween: Tween
+var _boom_was_available: bool = false
+var _vc: VirtualControls
 
 @onready var _flash_left: MeshInstance3D = get_node_or_null("Court/FloorFlashLeft")
 @onready var _flash_right: MeshInstance3D = get_node_or_null("Court/FloorFlashRight")
 
 
 func _ready() -> void:
+	PerformanceTune.apply_game_scene(self)
+	_vc = get_node_or_null("UI/VirtualControls") as VirtualControls
 	var cam := get_node_or_null("Camera3D") as Camera3D
 	if cam:
 		cam.look_at(Vector3(0.0, 2.5, 0.0), Vector3.UP)
@@ -42,7 +46,10 @@ func initialize(data: Dictionary) -> void:
 	if ai_opponent:
 		ai_opponent.setup(right, ball, game_config.vs_ai)
 
-	var vc := get_node_or_null("UI/VirtualControls") as VirtualControls
+	var vc := _vc
+	if vc == null:
+		vc = get_node_or_null("UI/VirtualControls") as VirtualControls
+		_vc = vc
 	if vc:
 		if not vc.ev_self_destruct_requested.is_connected(_on_touch_self_destruct):
 			vc.ev_self_destruct_requested.connect(_on_touch_self_destruct)
@@ -73,11 +80,14 @@ func _process(_delta: float) -> void:
 
 
 func _refresh_boom_button() -> void:
-	var vc := get_node_or_null("UI/VirtualControls") as VirtualControls
-	if vc == null or match_controller == null:
+	if _vc == null or match_controller == null:
 		return
 	var left := match_controller.player_left as BlobPlayer
-	vc.set_last_chance_available(left != null and left.can_try_last_chance())
+	var available := left != null and left.can_try_last_chance()
+	if available == _boom_was_available:
+		return
+	_boom_was_available = available
+	_vc.set_last_chance_available(available)
 
 
 func deinit() -> void:

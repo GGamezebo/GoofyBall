@@ -11,6 +11,7 @@ var _hfsm: HFSM
 
 
 func _ready() -> void:
+	PerformanceTune.apply_boot(get_viewport())
 	_hfsm = HFSM.new(
 		HfsmLoader.load_tree(_hfsm_config_path),
 		{},
