@@ -9,11 +9,15 @@ extends CharacterBody3D
 @export var use_player_input: bool = true
 
 const MOVE_SPEED := 6.5
-const JUMP_VELOCITY := 12.2
+const JUMP_VELOCITY := 11.6
 const GRAVITY := 22.0
 const AIR_CONTROL := 0.55
 const HIT_SPEED := 8.0
-const HIT_MIN_UP := 4.6
+## Loft for high contacts only; low contacts keep geometric cut (under-net).
+const HIT_MIN_UP := 4.0
+const HIT_REFLECT := 0.4
+const HIT_PUSH := 0.75
+const HIT_FLOOR_VY := -10.0
 const PLANE_Z := 0.0
 const SHADOW_FLOOR_Y := 0.02
 ## Keep each blob on its own half (radius + half-net + margin).
@@ -99,15 +103,32 @@ func _clamp_to_own_half() -> void:
 
 
 func apply_ball_hit(ball: RigidBody3D, hit_normal: Vector3) -> void:
-	var dir := hit_normal
-	dir.z = 0.0
-	dir = dir.normalized()
+	var n := hit_normal
+	n.z = 0.0
+	if n.length_squared() < 0.0001:
+		n = Vector3.UP
+	else:
+		n = n.normalized()
 
-	var new_vel := dir * HIT_SPEED
-	new_vel.x += velocity.x * 0.7
-	new_vel.y = maxf(new_vel.y, HIT_MIN_UP) + maxf(velocity.y, 0.0) * 0.55
+	# Contact height on the blob: +1 top, -1 bottom. Low hits cut under the net.
+	var loft := clampf(n.y, 0.0, 1.0)
+
+	var incoming := ball.linear_velocity
+	incoming.z = 0.0
+	var bounced := incoming.bounce(n)
+	var push := n * HIT_SPEED
+	var player_boost := Vector3(velocity.x * 0.75, velocity.y * 0.5, 0.0)
+
+	var new_vel := bounced * HIT_REFLECT + push * HIT_PUSH + player_boost
+
+	# Only mid/high contacts get forced loft — bottom contacts keep geometry.
+	if loft > 0.2:
+		new_vel.y = maxf(new_vel.y, HIT_MIN_UP * loft)
+	else:
+		# Soft floor so a pure downward poke doesn't bury instantly.
+		new_vel.y = maxf(new_vel.y, HIT_FLOOR_VY)
+
 	new_vel.z = 0.0
-
 	ball.linear_velocity = new_vel
 	ball.angular_velocity = Vector3(0, 0, randf_range(-5.0, 5.0))
 	_squash = 0.7
