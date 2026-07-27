@@ -9,16 +9,18 @@ extends CharacterBody3D
 @export var use_player_input: bool = true
 
 const MOVE_SPEED := 6.5
-const JUMP_VELOCITY := 10.5
+const JUMP_VELOCITY := 12.2
 const GRAVITY := 22.0
 const AIR_CONTROL := 0.55
-const HIT_SPEED := 5.5
-const HIT_MIN_UP := 3.0
+const HIT_SPEED := 8.0
+const HIT_MIN_UP := 4.6
 const PLANE_Z := 0.0
+const SHADOW_FLOOR_Y := 0.02
 ## Keep each blob on its own half (radius + half-net + margin).
 const NET_LIMIT_X := 0.55
 
 @onready var mesh_root: Node3D = $MeshRoot
+@onready var _ground_shadow: MeshInstance3D = $GroundShadow
 
 var external_axis: float = 0.0
 var external_jump: bool = false
@@ -29,6 +31,8 @@ var _stretch := 1.0
 
 func _ready() -> void:
 	_apply_color()
+	if _ground_shadow:
+		_ground_shadow.top_level = true
 
 
 func _physics_process(delta: float) -> void:
@@ -67,7 +71,18 @@ func _physics_process(delta: float) -> void:
 	if mesh_root:
 		mesh_root.scale = Vector3(_stretch, _squash, _stretch)
 
+	_update_ground_shadow()
 	external_jump = false
+
+
+func _update_ground_shadow() -> void:
+	if _ground_shadow == null:
+		return
+	_ground_shadow.global_position = Vector3(global_position.x, SHADOW_FLOOR_Y, PLANE_Z)
+	_ground_shadow.global_rotation = Vector3.ZERO
+	var t := clampf(1.0 - (global_position.y - 0.42) / 5.5, 0.4, 1.0)
+	_ground_shadow.scale = Vector3(t, 1.0, t)
+	_ground_shadow.transparency = 1.0 - lerpf(0.2, 0.55, t)
 
 
 func _clamp_to_own_half() -> void:
@@ -89,12 +104,12 @@ func apply_ball_hit(ball: RigidBody3D, hit_normal: Vector3) -> void:
 	dir = dir.normalized()
 
 	var new_vel := dir * HIT_SPEED
-	new_vel.x += velocity.x * 0.5
-	new_vel.y = maxf(new_vel.y, HIT_MIN_UP) + maxf(velocity.y, 0.0) * 0.4
+	new_vel.x += velocity.x * 0.7
+	new_vel.y = maxf(new_vel.y, HIT_MIN_UP) + maxf(velocity.y, 0.0) * 0.55
 	new_vel.z = 0.0
 
 	ball.linear_velocity = new_vel
-	ball.angular_velocity = Vector3(0, 0, randf_range(-3.0, 3.0))
+	ball.angular_velocity = Vector3(0, 0, randf_range(-5.0, 5.0))
 	_squash = 0.7
 	_stretch = 1.25
 

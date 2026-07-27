@@ -10,11 +10,11 @@ Source of truth: `concepts/ART_DIRECTION.md`.
 
 ## World
 
-- Near-black sky/background and dark metallic court
+- Near-black sky/background and light-gray court floor (`#C3C3C3`)
 - Side walls + ceiling: subtle transparent cyan glass
 - Ball / blobs / net: bright albedo + soft emission (not high bloom)
 - Blue side = cyan; red/AI side = magenta; ball/score = yellow
-- Colored contact lights under ball/blobs so shadows stay readable
+- Dark ground-shadow discs pinned under ball/blobs (exactly on floor)
 - Soft ambient smoke behind court + light fog (atmosphere only)
 - Sparse floating ash motes through play volume (Upside-Down vibe)
 - Restrained glow; preserve crisp silhouettes

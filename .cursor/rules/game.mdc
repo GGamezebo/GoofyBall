@@ -23,6 +23,7 @@ alwaysApply: false
 | Ball physics | `src/features/ball/` |
 | Bot | `src/features/ai_opponent/` |
 | Touch / virtual stick | `src/features/virtual_controls/` — left half move (`p1_left/right`), right half jump (`p1_jump`) |
+| Gamepad | `project.godot` InputMap — P1 device 0 / P2 device 1: stick+D-pad move, **A** (`JOY_BUTTON_A`) jump |
 | HUD | `ui/` — listen to `GameEvents` |
 
 ## Constraints
@@ -31,4 +32,4 @@ alwaysApply: false
 - `vs_ai` / `max_touches` come from `GameConfig`, not hardcoded
 - Prefer small `RefCounted` helpers over growing states
 - More than `max_touches` (default 3) on one side → fault, opponent scores
-- No dual-touch local 2P: both halves are **P1 only** (left = move, right = jump); P2 uses keyboard (`p2_*`)
+- No dual-touch local 2P: both halves are **P1 only** (left = move, right = jump); P2 uses keyboard / pad1 (`p2_*`)

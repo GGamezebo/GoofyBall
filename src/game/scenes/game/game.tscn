@@ -1,136 +1,21 @@
-[gd_scene load_steps=30 format=3 uid="uid://bvgame001"]
+[gd_scene format=3 uid="uid://bvgame001"]
 
-[ext_resource type="Script" path="res://src/game/scenes/game/game.gd" id="1_game"]
+[ext_resource type="Script" uid="uid://bf17wj8nviym0" path="res://src/game/scenes/game/game.gd" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://blobplayer01" path="res://src/features/blob_player/blob_player.tscn" id="2_player"]
 [ext_resource type="PackedScene" uid="uid://ballscene001" path="res://src/features/ball/ball.tscn" id="3_ball"]
-[ext_resource type="Script" path="res://src/game/scenes/game/game_logic/match_controller.gd" id="4_match"]
-[ext_resource type="Script" path="res://src/game/scenes/game/game_logic/game_manager/game_manager.gd" id="5_gm"]
-[ext_resource type="Script" path="res://src/features/ai_opponent/ai_opponent.gd" id="6_ai"]
-[ext_resource type="Script" path="res://src/game/scenes/game/game_logic/game_manager/game_states/serve_state.gd" id="7_serve"]
-[ext_resource type="Script" path="res://src/game/scenes/game/game_logic/game_manager/game_states/play_state.gd" id="8_play"]
-[ext_resource type="Script" path="res://src/game/scenes/game/game_logic/game_manager/game_states/point_state.gd" id="9_point"]
-[ext_resource type="Script" path="res://src/game/scenes/game/game_logic/game_manager/game_states/match_end_state.gd" id="10_end"]
+[ext_resource type="Script" uid="uid://clqb2r2c8f825" path="res://src/game/scenes/game/game_logic/match_controller.gd" id="4_match"]
+[ext_resource type="Script" uid="uid://ek6eplo2t1sy" path="res://src/game/scenes/game/game_logic/game_manager/game_manager.gd" id="5_gm"]
+[ext_resource type="Script" uid="uid://bx6wux4stugsk" path="res://src/features/ai_opponent/ai_opponent.gd" id="6_ai"]
+[ext_resource type="Script" uid="uid://beh52pasjg3ds" path="res://src/game/scenes/game/game_logic/game_manager/game_states/serve_state.gd" id="7_serve"]
+[ext_resource type="Script" uid="uid://bai5rlmajo4sd" path="res://src/game/scenes/game/game_logic/game_manager/game_states/play_state.gd" id="8_play"]
+[ext_resource type="Script" uid="uid://dopr3y7jsqybh" path="res://src/game/scenes/game/game_logic/game_manager/game_states/point_state.gd" id="9_point"]
+[ext_resource type="Script" uid="uid://dduqg2aoxhbt" path="res://src/game/scenes/game/game_logic/game_manager/game_states/match_end_state.gd" id="10_end"]
 [ext_resource type="Resource" path="res://src/common/game_config.tres" id="11_cfg"]
 [ext_resource type="Resource" path="res://src/game/scenes/app_root/root_events.tres" id="12_root"]
 [ext_resource type="Resource" path="res://src/game/scenes/game/game_events.tres" id="13_gev"]
-[ext_resource type="PackedScene" uid="uid://ambient_smoke_fx" path="res://src/game/scenes/game/fx/ambient_smoke.tscn" id="14_smoke"]
-[ext_resource type="PackedScene" uid="uid://ambient_ash_fx" path="res://src/game/scenes/game/fx/ambient_ash.tscn" id="15_ash"]
-[ext_resource type="PackedScene" uid="uid://virtualctrl01" path="res://src/features/virtual_controls/virtual_controls.tscn" id="16_vc"]
-
-[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_court"]
-friction = 0.85
-bounce = 0.45
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
-size = Vector3(14, 0.4, 2.5)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
-albedo_color = Color(0.008, 0.012, 0.028, 1)
-roughness = 0.32
-metallic = 0.5
-emission_enabled = true
-emission = Color(0.004, 0.01, 0.025, 1)
-emission_energy_multiplier = 0.55
-
-[sub_resource type="BoxMesh" id="BoxMesh_floor"]
-material = SubResource("StandardMaterial3D_floor")
-size = Vector3(14, 0.4, 2.5)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flash_left"]
-transparency = 1
-albedo_color = Color(1, 0.05, 0.12, 0)
-roughness = 0.4
-emission_enabled = true
-emission = Color(1, 0.02, 0.06, 1)
-emission_energy_multiplier = 0.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flash_right"]
-transparency = 1
-albedo_color = Color(1, 0.05, 0.12, 0)
-roughness = 0.4
-emission_enabled = true
-emission = Color(1, 0.02, 0.06, 1)
-emission_energy_multiplier = 0.0
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_flash"]
-size = Vector2(6.8, 2.4)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glass"]
-transparency = 1
-cull_mode = 2
-albedo_color = Color(0.08, 0.65, 0.9, 0.09)
-metallic = 0.35
-roughness = 0.08
-emission_enabled = true
-emission = Color(0.02, 0.38, 0.65, 1)
-emission_energy_multiplier = 0.35
-
-[sub_resource type="BoxMesh" id="BoxMesh_wall_glass"]
-material = SubResource("StandardMaterial3D_glass")
-size = Vector3(0.12, 8, 2.5)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ceiling_glass"]
-material = SubResource("StandardMaterial3D_glass")
-size = Vector3(14, 0.08, 2.5)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_court_line"]
-albedo_color = Color(0.05, 0.75, 1, 1)
-roughness = 0.25
-emission_enabled = true
-emission = Color(0.01, 0.4, 0.7, 1)
-emission_energy_multiplier = 0.75
-
-[sub_resource type="BoxMesh" id="BoxMesh_court_line"]
-material = SubResource("StandardMaterial3D_court_line")
-size = Vector3(13.4, 0.025, 0.035)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_wall"]
-size = Vector3(0.4, 8, 2.5)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_ceiling"]
-size = Vector3(14, 0.4, 2.5)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_net"]
-size = Vector3(0.12, 2.4, 0.8)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_net"]
-albedo_color = Color(0.05, 0.92, 1, 1)
-roughness = 0.22
-emission_enabled = true
-emission = Color(0, 0.45, 0.65, 1)
-emission_energy_multiplier = 0.65
-
-[sub_resource type="BoxMesh" id="BoxMesh_net"]
-material = SubResource("StandardMaterial3D_net")
-size = Vector3(0.12, 2.4, 0.08)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_post"]
-albedo_color = Color(0.92, 0.05, 0.78, 1)
-roughness = 0.25
-metallic = 0.2
-emission_enabled = true
-emission = Color(0.55, 0.01, 0.4, 1)
-emission_energy_multiplier = 0.55
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_post"]
-material = SubResource("StandardMaterial3D_post")
-top_radius = 0.06
-bottom_radius = 0.06
-height = 2.5
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hills"]
-albedo_color = Color(0.006, 0.008, 0.02, 1)
-roughness = 0.9
-emission_enabled = true
-emission = Color(0.01, 0.012, 0.035, 1)
-emission_energy_multiplier = 0.5
-
-[sub_resource type="BoxMesh" id="BoxMesh_hills"]
-material = SubResource("StandardMaterial3D_hills")
-size = Vector3(18, 3.5, 1)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_plane"]
-size = Vector3(14, 8, 0.2)
+[ext_resource type="PackedScene" uid="uid://du5un22qdebjk" path="res://src/game/scenes/game/fx/ambient_smoke.tscn" id="14_smoke"]
+[ext_resource type="PackedScene" uid="uid://doc2xyy153iq0" path="res://src/game/scenes/game/fx/ambient_ash.tscn" id="15_ash"]
+[ext_resource type="PackedScene" uid="uid://b6qhvyy20q777" path="res://src/features/virtual_controls/virtual_controls.tscn" id="16_vc"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.001, 0.002, 0.012, 1)
@@ -158,14 +43,112 @@ glow_bloom = 0.04
 glow_hdr_threshold = 1.1
 fog_enabled = true
 fog_light_color = Color(0.05, 0.08, 0.18, 1)
-fog_sun_scatter = 0.0
 fog_density = 0.012
 fog_aerial_perspective = 0.35
 fog_sky_affect = 0.45
-fog_height = 0.0
-fog_height_density = 0.0
 
-[node name="Game" type="Node3D" node_paths=PackedStringArray("game_manager", "match_controller", "ai_opponent", "score_label", "message_label", "hint_label", "timer_label")]
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_court"]
+friction = 0.85
+bounce = 0.45
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(14, 0.4, 2.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.764706, 0.764706, 0.764706, 1)
+metallic = 0.08
+roughness = 0.55
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+material = SubResource("StandardMaterial3D_floor")
+size = Vector3(14, 0.4, 2.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_court_line"]
+albedo_color = Color(0.05, 0.75, 1, 1)
+roughness = 0.25
+emission_enabled = true
+emission = Color(0.01, 0.4, 0.7, 1)
+emission_energy_multiplier = 0.75
+
+[sub_resource type="BoxMesh" id="BoxMesh_court_line"]
+material = SubResource("StandardMaterial3D_court_line")
+size = Vector3(13.4, 0.025, 0.035)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flash_left"]
+transparency = 1
+albedo_color = Color(1, 0.05, 0.12, 0)
+roughness = 0.4
+emission_enabled = true
+emission = Color(1, 0.02, 0.06, 1)
+emission_energy_multiplier = 0.0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_flash"]
+size = Vector2(6.8, 2.4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flash_right"]
+transparency = 1
+albedo_color = Color(1, 0.05, 0.12, 0)
+roughness = 0.4
+emission_enabled = true
+emission = Color(1, 0.02, 0.06, 1)
+emission_energy_multiplier = 0.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall"]
+size = Vector3(0.4, 8, 2.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glass"]
+transparency = 1
+cull_mode = 2
+albedo_color = Color(0.08, 0.65, 0.9, 0.09)
+metallic = 0.35
+roughness = 0.08
+emission_enabled = true
+emission = Color(0.02, 0.38, 0.65, 1)
+emission_energy_multiplier = 0.35
+
+[sub_resource type="BoxMesh" id="BoxMesh_wall_glass"]
+material = SubResource("StandardMaterial3D_glass")
+size = Vector3(0.12, 8, 2.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ceiling"]
+size = Vector3(14, 0.4, 2.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ceiling_glass"]
+material = SubResource("StandardMaterial3D_glass")
+size = Vector3(14, 0.08, 2.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_net"]
+size = Vector3(0.12, 2.4, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_net"]
+albedo_color = Color(0.05, 0.92, 1, 1)
+roughness = 0.22
+emission_enabled = true
+emission = Color(0, 0.45, 0.65, 1)
+emission_energy_multiplier = 0.65
+
+[sub_resource type="BoxMesh" id="BoxMesh_net"]
+material = SubResource("StandardMaterial3D_net")
+size = Vector3(0.12, 2.4, 0.08)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_post"]
+albedo_color = Color(0.92, 0.05, 0.78, 1)
+metallic = 0.2
+roughness = 0.25
+emission_enabled = true
+emission = Color(0.55, 0.01, 0.4, 1)
+emission_energy_multiplier = 0.55
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_post"]
+material = SubResource("StandardMaterial3D_post")
+top_radius = 0.06
+bottom_radius = 0.06
+height = 2.5
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_plane"]
+size = Vector3(14, 8, 0.2)
+
+[node name="Game" type="Node3D" unique_id=1777903545 node_paths=PackedStringArray("game_manager", "match_controller", "ai_opponent", "score_label", "message_label", "hint_label", "timer_label")]
 script = ExtResource("1_game")
 game_config = ExtResource("11_cfg")
 root_events = ExtResource("12_root")
@@ -178,185 +161,181 @@ message_label = NodePath("UI/MessageLabel")
 hint_label = NodePath("UI/HintLabel")
 timer_label = NodePath("UI/TimerLabel")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1293587793]
 environment = SubResource("Environment_main")
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 4, 8, 6)
-light_color = Color(0.55, 0.7, 1, 1)
-light_energy = 1.35
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1615317748]
+transform = Transform3D(1, 0, 0, 0, -1.62921e-07, 1, 0, -1, -1.62921e-07, 0, 12, 0)
+light_color = Color(0.92, 0.92, 0.95, 1)
+light_energy = 1.05
 shadow_enabled = true
-shadow_blur = 1.2
+shadow_blur = 0.8
 directional_shadow_mode = 1
 directional_shadow_max_distance = 40.0
 
-[node name="FillLight" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 4, 5)
-light_color = Color(0.15, 0.55, 0.85, 1)
-light_energy = 0.55
+[node name="FillLight" type="OmniLight3D" parent="." unique_id=703398698]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 6)
+light_color = Color(0.75, 0.75, 0.8, 1)
+light_energy = 0.4
 omni_range = 28.0
 omni_attenuation = 1.2
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=908111356]
 transform = Transform3D(1, 0, 0, 0, 0.97, 0.243, 0, -0.243, 0.97, 0, 3.8, 14)
-fov = 36.0
 current = true
-near = 0.05
+fov = 36.0
 far = 80.0
 
-[node name="Court" type="Node3D" parent="."]
+[node name="Court" type="Node3D" parent="." unique_id=1465631172]
 
-[node name="Floor" type="StaticBody3D" parent="Court"]
+[node name="Floor" type="StaticBody3D" parent="Court" unique_id=2093677618]
 collision_mask = 0
 physics_material_override = SubResource("PhysicsMaterial_court")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/Floor"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/Floor" unique_id=1522102727]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
 shape = SubResource("BoxShape3D_floor")
 
-[node name="Mesh" type="MeshInstance3D" parent="Court/Floor"]
+[node name="Mesh" type="MeshInstance3D" parent="Court/Floor" unique_id=234212084]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
 mesh = SubResource("BoxMesh_floor")
 
-[node name="NeonEdge" type="MeshInstance3D" parent="Court/Floor"]
+[node name="NeonEdge" type="MeshInstance3D" parent="Court/Floor" unique_id=1059707877]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.012, 1.05)
 mesh = SubResource("BoxMesh_court_line")
 
-[node name="FloorFlashLeft" type="MeshInstance3D" parent="Court"]
+[node name="FloorFlashLeft" type="MeshInstance3D" parent="Court" unique_id=836274786]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 0.015, 0)
-mesh = SubResource("PlaneMesh_flash")
 material_override = SubResource("StandardMaterial3D_flash_left")
-
-[node name="FloorFlashRight" type="MeshInstance3D" parent="Court"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0.015, 0)
 mesh = SubResource("PlaneMesh_flash")
+
+[node name="FloorFlashRight" type="MeshInstance3D" parent="Court" unique_id=1934601635]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0.015, 0)
 material_override = SubResource("StandardMaterial3D_flash_right")
+mesh = SubResource("PlaneMesh_flash")
 
-[node name="LeftWall" type="StaticBody3D" parent="Court"]
+[node name="LeftWall" type="StaticBody3D" parent="Court" unique_id=1487850627]
 collision_mask = 0
 physics_material_override = SubResource("PhysicsMaterial_court")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/LeftWall"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.0, 4, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/LeftWall" unique_id=1676171529]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 4, 0)
 shape = SubResource("BoxShape3D_wall")
 
-[node name="Glass" type="MeshInstance3D" parent="Court/LeftWall"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.0, 4, 0)
+[node name="Glass" type="MeshInstance3D" parent="Court/LeftWall" unique_id=1724003465]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 4, 0)
 mesh = SubResource("BoxMesh_wall_glass")
 
-[node name="RightWall" type="StaticBody3D" parent="Court"]
+[node name="RightWall" type="StaticBody3D" parent="Court" unique_id=1548530914]
 collision_mask = 0
 physics_material_override = SubResource("PhysicsMaterial_court")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/RightWall"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.0, 4, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/RightWall" unique_id=1080187497]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 4, 0)
 shape = SubResource("BoxShape3D_wall")
 
-[node name="Glass" type="MeshInstance3D" parent="Court/RightWall"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.0, 4, 0)
+[node name="Glass" type="MeshInstance3D" parent="Court/RightWall" unique_id=443606040]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 4, 0)
 mesh = SubResource("BoxMesh_wall_glass")
 
-[node name="Ceiling" type="StaticBody3D" parent="Court"]
+[node name="Ceiling" type="StaticBody3D" parent="Court" unique_id=45915949]
 collision_mask = 0
 physics_material_override = SubResource("PhysicsMaterial_court")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/Ceiling"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/Ceiling" unique_id=1075020304]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.2, 0)
 shape = SubResource("BoxShape3D_ceiling")
 
-[node name="Glass" type="MeshInstance3D" parent="Court/Ceiling"]
+[node name="Glass" type="MeshInstance3D" parent="Court/Ceiling" unique_id=1229375842]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.2, 0)
 mesh = SubResource("BoxMesh_ceiling_glass")
 
-[node name="Net" type="StaticBody3D" parent="Court"]
+[node name="Net" type="StaticBody3D" parent="Court" unique_id=1561672656]
 collision_mask = 0
 physics_material_override = SubResource("PhysicsMaterial_court")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/Net"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/Net" unique_id=932252299]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
 shape = SubResource("BoxShape3D_net")
 
-[node name="Mesh" type="MeshInstance3D" parent="Court/Net"]
+[node name="Mesh" type="MeshInstance3D" parent="Court/Net" unique_id=1490670707]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
 mesh = SubResource("BoxMesh_net")
 
-[node name="PostLeft" type="MeshInstance3D" parent="Court"]
+[node name="PostLeft" type="MeshInstance3D" parent="Court" unique_id=997463185]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, -0.4)
 mesh = SubResource("CylinderMesh_post")
 
-[node name="PostRight" type="MeshInstance3D" parent="Court"]
+[node name="PostRight" type="MeshInstance3D" parent="Court" unique_id=1661637485]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0.4)
 mesh = SubResource("CylinderMesh_post")
 
-[node name="Hills" type="MeshInstance3D" parent="Court"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -2.4)
-mesh = SubResource("BoxMesh_hills")
+[node name="AmbientSmoke" parent="Court" unique_id=186018938 instance=ExtResource("14_smoke")]
 
-[node name="AmbientSmoke" parent="Court" instance=ExtResource("14_smoke")]
+[node name="AmbientAsh" parent="Court" unique_id=1120994619 instance=ExtResource("15_ash")]
 
-[node name="AmbientAsh" parent="Court" instance=ExtResource("15_ash")]
-
-[node name="PlaneLockBack" type="StaticBody3D" parent="Court"]
+[node name="PlaneLockBack" type="StaticBody3D" parent="Court" unique_id=116028119]
 collision_mask = 0
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/PlaneLockBack"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/PlaneLockBack" unique_id=1898593705]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -1.2)
 shape = SubResource("BoxShape3D_plane")
 
-[node name="PlaneLockFront" type="StaticBody3D" parent="Court"]
+[node name="PlaneLockFront" type="StaticBody3D" parent="Court" unique_id=1859281556]
 collision_mask = 0
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/PlaneLockFront"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Court/PlaneLockFront" unique_id=546212971]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 1.2)
 shape = SubResource("BoxShape3D_plane")
 
-[node name="Players" type="Node3D" parent="."]
+[node name="Players" type="Node3D" parent="." unique_id=799909890]
 
-[node name="PlayerLeft" parent="Players" instance=ExtResource("2_player")]
+[node name="PlayerLeft" parent="Players" unique_id=98135232 instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.42, 0)
 blob_color = Color(0.01, 0.72, 1, 1)
 
-[node name="PlayerRight" parent="Players" instance=ExtResource("2_player")]
+[node name="PlayerRight" parent="Players" unique_id=1121401258 instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2, 0.42, 0)
 player_index = 1
 blob_color = Color(1, 0.02, 0.68, 1)
 
-[node name="Ball" parent="." instance=ExtResource("3_ball")]
+[node name="Ball" parent="." unique_id=2059586803 instance=ExtResource("3_ball")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2, 5, 0)
+continuous_cd = true
 
-[node name="GameLogic" type="Node" parent="."]
+[node name="GameLogic" type="Node" parent="." unique_id=1540108829]
 
-[node name="MatchController" type="Node" parent="GameLogic" node_paths=PackedStringArray("ball", "player_left", "player_right")]
+[node name="MatchController" type="Node" parent="GameLogic" unique_id=1378023874 node_paths=PackedStringArray("ball", "player_left", "player_right")]
 script = ExtResource("4_match")
 game_events = ExtResource("13_gev")
 ball = NodePath("../../Ball")
 player_left = NodePath("../../Players/PlayerLeft")
 player_right = NodePath("../../Players/PlayerRight")
 
-[node name="GameManager" type="Node" parent="GameLogic"]
+[node name="GameManager" type="Node" parent="GameLogic" unique_id=532065530]
 script = ExtResource("5_gm")
 game_events = ExtResource("13_gev")
 
-[node name="ServeState" type="Node" parent="GameLogic/GameManager"]
+[node name="ServeState" type="Node" parent="GameLogic/GameManager" unique_id=1313776365]
 script = ExtResource("7_serve")
 
-[node name="PlayState" type="Node" parent="GameLogic/GameManager"]
+[node name="PlayState" type="Node" parent="GameLogic/GameManager" unique_id=1116360385]
 script = ExtResource("8_play")
 
-[node name="PointState" type="Node" parent="GameLogic/GameManager"]
+[node name="PointState" type="Node" parent="GameLogic/GameManager" unique_id=1149803534]
 script = ExtResource("9_point")
 
-[node name="MatchEndState" type="Node" parent="GameLogic/GameManager"]
+[node name="MatchEndState" type="Node" parent="GameLogic/GameManager" unique_id=356787496]
 script = ExtResource("10_end")
 
-[node name="AiOpponent" type="Node" parent="GameLogic"]
+[node name="AiOpponent" type="Node" parent="GameLogic" unique_id=32082554]
 script = ExtResource("6_ai")
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=700861959]
 
-[node name="VirtualControls" parent="UI" instance=ExtResource("16_vc")]
+[node name="VirtualControls" parent="UI" unique_id=1598945421 instance=ExtResource("16_vc")]
 
-[node name="TimerLabel" type="Label" parent="UI"]
+[node name="TimerLabel" type="Label" parent="UI" unique_id=2116636175]
 offset_left = 24.0
 offset_top = 16.0
 offset_right = 140.0
@@ -368,7 +347,7 @@ theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 36
 text = "60"
 
-[node name="Title" type="Label" parent="UI"]
+[node name="Title" type="Label" parent="UI" unique_id=940251476]
 offset_left = 480.0
 offset_top = 16.0
 offset_right = 800.0
@@ -381,7 +360,7 @@ theme_override_font_sizes/font_size = 32
 text = "Goofy Ball"
 horizontal_alignment = 1
 
-[node name="ScoreLabel" type="Label" parent="UI"]
+[node name="ScoreLabel" type="Label" parent="UI" unique_id=13404205]
 offset_left = 540.0
 offset_top = 56.0
 offset_right = 740.0
@@ -394,7 +373,7 @@ theme_override_font_sizes/font_size = 42
 text = "0  :  0"
 horizontal_alignment = 1
 
-[node name="HintLabel" type="Label" parent="UI"]
+[node name="HintLabel" type="Label" parent="UI" unique_id=1452998860]
 offset_left = 40.0
 offset_top = 670.0
 offset_right = 1240.0
@@ -407,7 +386,7 @@ theme_override_font_sizes/font_size = 16
 text = "Blue: A/D + W   |   Red: ←/→ + ↑   |   Esc — menu"
 horizontal_alignment = 1
 
-[node name="MessageLabel" type="Label" parent="UI"]
+[node name="MessageLabel" type="Label" parent="UI" unique_id=888876792]
 offset_left = 400.0
 offset_top = 280.0
 offset_right = 880.0

@@ -1,10 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://ballscene001"]
+[gd_scene load_steps=12 format=3 uid="uid://ballscene001"]
 
 [ext_resource type="Script" path="res://src/features/ball/ball.gd" id="1_ball"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ball"]
-friction = 0.15
-bounce = 0.48
+friction = 0.12
+bounce = 0.78
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ball"]
 radius = 0.35
@@ -68,13 +68,27 @@ scale_min = 0.35
 scale_max = 1.1
 color = Color(1, 0.65, 0.2, 1)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shadow"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0, 0, 0, 0.5)
+disable_receive_shadows = true
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_shadow"]
+material = SubResource("StandardMaterial3D_shadow")
+top_radius = 0.4
+bottom_radius = 0.4
+height = 0.02
+radial_segments = 24
+rings = 1
+
 [node name="Ball" type="RigidBody3D"]
 collision_layer = 4
 collision_mask = 7
 mass = 0.07
 physics_material_override = SubResource("PhysicsMaterial_ball")
 gravity_scale = 0.4
-linear_damp = 0.02
+linear_damp = 0.015
 continuous_cd = 2
 contact_monitor = true
 max_contacts_reported = 8
@@ -93,12 +107,15 @@ mesh = SubResource("TorusMesh_stripe")
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
 mesh = SubResource("TorusMesh_stripe")
 
+[node name="GroundShadow" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_shadow")
+
 [node name="GlowLight" type="OmniLight3D" parent="."]
 light_color = Color(1, 0.72, 0.12, 1)
 light_energy = 1.6
 light_indirect_energy = 0.7
-shadow_enabled = true
-shadow_blur = 2.2
+shadow_enabled = false
 omni_range = 3.5
 omni_attenuation = 1.35
 

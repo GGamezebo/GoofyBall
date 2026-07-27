@@ -7,9 +7,10 @@ signal landed(side: int)
 ## Emitted once per meaningful hit (after bounce impulse is applied).
 signal touched(side: int)
 
-const MAX_SPEED := 22.0
+const MAX_SPEED := 24.0
 const FLOOR_SCORE_Y := 0.55
 const PLANE_Z := 0.0
+const SHADOW_FLOOR_Y := 0.02
 ## Ignore re-contacts with the same body for this long (physics spam).
 const TOUCH_COOLDOWN_SEC := 0.2
 
@@ -28,6 +29,7 @@ var _stripe_mat: StandardMaterial3D
 @onready var _mesh: MeshInstance3D = $Mesh
 @onready var _stripe: MeshInstance3D = $Stripe
 @onready var _stripe2: MeshInstance3D = $Stripe2
+@onready var _ground_shadow: MeshInstance3D = $GroundShadow
 @onready var _glow: OmniLight3D = $GlowLight
 @onready var _sparks: GPUParticles3D = $ExplosionSparks
 
@@ -42,6 +44,8 @@ func _ready() -> void:
 	_cache_materials()
 	if _sparks:
 		_sparks.emitting = false
+	if _ground_shadow:
+		_ground_shadow.top_level = true
 
 
 func _physics_process(delta: float) -> void:
@@ -56,8 +60,20 @@ func _physics_process(delta: float) -> void:
 		linear_velocity = linear_velocity.normalized() * MAX_SPEED
 	linear_velocity.z = 0.0
 
+	_update_ground_shadow()
+
 	if not _scored and global_position.y <= FLOOR_SCORE_Y and linear_velocity.y < -1.0:
 		_score_point()
+
+
+func _update_ground_shadow() -> void:
+	if _ground_shadow == null:
+		return
+	_ground_shadow.global_position = Vector3(global_position.x, SHADOW_FLOOR_Y, PLANE_Z)
+	_ground_shadow.global_rotation = Vector3.ZERO
+	var t := clampf(1.0 - (global_position.y - 0.35) / 6.0, 0.35, 1.0)
+	_ground_shadow.scale = Vector3(t, 1.0, t)
+	_ground_shadow.transparency = 1.0 - lerpf(0.18, 0.55, t)
 
 
 func set_alarm(enabled: bool) -> void:
@@ -200,3 +216,5 @@ func _set_visuals_visible(visible: bool) -> void:
 		_stripe2.visible = visible
 	if _glow:
 		_glow.visible = visible
+	if _ground_shadow:
+		_ground_shadow.visible = visible

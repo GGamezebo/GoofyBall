@@ -43,9 +43,9 @@ func initialize(data: Dictionary) -> void:
 
 	if hint_label:
 		if game_config.vs_ai:
-			hint_label.text = "You: left drag ←→, right tap jump (or A/D+W)   |   AI (Red)   |   Esc — menu"
+			hint_label.text = "You: stick/D-pad + A jump (or A/D+W / touch)   |   AI (Red)   |   Esc — menu"
 		else:
-			hint_label.text = "Blue: left drag / right jump (or A/D+W)   |   Red: ←/→ + ↑ (no touch)   |   Esc — menu"
+			hint_label.text = "Blue: pad0 stick+A (or A/D+W / touch)   |   Red: pad1 stick+A (or ←/→+↑)   |   Esc — menu"
 
 	_listener.add(game_events.ev_score_changed, _on_score)
 	_listener.add(game_events.ev_message, _on_message)

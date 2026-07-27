@@ -2,11 +2,12 @@
 
 ## Core look
 
-Dark neon sports arena: near-black world, restrained glass boundaries, bright playable silhouettes.
+Dark neon sports arena: near-black world, light-gray court floor, restrained glass boundaries, bright playable silhouettes.
 
 ## Palette
 
 - Background: `#010310` / `#05091F`
+- Floor: light gray `#C3C3C3`
 - Blue player / court edge: electric cyan `#03B8FF`
 - Red player / results accent: neon magenta `#FF05AD`
 - Ball / score: warm neon yellow `#FFD20A`
@@ -16,8 +17,9 @@ Dark neon sports arena: near-black world, restrained glass boundaries, bright pl
 
 - Ball, players, net: bright albedo first; soft emission (`~0.5–0.85`), not eye-searing bloom.
 - Walls and ceiling: transparent cyan glass, low opacity and weak emission.
-- Floor: dark, slightly metallic, low roughness; never brighter than gameplay.
-- Contact lighting: small colored OmniLights on ball/blobs so floor shadows read as tinted pools.
+- Floor: light gray `#C3C3C3`, low metallic; dark ground-shadow discs stay readable on it.
+- Ground shadows: dark disc meshes pinned to the floor directly under ball/blobs (fade/shrink with height) for readability.
+- Contact lighting: small colored OmniLights on ball/blobs (fill only; discs carry the shadow read).
 - Background: soft drifting smoke layers behind the court (low alpha, cyan/magenta tint) plus light depth fog — atmosphere only, never competing with gameplay.
 - Floating ash: sparse Upside-Down-style motes drifting through the court volume (tiny additive specs, cyan/magenta tint, turbulence) — eerie depth, never a snowstorm.
 - Glow is restrained: thin halo, never a screen-wide wash.
