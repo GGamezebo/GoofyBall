@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://virtualctrl01"]
+[gd_scene load_steps=7 format=3 uid="uid://virtualctrl01"]
 
 [ext_resource type="Script" path="res://src/features/virtual_controls/virtual_controls.gd" id="1_vc"]
 
@@ -33,6 +33,30 @@ corner_radius_top_right = 40
 corner_radius_bottom_right = 40
 corner_radius_bottom_left = 40
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bomb_outer"]
+bg_color = Color(1, 0.2, 0.35, 0.12)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.45, 0.55, 0.55)
+corner_radius_top_left = 48
+corner_radius_top_right = 48
+corner_radius_bottom_right = 48
+corner_radius_bottom_left = 48
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bomb_inner"]
+bg_color = Color(1, 0.15, 0.28, 0.28)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.75, 0.55, 0.65)
+corner_radius_top_left = 34
+corner_radius_top_right = 34
+corner_radius_bottom_right = 34
+corner_radius_bottom_left = 34
+
 [node name="VirtualControls" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -66,3 +90,50 @@ offset_right = 80.0
 offset_bottom = 80.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_jump")
+
+[node name="BombButton" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 16.0
+offset_top = -48.0
+offset_right = 112.0
+offset_bottom = 48.0
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bomb_outer")
+
+[node name="Core" type="Panel" parent="BombButton"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -34.0
+offset_top = -34.0
+offset_right = 34.0
+offset_bottom = 34.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bomb_inner")
+
+[node name="Label" type="Label" parent="BombButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.9, 0.85)
+theme_override_colors/font_shadow_color = Color(0.55, 0.05, 0.12, 0.55)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 16
+text = "BOOM"
+horizontal_alignment = 1
+vertical_alignment = 1

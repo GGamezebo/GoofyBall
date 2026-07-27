@@ -22,8 +22,9 @@ alwaysApply: false
 | Player feel | `src/features/blob_player/` |
 | Ball physics | `src/features/ball/` |
 | Bot | `src/features/ai_opponent/` |
-| Touch / virtual stick | `src/features/virtual_controls/` — left half move (`p1_left/right`), right half jump (`p1_jump`) |
-| Gamepad | `project.godot` InputMap — P1 device 0 / P2 device 1: stick+D-pad move, **A** (`JOY_BUTTON_A`) jump |
+| Touch / virtual stick | `src/features/virtual_controls/` — analog left-half drag, right half jump; BOOM only if touchscreen |
+| Gamepad | `project.godot` InputMap — P1 device 0 / P2 device 1: **analog** stick+D-pad move, **A** jump, **B**/Space last-chance (P1) |
+| Last-chance blast | `BlobPlayer.try_last_chance()` — once/round; blocked if ball on opponent half; revive on next serve |
 | HUD | `ui/` — listen to `GameEvents` |
 
 ## Constraints
@@ -33,3 +34,4 @@ alwaysApply: false
 - Prefer small `RefCounted` helpers over growing states
 - More than `max_touches` (default 3) on one side → fault, opponent scores
 - No dual-touch local 2P: both halves are **P1 only** (left = move, right = jump); P2 uses keyboard / pad1 (`p2_*`)
+- Last-chance self-destruct is **P1 once per round**; player revives and recharges on next serve; BOOM UI only on touchscreen

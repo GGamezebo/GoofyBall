@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://blobplayer01"]
+[gd_scene load_steps=14 format=3 uid="uid://blobplayer01"]
 
 [ext_resource type="Script" path="res://src/features/blob_player/blob_player.gd" id="1_blob"]
 
@@ -56,6 +56,36 @@ height = 0.02
 radial_segments = 24
 rings = 1
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.2, 0.9, 1, 1)
+emission_enabled = true
+emission = Color(0.1, 0.75, 1, 1)
+emission_energy_multiplier = 3.5
+disable_receive_shadows = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_spark"]
+material = SubResource("StandardMaterial3D_spark")
+radius = 0.08
+height = 0.16
+radial_segments = 8
+rings = 4
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_sparks"]
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 7.0
+initial_velocity_max = 16.0
+angular_velocity_min = -220.0
+angular_velocity_max = 220.0
+gravity = Vector3(0, -8, 0)
+damping_min = 1.2
+damping_max = 3.0
+scale_min = 0.4
+scale_max = 1.35
+color = Color(0.25, 0.9, 1, 1)
+
 [node name="BlobPlayer" type="CharacterBody3D"]
 collision_layer = 2
 collision_mask = 5
@@ -99,3 +129,21 @@ light_volumetric_fog_energy = 0.0
 shadow_enabled = false
 omni_range = 3.2
 omni_attenuation = 1.4
+
+[node name="BlastFlash" type="OmniLight3D" parent="."]
+visible = false
+light_color = Color(0.4, 0.95, 1, 1)
+light_energy = 0.0
+omni_range = 10.0
+omni_attenuation = 1.0
+
+[node name="ExplosionSparks" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 72
+lifetime = 0.85
+one_shot = true
+explosiveness = 1.0
+randomness = 0.45
+visibility_aabb = AABB(-5, -5, -5, 10, 10, 10)
+process_material = SubResource("ParticleProcessMaterial_sparks")
+draw_pass_1 = SubResource("SphereMesh_spark")

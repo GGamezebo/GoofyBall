@@ -37,7 +37,15 @@ func initialize(config: GameConfig) -> void:
 			ball.landed.connect(_on_ball_landed)
 		if ball.has_signal("touched") and not ball.touched.is_connected(_on_ball_touched):
 			ball.touched.connect(_on_ball_touched)
+	_prepare_players_for_match()
 	_emit_score()
+
+
+func _prepare_players_for_match() -> void:
+	if player_left is BlobPlayer:
+		(player_left as BlobPlayer).prepare_match(ball)
+	if player_right is BlobPlayer:
+		(player_right as BlobPlayer).prepare_match(ball)
 
 
 func set_round_active(active: bool) -> void:
@@ -169,10 +177,21 @@ func _reset_touches() -> void:
 
 
 func _reset_actors() -> void:
-	if player_left:
+	if player_left is BlobPlayer:
+		var left := player_left as BlobPlayer
+		left.prepare_round()
+		left.global_position = Vector3(-3.2, 0.42, 0.0)
+		left.velocity = Vector3.ZERO
+	elif player_left:
 		player_left.global_position = Vector3(-3.2, 0.42, 0.0)
 		player_left.velocity = Vector3.ZERO
-	if player_right:
+
+	if player_right is BlobPlayer:
+		var right := player_right as BlobPlayer
+		right.prepare_round()
+		right.global_position = Vector3(3.2, 0.42, 0.0)
+		right.velocity = Vector3.ZERO
+	elif player_right:
 		player_right.global_position = Vector3(3.2, 0.42, 0.0)
 		player_right.velocity = Vector3.ZERO
 

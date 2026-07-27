@@ -7,7 +7,7 @@ signal landed(side: int)
 ## Emitted once per meaningful hit (after bounce impulse is applied).
 signal touched(side: int)
 
-const MAX_SPEED := 24.0
+const MAX_SPEED := 38.0
 const FLOOR_SCORE_Y := 0.55
 const PLANE_Z := 0.0
 const SHADOW_FLOOR_Y := 0.02

@@ -36,16 +36,28 @@ func initialize(data: Dictionary) -> void:
 	match_controller.initialize(game_config)
 	game_manager.initialize(game_config, match_controller)
 
+	var left := match_controller.player_left as BlobPlayer
 	var right := match_controller.player_right as BlobPlayer
 	var ball := match_controller.ball
 	if ai_opponent:
 		ai_opponent.setup(right, ball, game_config.vs_ai)
 
+	var vc := get_node_or_null("UI/VirtualControls") as VirtualControls
+	if vc:
+		vc.set_last_chance_available(true)
+		if not vc.ev_self_destruct_requested.is_connected(_on_touch_self_destruct):
+			vc.ev_self_destruct_requested.connect(_on_touch_self_destruct)
+	if left:
+		if not left.ev_last_chance_used.is_connected(_on_last_chance_used):
+			left.ev_last_chance_used.connect(_on_last_chance_used)
+		if not left.ev_last_chance_ready.is_connected(_on_last_chance_ready):
+			left.ev_last_chance_ready.connect(_on_last_chance_ready)
+
 	if hint_label:
 		if game_config.vs_ai:
-			hint_label.text = "You: stick/D-pad + A jump (or A/D+W / touch)   |   AI (Red)   |   Esc — menu"
+			hint_label.text = "You: move+jump / Space·B blast (1/round)   |   AI (Red)   |   Esc — menu"
 		else:
-			hint_label.text = "Blue: pad0 stick+A (or A/D+W / touch)   |   Red: pad1 stick+A (or ←/→+↑)   |   Esc — menu"
+			hint_label.text = "Blue: move+jump / Space·B blast   |   Red: pad1 / arrows   |   Esc — menu"
 
 	_listener.add(game_events.ev_score_changed, _on_score)
 	_listener.add(game_events.ev_message, _on_message)
@@ -68,6 +80,26 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		root_events.ev_return_to_menu.emit({})
 		get_viewport().set_input_as_handled()
+
+
+func _on_touch_self_destruct() -> void:
+	var left := match_controller.player_left as BlobPlayer if match_controller else null
+	if left:
+		left.try_last_chance()
+
+
+func _on_last_chance_used() -> void:
+	var vc := get_node_or_null("UI/VirtualControls") as VirtualControls
+	if vc:
+		vc.set_last_chance_available(false)
+	if game_events:
+		game_events.ev_message.emit("Last chance!")
+
+
+func _on_last_chance_ready() -> void:
+	var vc := get_node_or_null("UI/VirtualControls") as VirtualControls
+	if vc:
+		vc.set_last_chance_available(true)
 
 
 func _on_score(score_left: int, score_right: int) -> void:
