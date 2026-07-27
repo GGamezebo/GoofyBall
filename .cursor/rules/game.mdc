@@ -22,9 +22,9 @@ alwaysApply: false
 | Player feel | `src/features/blob_player/` |
 | Ball physics | `src/features/ball/` |
 | Bot | `src/features/ai_opponent/` |
-| Touch / virtual stick | `src/features/virtual_controls/` — analog left-half drag, right half jump; BOOM only if touchscreen |
+| Touch / virtual stick | `src/features/virtual_controls/` — analog left-half drag, right half jump; right-mid **BOOM** only if touchscreen |
 | Gamepad | `project.godot` InputMap — P1 device 0 / P2 device 1: **analog** stick+D-pad move, **A** jump, **B**/Space last-chance (P1) |
-| Last-chance blast | `BlobPlayer.try_last_chance()` — once/round; blocked if ball on opponent half; revive on next serve |
+| Last-chance blast | `BlobPlayer.try_last_chance()` — once/round; only when ball on own half; BOOM UI mirrors that |
 | HUD | `ui/` — listen to `GameEvents` |
 
 ## Constraints

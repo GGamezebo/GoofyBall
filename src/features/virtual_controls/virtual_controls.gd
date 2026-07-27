@@ -4,7 +4,7 @@ extends Control
 ## Dual-thumb touch for the left (Blue / P1) player only.
 ## Left half: press + analog drag left/right to move (strength = finger offset).
 ## Right half: hold finger to jump.
-## Left-edge mid BOOM button: last-chance blast — touchscreen only, once per round.
+## Right-edge mid BOOM button: last-chance blast — touchscreen only, once per round.
 ## Drives `p1_*` InputMap. Local 2P is not dual-player touch — P2 stays keyboard.
 
 @export var left_action: StringName = &"p1_left"

@@ -44,14 +44,11 @@ func initialize(data: Dictionary) -> void:
 
 	var vc := get_node_or_null("UI/VirtualControls") as VirtualControls
 	if vc:
-		vc.set_last_chance_available(true)
 		if not vc.ev_self_destruct_requested.is_connected(_on_touch_self_destruct):
 			vc.ev_self_destruct_requested.connect(_on_touch_self_destruct)
 	if left:
 		if not left.ev_last_chance_used.is_connected(_on_last_chance_used):
 			left.ev_last_chance_used.connect(_on_last_chance_used)
-		if not left.ev_last_chance_ready.is_connected(_on_last_chance_ready):
-			left.ev_last_chance_ready.connect(_on_last_chance_ready)
 
 	if hint_label:
 		if game_config.vs_ai:
@@ -68,6 +65,19 @@ func initialize(data: Dictionary) -> void:
 	root_events.ev_battle_started.emit()
 	_on_score(0, 0)
 	_on_round_time(int(game_config.round_duration_sec) if game_config else 60)
+	_refresh_boom_button()
+
+
+func _process(_delta: float) -> void:
+	_refresh_boom_button()
+
+
+func _refresh_boom_button() -> void:
+	var vc := get_node_or_null("UI/VirtualControls") as VirtualControls
+	if vc == null or match_controller == null:
+		return
+	var left := match_controller.player_left as BlobPlayer
+	vc.set_last_chance_available(left != null and left.can_try_last_chance())
 
 
 func deinit() -> void:
@@ -89,17 +99,9 @@ func _on_touch_self_destruct() -> void:
 
 
 func _on_last_chance_used() -> void:
-	var vc := get_node_or_null("UI/VirtualControls") as VirtualControls
-	if vc:
-		vc.set_last_chance_available(false)
+	_refresh_boom_button()
 	if game_events:
 		game_events.ev_message.emit("Last chance!")
-
-
-func _on_last_chance_ready() -> void:
-	var vc := get_node_or_null("UI/VirtualControls") as VirtualControls
-	if vc:
-		vc.set_last_chance_available(true)
 
 
 func _on_score(score_left: int, score_right: int) -> void:

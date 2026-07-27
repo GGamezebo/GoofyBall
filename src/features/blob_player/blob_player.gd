@@ -125,18 +125,27 @@ func _physics_process(delta: float) -> void:
 
 func _can_use_last_chance_input() -> bool:
 	# Blue / P1 only — local 2P has no dual last-chance.
-	return player_index == 0 and not _last_chance_used and not _destroyed
+	return player_index == 0 and can_try_last_chance()
+
+
+## True when blast is currently allowed (own half, live ball, charge left).
+func can_try_last_chance() -> bool:
+	if player_index != 0:
+		return false
+	if _destroyed or _last_chance_used:
+		return false
+	if ball == null or not is_instance_valid(ball):
+		return false
+	if "freeze" in ball and ball.freeze:
+		return false
+	if _is_ball_on_opponent_half():
+		return false
+	return true
 
 
 ## Last-chance self-destruct: explode FX + blast the ball. Once per round.
 func try_last_chance() -> bool:
-	if _destroyed or _last_chance_used:
-		return false
-	# Only during live play (held serve ball is frozen).
-	if ball != null and is_instance_valid(ball) and "freeze" in ball and ball.freeze:
-		return false
-	# No blast if the ball is already on the opponent half.
-	if _is_ball_on_opponent_half():
+	if not can_try_last_chance():
 		return false
 	_last_chance_used = true
 	_destroyed = true
