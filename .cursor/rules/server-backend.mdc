@@ -1,0 +1,60 @@
+---
+description: Phase 0 local Nakama + Postgres Docker conventions under server/
+globs: server/**
+alwaysApply: false
+---
+
+# Server backend (Phase 0)
+
+Local game backend lives in `server/` — **not** imported by Godot. Godot stays offline-capable without this stack.
+
+## Layout
+
+| Path | Role |
+|------|------|
+| `server/docker-compose.yml` | Postgres + Nakama stack (`name: goofyballs`) |
+| `server/.env` | Secrets (gitignored) — never commit |
+| `server/.env.example` | Variable template — commit |
+| `server/nakama/local.yml` | Nakama non-secret config |
+| `server/nakama/modules/` | Runtime modules (Phase 1+) |
+| `server/scripts/smoke.ps1` | Health smoke test |
+
+## Must
+
+- Pin image tags (`postgres:16.8-alpine`, `nakama:3.37.0`) — no `latest`
+- Keep secrets in `.env`; override via Compose/CLI (`server_key`, console password, DB password)
+- Mount `./nakama` → `/nakama/data` (config + modules), not the whole `server/` folder
+- Nakama waits for Postgres **healthy** before migrate/start
+- Run commands from `server/`: `docker compose up -d`, `.\scripts\smoke.ps1`
+
+## Ports (`HOST:CONTAINER`)
+
+| Mapping | Use |
+|---------|-----|
+| `5432:5432` | Postgres (optional host tools; Nakama uses internal `postgres:5432`) |
+| `7349:7349` | gRPC |
+| `7350:7350` | HTTP API + WebSocket (future Godot/HTML) |
+| `7351:7351` | Admin Console |
+
+Change **left** (host) if occupied; keep **right** unless the process listen port changes.
+
+## Never
+
+- Put `server_key` / DB / console secrets in committed YAML as the real values
+- Import Nakama or `server/` into `core/` or Godot autoloads in Phase 0
+- Use `docker compose down -v` unless intentionally wiping DB data
+- Block offline AI / local 2P on backend availability
+
+## Ops cheat sheet
+
+```
+docker compose up -d
+.\scripts\smoke.ps1
+docker compose logs -f nakama
+docker compose down          # keep volume
+docker compose down -v       # wipe Postgres data
+```
+
+Broken network / stale containers: `down` then `up -d --force-recreate`.
+
+Plan: `.cursor/plans/online-server-backend.plan.md`.

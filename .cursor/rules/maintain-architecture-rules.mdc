@@ -9,7 +9,7 @@ When a change alters structure, contracts, or placement conventions, update `.cu
 
 ## Update when
 
-- New/renamed folder under `src/`, `core/`, `tools/`, `concepts/`
+- New/renamed folder under `src/`, `core/`, `tools/`, `concepts/`, `server/`
 - Visual art direction / UI look conventions (`concepts/ART_DIRECTION.md`)
 - New context, feature, event bus, or FSM state
 - Feature isolation or `core/` project-agnostic boundary changes
@@ -21,6 +21,7 @@ When a change alters structure, contracts, or placement conventions, update `.cu
 - Level layout or `LevelsConfig` container IDs change
 - Entry point or main-scene wiring changes
 - Path-resolution convention (`class_name` / `@export` vs hardcoded `res://`)
+- Server/Docker/Nakama conventions under `server/` (`server-backend.mdc`)
 - A convention in these rules is deliberately broken or replaced
 
 ## How
