@@ -1,9 +1,9 @@
 ---
-description: Goofy Ball architecture map — where code lives and how systems connect
+description: Goofy Balls architecture map — where code lives and how systems connect
 alwaysApply: true
 ---
 
-# Architecture (Goofy Ball / Godot 4.7)
+# Architecture (Goofy Balls / Godot 4.7)
 
 Side-view volleyball prototype. Prefer the smallest change that fits existing patterns. Do not invent parallel systems.
 
@@ -40,6 +40,7 @@ Touch (`virtual_controls`) is **P1 only** (left half move, right half jump) — 
 | `src/ui/` | Shared UI (loading screen) |
 | `core/` | Project-agnostic (HFSM, FSM, EventListener, ResourceUtils) |
 | `addons/GodotSavesAddon` | Save plugin — do not edit casually |
+| `server/` | Local/prod-bound Nakama + Postgres (Docker); not imported by Godot |
 
 ## Layer contracts
 

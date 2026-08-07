@@ -1,5 +1,5 @@
 ---
-description: GDScript conventions for Goofy Ball — signals, lifecycle, wiring
+description: GDScript conventions for Goofy Balls — signals, lifecycle, wiring
 globs: "**/*.{gd,tscn}"
 alwaysApply: false
 ---

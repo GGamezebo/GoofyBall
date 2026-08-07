@@ -1,4 +1,4 @@
-# Goofy Ball
+# Goofy Balls
 
 Лёгкий прототип side-view волейбола на рельсах **quizmatik**: HFSM + FSM + GodotSavesAddon.
 
@@ -34,4 +34,16 @@ addons/GodotSavesAddon
 
 Прогресс: `PData` через `SaveManager` + `RootEvents.ev_save_progress`.
 
+## Backend (online)
+
+Локальный Nakama + Postgres: см. [`server/README.md`](server/README.md).
+
+```powershell
+cd server
+copy .env.example .env   # первый раз
+docker compose up -d
+.\scripts\smoke.ps1
+```
+
 Правила проекта: `.cursor/rules/`.
+План online: `.cursor/plans/online-server-backend.plan.md`.

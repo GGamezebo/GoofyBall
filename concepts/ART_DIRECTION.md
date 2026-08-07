@@ -1,4 +1,4 @@
-# Goofy Ball — Art direction
+# Goofy Balls — Art direction
 
 ## Core look
 
