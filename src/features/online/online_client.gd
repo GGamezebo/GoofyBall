@@ -112,6 +112,17 @@ func progress_merge_async(progress: Dictionary) -> Dictionary:
 	return await rpc_async("progress_merge", {"progress": progress})
 
 
+func submit_match_result_async(result: Dictionary) -> Dictionary:
+	return await rpc_async("submit_match_result", result)
+
+
+func leaderboard_top_async(limit: int = 10, cursor: String = "") -> Dictionary:
+	var body: Dictionary = {"limit": limit}
+	if not cursor.is_empty():
+		body["cursor"] = cursor
+	return await rpc_async("leaderboard_top", body)
+
+
 func _request_json(method: String, path: String, body: Dictionary, use_session: bool, rpc_envelope: bool = false) -> Dictionary:
 	if _http == null:
 		ev_request_failed.emit(path, "OnlineClient not setup")

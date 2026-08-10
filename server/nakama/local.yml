@@ -11,7 +11,7 @@ logger:
 
 database:
   address:
-	- "postgres:localdb@postgres:5432/nakama"
+    - "postgres:localdb@postgres:5432/nakama"
 
 session:
   token_expiry_sec: 7200
@@ -31,12 +31,12 @@ runtime:
   path: "/nakama/data/modules"
   http_key: "goofyballs_dev_http_key"
   env:
-	- "YANDEX_AUTH_MODE=dev"
+    - "YANDEX_AUTH_MODE=dev"
 
 social:
   steam:
-	app_id: 0
-	publisher_key: ""
+    app_id: 0
+    publisher_key: ""
 
 # google_auth:
 #   credentials_json: "{...service account json...}"

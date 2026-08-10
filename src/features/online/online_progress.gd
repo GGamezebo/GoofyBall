@@ -9,6 +9,7 @@ const ADDITIVE_KEYS: Array[String] = [
 	"wins_two_player",
 	"wins_vs_ai",
 	"losses_vs_ai",
+	"wins_ranked",
 ]
 
 
@@ -47,6 +48,7 @@ static func sanitize(input: Dictionary) -> Dictionary:
 		"wins_two_player": maxi(0, int(input.get("wins_two_player", 0))),
 		"wins_vs_ai": maxi(0, int(input.get("wins_vs_ai", 0))),
 		"losses_vs_ai": maxi(0, int(input.get("losses_vs_ai", 0))),
+		"wins_ranked": maxi(0, int(input.get("wins_ranked", 0))),
 	}
 	if int(out["updated_at"]) <= 0:
 		out["updated_at"] = int(Time.get_unix_time_from_system())

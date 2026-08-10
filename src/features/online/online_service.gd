@@ -8,6 +8,7 @@ signal ev_authenticated(session: OnlineSession)
 signal ev_account_view(view: Dictionary)
 signal ev_auth_failed(message: String)
 signal ev_progress_synced(progress: Dictionary)
+signal ev_match_result_submitted(result: Dictionary)
 signal ev_ready
 
 @export var config: OnlineConfig
@@ -135,6 +136,28 @@ func push_progress_after_local_save() -> void:
 	if client == null or not client.has_session() or pdata == null:
 		return
 	sync_progress_async()
+
+
+## Best-effort match report. Casual modes no-op board; ranked updates global_wins.
+func submit_match_result_async(result: Dictionary) -> Dictionary:
+	if client == null or not client.has_session():
+		return {}
+	var response := await client.submit_match_result_async(result)
+	if response.is_empty():
+		return {}
+	if bool(response.get("ok", false)):
+		var progress: Dictionary = response.get("progress", {})
+		if typeof(progress) == TYPE_DICTIONARY and not progress.is_empty() and pdata != null:
+			# Ranked path may bump wins_ranked — keep local in sync without losing casual max-merge later.
+			OnlineProgress.apply_to_pdata(pdata, OnlineProgress.merge(OnlineProgress.wrap_pdata(pdata), progress))
+		ev_match_result_submitted.emit(response)
+	return response
+
+
+func fetch_leaderboard_top_async(limit: int = 10) -> Dictionary:
+	if client == null or not client.has_session():
+		return {}
+	return await client.leaderboard_top_async(limit)
 
 
 func _on_request_failed(operation: String, message: String) -> void:

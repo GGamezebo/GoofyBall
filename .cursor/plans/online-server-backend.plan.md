@@ -16,7 +16,7 @@ todos:
     status: completed
   - id: leaderboard
     content: "Phase 3 — Leaderboard + submit_match_result (server-authoritative)"
-    status: pending
+    status: completed
   - id: rooms-mm
     content: "Phase 4 — Room codes + ranked matchmaker + relayed match smoke"
     status: pending
@@ -167,10 +167,13 @@ Client: `OnlineProgress` + `OnlineService.sync_progress_async`; `SaveManager` op
 
 ### Phase 3 — Leaderboard
 
-- Leaderboard e.g. `global_wins` (ELO later)
-- RPC `submit_match_result` (server-side): validate session; update aggregates + board
-- Decide policy: vs_ai/local usually **not** on global ranked board
-- Rate-limit client-submitted casual results
+- Leaderboard `global_wins` (authoritative; ELO later)
+- RPC `submit_match_result` / `leaderboard_top`
+- Policy: `vs_ai` / `local_2p` do **not** write the board; `ranked` does
+- Light per-user submit rate limit (2s); harder limits in Phase 5
+- Smoke: `server/scripts/smoke_leaderboard.ps1`
+
+**Done when:** ranked submit → record on `global_wins` → `leaderboard_top` lists it
 
 ### Phase 4 — Rooms + matchmaker
 

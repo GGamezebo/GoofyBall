@@ -42,6 +42,7 @@ func _on_ev_start_game(data: Dictionary) -> void:
 
 func _on_ev_exit_game(data: Dictionary = {}) -> void:
 	_apply_match_result(data)
+	_submit_match_result_online(data)
 	add_event("ev.exit_game", data)
 
 
@@ -68,3 +69,23 @@ func _apply_match_result(data: Dictionary) -> void:
 			pdata.wins_two_player += 1
 
 	root_events.ev_save_progress.emit()
+
+
+func _submit_match_result_online(data: Dictionary) -> void:
+	var online := get_node_or_null("OnlineService") as OnlineService
+	if online == null or online.client == null or not online.client.has_session():
+		return
+	var game_config: GameConfig = data.get("game_config") as GameConfig
+	var mode := "local_2p"
+	if game_config != null and game_config.vs_ai:
+		mode = "vs_ai"
+	elif bool(data.get("ranked", false)):
+		mode = "ranked"
+	# Fire-and-forget — do not block PostBattle transition.
+	online.submit_match_result_async({
+		"mode": mode,
+		"winner_side": int(data.get("winner_side", -1)),
+		"local_side": int(data.get("local_side", 0)),
+		"score_left": int(data.get("score_left", 0)),
+		"score_right": int(data.get("score_right", 0)),
+	})

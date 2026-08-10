@@ -1,10 +1,10 @@
 ---
-description: Phase 0–2 Nakama server + online identity/progress conventions
+description: Phase 0–3 Nakama server + online identity/progress/leaderboard
 globs: server/**,src/features/online/**
 alwaysApply: false
 ---
 
-# Server + online identity / progress
+# Server + online identity / progress / leaderboard
 
 ## Server (`server/`)
 
@@ -15,16 +15,25 @@ alwaysApply: false
 | `nakama/local.yml` | Config + `runtime.env` |
 | `nakama/modules/identity.lua` | Auth RPCs + Yandex custom hooks |
 | `nakama/modules/progress.lua` | `progress_pull` / `push` / `merge` + Storage |
+| `nakama/modules/leaderboard.lua` | `submit_match_result` / `leaderboard_top` + `global_wins` |
 | `scripts/smoke.ps1` | Stack health |
 | `scripts/smoke_identity.ps1` | Device auth + identity RPCs |
 | `scripts/smoke_progress.ps1` | Device auth + progress merge/pull |
+| `scripts/smoke_leaderboard.ps1` | Ranked submit + top list |
 
 ### Storage contract
 
 - collection `player`, key `progress`
-- value: PData fields + `schema_version` + `updated_at`
+- value: PData fields + `schema_version` + `updated_at` (+ `wins_ranked`)
 - writes only via RPC (`permission_write = 0` on object)
 - merge policy: `max()` on additive counters
+
+### Leaderboard
+
+- id `global_wins` — authoritative, desc, operator `set`, ranks on
+- Only `mode: "ranked"` + local win updates the board
+- `vs_ai` / `local_2p` → RPC ok, no board write (casual progress via `progress_merge`)
+- Light rate limit: 2s between submits / user
 
 ### Must
 
@@ -42,6 +51,7 @@ alwaysApply: false
 - `PlatformAuth` + `OnlineService` (optional auto-login)
 - `OnlineProgress` wrap/merge helpers
 - `SaveManager._online_service` optional — disk first, cloud best-effort
+- AppRoot after match: local PData + best-effort `submit_match_result`
 - Must not block offline AI / local 2P; `core/` must not import Nakama
 
 Plan: `.cursor/plans/online-server-backend.plan.md`

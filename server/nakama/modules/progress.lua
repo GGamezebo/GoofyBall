@@ -18,7 +18,8 @@ local function empty_progress()
     matches_played = 0,
     wins_two_player = 0,
     wins_vs_ai = 0,
-    losses_vs_ai = 0
+    losses_vs_ai = 0,
+    wins_ranked = 0
   }
 end
 
@@ -39,6 +40,7 @@ local function sanitize_progress(input)
   out.wins_two_player = as_nonneg_int(input.wins_two_player)
   out.wins_vs_ai = as_nonneg_int(input.wins_vs_ai)
   out.losses_vs_ai = as_nonneg_int(input.losses_vs_ai)
+  out.wins_ranked = as_nonneg_int(input.wins_ranked)
   out.updated_at = as_nonneg_int(input.updated_at)
   if out.updated_at == 0 then
     out.updated_at = os.time()
@@ -56,7 +58,8 @@ local function merge_progress(local_p, remote_p)
     matches_played = math.max(a.matches_played, b.matches_played),
     wins_two_player = math.max(a.wins_two_player, b.wins_two_player),
     wins_vs_ai = math.max(a.wins_vs_ai, b.wins_vs_ai),
-    losses_vs_ai = math.max(a.losses_vs_ai, b.losses_vs_ai)
+    losses_vs_ai = math.max(a.losses_vs_ai, b.losses_vs_ai),
+    wins_ranked = math.max(a.wins_ranked, b.wins_ranked)
   }
 end
 

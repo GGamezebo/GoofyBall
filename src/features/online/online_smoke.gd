@@ -30,4 +30,14 @@ func _ready() -> void:
 		"updated_at": int(Time.get_unix_time_from_system()),
 	})
 	print("[online_smoke] progress_merge=", progress)
+	var ranked := await _service.submit_match_result_async({
+		"mode": "ranked",
+		"winner_side": 0,
+		"local_side": 0,
+		"score_left": 5,
+		"score_right": 2,
+	})
+	print("[online_smoke] submit_match_result=", ranked)
+	var board := await _service.fetch_leaderboard_top_async(5)
+	print("[online_smoke] leaderboard_top=", board)
 	print("[online_smoke] OK")
