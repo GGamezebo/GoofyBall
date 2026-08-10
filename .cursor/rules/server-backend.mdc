@@ -1,60 +1,42 @@
 ---
-description: Phase 0 local Nakama + Postgres Docker conventions under server/
-globs: server/**
+description: Phase 0–1 Nakama server + online identity conventions
+globs: server/**,src/features/online/**
 alwaysApply: false
 ---
 
-# Server backend (Phase 0)
+# Server + online identity
 
-Local game backend lives in `server/` — **not** imported by Godot. Godot stays offline-capable without this stack.
-
-## Layout
+## Server (`server/`)
 
 | Path | Role |
 |------|------|
-| `server/docker-compose.yml` | Postgres + Nakama stack (`name: goofyballs`) |
-| `server/.env` | Secrets (gitignored) — never commit |
-| `server/.env.example` | Variable template — commit |
-| `server/nakama/local.yml` | Nakama non-secret config |
-| `server/nakama/modules/` | Runtime modules (Phase 1+) |
-| `server/scripts/smoke.ps1` | Health smoke test |
+| `docker-compose.yml` | Postgres + Nakama (`name: goofyballs`) |
+| `.env` | Secrets (gitignored) |
+| `nakama/local.yml` | Config + `runtime.env` (e.g. `YANDEX_AUTH_MODE`) |
+| `nakama/modules/identity.lua` | RPCs + Yandex custom-auth hooks |
+| `scripts/smoke.ps1` | Stack health |
+| `scripts/smoke_identity.ps1` | Device auth + identity RPCs |
 
-## Must
+### Must
 
-- Pin image tags (`postgres:16.8-alpine`, `nakama:3.37.0`) — no `latest`
-- Keep secrets in `.env`; override via Compose/CLI (`server_key`, console password, DB password)
-- Mount `./nakama` → `/nakama/data` (config + modules), not the whole `server/` folder
-- Nakama waits for Postgres **healthy** before migrate/start
-- Run commands from `server/`: `docker compose up -d`, `.\scripts\smoke.ps1`
+- Pin image tags; secrets in `.env`; mount `./nakama` → `/nakama/data`
+- YAML under `server/` must use spaces only (tabs break Compose/Nakama parsers)
+- Key all player data by Nakama `user_id` - never per-platform Storage collections
+- Yandex uses **custom** auth (`yandex_<playerId>`); Google/Steam use native providers
+- After changing modules: `docker compose restart nakama`
 
-## Ports (`HOST:CONTAINER`)
+### Ports
 
-| Mapping | Use |
-|---------|-----|
-| `5432:5432` | Postgres (optional host tools; Nakama uses internal `postgres:5432`) |
-| `7349:7349` | gRPC |
-| `7350:7350` | HTTP API + WebSocket (future Godot/HTML) |
-| `7351:7351` | Admin Console |
+`5432` Postgres · `7349` gRPC · `7350` HTTP/WS · `7351` Console (`HOST:CONTAINER`)
 
-Change **left** (host) if occupied; keep **right** unless the process listen port changes.
+## Client (`src/features/online/`)
 
-## Never
+- `PlatformAuth` adapters: device, google (android/web), steam, yandex
+- `OnlineService` optional — no auto-login unless `OnlineConfig.auto_authenticate_on_ready`
+- Must not block offline AI / local 2P; `core/` must not import Nakama
 
-- Put `server_key` / DB / console secrets in committed YAML as the real values
-- Import Nakama or `server/` into `core/` or Godot autoloads in Phase 0
-- Use `docker compose down -v` unless intentionally wiping DB data
-- Block offline AI / local 2P on backend availability
+### Provider ids
 
-## Ops cheat sheet
+`device` · `google_android` · `google_web` · `steam` · `yandex`
 
-```
-docker compose up -d
-.\scripts\smoke.ps1
-docker compose logs -f nakama
-docker compose down          # keep volume
-docker compose down -v       # wipe Postgres data
-```
-
-Broken network / stale containers: `down` then `up -d --force-recreate`.
-
-Plan: `.cursor/plans/online-server-backend.plan.md`.
+Plan: `.cursor/plans/online-server-backend.plan.md`

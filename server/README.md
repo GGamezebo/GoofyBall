@@ -101,8 +101,13 @@ Do not reuse `dev` passwords or `server_key` outside your machine.
 - **Nakama restart loop** — `docker compose logs nakama`; usually bad DB password or volume from an old password (`down -v` once, then `up` again).
 - **Smoke fails** — wait ~20s after first pull/start, then re-run `.\scripts\smoke.ps1`.
 
-## Next (Phase 1)
+## Next (Phase 1+)
 
-- Google OAuth clients (Android + Web) in Nakama config
-- Device + Google auth smoke from client
-- First runtime module RPCs (`health_ext`, `get_account_view`)
+Identity module + client feature are in place (`nakama/modules/identity.lua`, `src/features/online/`).
+
+```powershell
+docker compose restart nakama
+.\scripts\smoke_identity.ps1
+```
+
+Providers: device (guest), Google Android/Web, Steam, Yandex Games (custom). See `src/features/online/README.md`.

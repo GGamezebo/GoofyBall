@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="OnlineConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/features/online/online_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+host = "127.0.0.1"
+port = 7350
+server_key = "goofyballs_dev_server_key"
+use_ssl = false
+scheme = "http"
+preferred_platform = 0
+auto_authenticate_on_ready = false
+request_timeout_sec = 15.0

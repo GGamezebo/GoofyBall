@@ -1,7 +1,5 @@
 # Nakama config for local/dev (Goofy Balls).
-# Secrets (DB password, console password, server_key) are overridden from
-# docker-compose env / CLI flags so they stay out of git-friendly defaults.
-# Docs: https://heroiclabs.com/docs/nakama/getting-started/configuration/
+# Secrets overridden from docker-compose env / CLI flags.
 
 name: goofyballs
 data_dir: "/nakama/data/"
@@ -11,13 +9,11 @@ logger:
   stdout: true
 
 database:
-  # Overridden at container start from POSTGRES_* env — keep as documentation.
   address:
-    - "postgres:localdb@postgres:5432/nakama"
+	- "postgres:localdb@postgres:5432/nakama"
 
 session:
   token_expiry_sec: 7200
-  # Change before any shared/staging deploy (Phase 5).
   encryption_key: "goofyballs_dev_session_encryption_key"
   refresh_encryption_key: "goofyballs_dev_refresh_encryption_key"
 
@@ -33,11 +29,13 @@ console:
 runtime:
   path: "/nakama/data/modules"
   http_key: "goofyballs_dev_http_key"
-  # Phase 1+: JS/Go/Lua modules land in ./modules
+  env:
+	- "YANDEX_AUTH_MODE=dev"
 
-# -----------------------------------------------------------------------------
-# Phase 1 — Google auth (leave unset until OAuth clients exist)
-# social:
-#   google:
-#     credentials_json: "{...}"   # or configure via console / env later
-# -----------------------------------------------------------------------------
+social:
+  steam:
+	app_id: 0
+	publisher_key: ""
+
+# google_auth:
+#   credentials_json: "{...service account json...}"

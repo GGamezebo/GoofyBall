@@ -9,8 +9,8 @@ todos:
     content: "Phase 0 — Docker Compose (Nakama + Postgres), env/secrets, healthcheck CI"
     status: completed
   - id: identity
-    content: "Phase 1 — Device + Google auth (Android & Web clients), account view RPCs, IPlatformAuth contract"
-    status: pending
+    content: "Phase 1 — Device + Google + Steam + Yandex auth, account RPCs, IPlatformAuth"
+    status: completed
   - id: progress-sync
     content: "Phase 2 — Cloud progress Storage schema + progress_pull/push/merge RPCs"
     status: pending
@@ -24,7 +24,7 @@ todos:
     content: "Phase 5 — Rate limits, backups, staging, RPC/schema versioning"
     status: pending
   - id: auth-extensibility
-    content: "Phase 6 — Stub path for Steam/Apple via same IPlatformAuth (no Storage rewrite)"
+    content: "Phase 6 — Extra providers via IPlatformAuth (Apple, etc.); Steam/Yandex already in Phase 1"
     status: pending
 isProject: true
 ---
@@ -140,11 +140,14 @@ Conflict policy (Phase 2):
 
 ### Phase 1 — Identity foundation
 
-- Enable **device** + **Google** auth
-- Google: separate OAuth clients for **Android** and **Web/HTML**; both in Nakama config
+- Enable **device** + **Google** (Android & Web) + **Steam** + **Yandex Games**
+- Google: separate OAuth clients for Android and Web/HTML (configure when credentials exist)
+- Steam: `social.steam` in Nakama config + session ticket from GodotSteam
+- Yandex: Nakama **custom** auth + `beforeAuthenticateCustom` (`yandex_<id>`, dev mode local)
 - Runtime RPCs: `health_ext`, `get_account_view`, `link_status`
-- Client smoke: guest → session → account view
-- **Done when:** Android and HTML can link to one `user_id`
+- Client: `src/features/online/` — `PlatformAuth` contract + `OnlineService`
+- Smoke: `server/scripts/smoke_identity.ps1` and `online_smoke.tscn`
+- **Done when:** guest device auth works; providers share one `user_id` after link
 
 ### Phase 2 — Persistent data in cloud
 

@@ -22,6 +22,7 @@ When a change alters structure, contracts, or placement conventions, update `.cu
 - Entry point or main-scene wiring changes
 - Path-resolution convention (`class_name` / `@export` vs hardcoded `res://`)
 - Server/Docker/Nakama conventions under `server/` (`server-backend.mdc`)
+- Online identity feature under `src/features/online/`
 - A convention in these rules is deliberately broken or replaced
 
 ## How
