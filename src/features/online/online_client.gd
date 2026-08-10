@@ -100,6 +100,18 @@ func link_status_async() -> Dictionary:
 	return await rpc_async("link_status")
 
 
+func progress_pull_async() -> Dictionary:
+	return await rpc_async("progress_pull")
+
+
+func progress_push_async(progress: Dictionary) -> Dictionary:
+	return await rpc_async("progress_push", {"progress": progress})
+
+
+func progress_merge_async(progress: Dictionary) -> Dictionary:
+	return await rpc_async("progress_merge", {"progress": progress})
+
+
 func _request_json(method: String, path: String, body: Dictionary, use_session: bool, rpc_envelope: bool = false) -> Dictionary:
 	if _http == null:
 		ev_request_failed.emit(path, "OnlineClient not setup")

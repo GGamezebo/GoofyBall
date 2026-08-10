@@ -1,10 +1,10 @@
 ---
-description: Phase 0–1 Nakama server + online identity conventions
+description: Phase 0–2 Nakama server + online identity/progress conventions
 globs: server/**,src/features/online/**
 alwaysApply: false
 ---
 
-# Server + online identity
+# Server + online identity / progress
 
 ## Server (`server/`)
 
@@ -12,31 +12,36 @@ alwaysApply: false
 |------|------|
 | `docker-compose.yml` | Postgres + Nakama (`name: goofyballs`) |
 | `.env` | Secrets (gitignored) |
-| `nakama/local.yml` | Config + `runtime.env` (e.g. `YANDEX_AUTH_MODE`) |
-| `nakama/modules/identity.lua` | RPCs + Yandex custom-auth hooks |
+| `nakama/local.yml` | Config + `runtime.env` |
+| `nakama/modules/identity.lua` | Auth RPCs + Yandex custom hooks |
+| `nakama/modules/progress.lua` | `progress_pull` / `push` / `merge` + Storage |
 | `scripts/smoke.ps1` | Stack health |
 | `scripts/smoke_identity.ps1` | Device auth + identity RPCs |
+| `scripts/smoke_progress.ps1` | Device auth + progress merge/pull |
+
+### Storage contract
+
+- collection `player`, key `progress`
+- value: PData fields + `schema_version` + `updated_at`
+- writes only via RPC (`permission_write = 0` on object)
+- merge policy: `max()` on additive counters
 
 ### Must
 
 - Pin image tags; secrets in `.env`; mount `./nakama` → `/nakama/data`
-- YAML under `server/` must use spaces only (tabs break Compose/Nakama parsers)
-- Key all player data by Nakama `user_id` - never per-platform Storage collections
-- Yandex uses **custom** auth (`yandex_<playerId>`); Google/Steam use native providers
+- YAML under `server/` — **spaces only** (tabs break parsers)
+- Key all player data by Nakama `user_id`
 - After changing modules: `docker compose restart nakama`
 
 ### Ports
 
-`5432` Postgres · `7349` gRPC · `7350` HTTP/WS · `7351` Console (`HOST:CONTAINER`)
+`5432` Postgres · `7349` gRPC · `7350` HTTP/WS · `7351` Console
 
 ## Client (`src/features/online/`)
 
-- `PlatformAuth` adapters: device, google (android/web), steam, yandex
-- `OnlineService` optional — no auto-login unless `OnlineConfig.auto_authenticate_on_ready`
+- `PlatformAuth` + `OnlineService` (optional auto-login)
+- `OnlineProgress` wrap/merge helpers
+- `SaveManager._online_service` optional — disk first, cloud best-effort
 - Must not block offline AI / local 2P; `core/` must not import Nakama
-
-### Provider ids
-
-`device` · `google_android` · `google_web` · `steam` · `yandex`
 
 Plan: `.cursor/plans/online-server-backend.plan.md`

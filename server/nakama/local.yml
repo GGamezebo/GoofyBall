@@ -1,5 +1,6 @@
 # Nakama config for local/dev (Goofy Balls).
 # Secrets overridden from docker-compose env / CLI flags.
+# IMPORTANT: spaces only (no tabs).
 
 name: goofyballs
 data_dir: "/nakama/data/"

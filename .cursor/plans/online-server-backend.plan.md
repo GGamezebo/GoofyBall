@@ -13,7 +13,7 @@ todos:
     status: completed
   - id: progress-sync
     content: "Phase 2 — Cloud progress Storage schema + progress_pull/push/merge RPCs"
-    status: pending
+    status: completed
   - id: leaderboard
     content: "Phase 3 — Leaderboard + submit_match_result (server-authoritative)"
     status: pending
@@ -159,11 +159,11 @@ key: "progress"
 value: { ...PData..., "schema_version": 1, "updated_at": unix }
 ```
 
-RPCs: `progress_pull`, `progress_push`, `progress_merge`
+RPCs: `progress_pull`, `progress_push`, `progress_merge` (`server/nakama/modules/progress.lua`)
 
-Prefer RPC writes over raw client Storage for validation.
+Client: `OnlineProgress` + `OnlineService.sync_progress_async`; `SaveManager` optional `_online_service` (disk first, cloud best-effort).
 
-**Done when:** offline match → disk → online merge → second client (HTML) sees wins
+**Done when:** offline match → disk → online merge → second client sees wins (smoke: `smoke_progress.ps1`)
 
 ### Phase 3 — Leaderboard
 

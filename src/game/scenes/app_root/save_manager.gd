@@ -5,6 +5,8 @@ const PROFILE: String = "save"
 
 @export var _pdata: PData
 @export var _root_events: RootEvents
+## Optional Phase 2 cloud sync — leave empty for pure offline.
+@export var _online_service: OnlineService
 
 @onready var _save = $Save
 
@@ -12,6 +14,7 @@ var _dirty: bool = false
 var _in_battle: bool = false
 var _shutting_down: bool = false
 var _debounce_timer: Timer
+var _skip_cloud_once: bool = false
 
 
 func _ready() -> void:
@@ -26,6 +29,8 @@ func _ready() -> void:
 	_root_events.ev_save_progress.connect(save)
 	_root_events.ev_battle_started.connect(_on_battle_started)
 	_root_events.ev_battle_finished.connect(_on_battle_finished)
+	if _online_service:
+		_online_service.ev_progress_synced.connect(_on_cloud_progress_synced)
 
 
 func save_pdata() -> void:
@@ -58,6 +63,23 @@ func _write_to_disk() -> void:
 	if _debounce_timer:
 		_debounce_timer.stop()
 	save_pdata()
+	if _skip_cloud_once:
+		_skip_cloud_once = false
+		return
+	_request_cloud_sync()
+
+
+func _request_cloud_sync() -> void:
+	if _online_service == null or not is_instance_valid(_online_service):
+		return
+	_online_service.push_progress_after_local_save()
+
+
+func _on_cloud_progress_synced(_progress: Dictionary) -> void:
+	# Shared PData already updated by OnlineService — persist disk only.
+	_skip_cloud_once = true
+	_dirty = true
+	_write_to_disk()
 
 
 func _on_battle_started() -> void:

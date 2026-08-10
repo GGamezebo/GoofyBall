@@ -1,8 +1,9 @@
 # Goofy Balls - local Nakama + Postgres (Phase 0).
 # Usage (from this directory):
-#   copy .env.example .env   # first time
+#   copy .env.example .env
 #   docker compose up -d
 #   .\scripts\smoke.ps1
+# IMPORTANT: use spaces only in this file (tabs break YAML).
 
 name: goofyballs
 

@@ -1,7 +1,7 @@
-# Goofy Balls online identity (Phase 1)
+# Goofy Balls online identity + progress (Phase 1–2)
 
 Feature folder: `src/features/online/`.
-Server module: `server/nakama/modules/identity.lua` (Lua — loads without JS bundling).
+Server modules: `identity.lua`, `progress.lua`.
 
 ## Providers
 
@@ -9,24 +9,32 @@ Server module: `server/nakama/modules/identity.lua` (Lua — loads without JS bu
 |-------------|------------|-------|
 | `device` | authenticate/link device | Guest; always available |
 | `google_android` / `google_web` | authenticate/link google | Inject Google ID token from SDK |
-| `steam` | authenticate/link steam | Needs `social.steam` in Nakama + ticket |
-| `yandex` | authenticate/link **custom** | Server `beforeAuthenticateCustom`; `yandex_<id>` |
+| `steam` | authenticate/link steam | Needs `social.steam` + ticket |
+| `yandex` | authenticate/link **custom** | `yandex_<id>`; server before-hook |
 
-All providers resolve to one Nakama `user_id`. Link later; do not create per-platform save tables.
+## Cloud progress (Phase 2)
 
-## Local smoke (server)
+| RPC | Behavior |
+|-----|----------|
+| `progress_pull` | Read Storage `player/progress` |
+| `progress_push` | Write if local `updated_at` >= cloud (else conflict) |
+| `progress_merge` | `max()` on counters, write, return merged |
+
+Offline-first: `SaveManager` always writes disk; if `_online_service` set and session exists, merges to cloud after flush.
+
+## Local smoke
 
 ```powershell
 cd server
 docker compose restart nakama
 .\scripts\smoke.ps1
 .\scripts\smoke_identity.ps1
+.\scripts\smoke_progress.ps1
 ```
 
 ## Godot smoke
 
-Open `src/features/online/online_smoke.tscn` (F6) with Nakama running.
-Default config: `online_config.tres` → `127.0.0.1:7350` + `server_key` from `.env`.
+F6 `online_smoke.tscn` (Nakama running) — guest auth + progress_merge.
 
 ## Wiring tokens (later UI)
 
@@ -35,5 +43,3 @@ var google := GoogleAuth.new(online.client, "google_web")
 google.set_id_token(token_from_js_bridge)
 await online.link_provider_async(google)
 ```
-
-Yandex Games export: set feature `yandex_games` so `OnlinePlatforms.detect_host_kind()` picks Yandex.

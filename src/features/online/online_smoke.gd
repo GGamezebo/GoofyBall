@@ -21,4 +21,13 @@ func _ready() -> void:
 	print("[online_smoke] health_ext=", health)
 	var view := await _service.refresh_account_view_async()
 	print("[online_smoke] account_view=", view)
+	var progress := await _service.sync_progress_async({
+		"matches_played": 1,
+		"wins_two_player": 0,
+		"wins_vs_ai": 1,
+		"losses_vs_ai": 0,
+		"schema_version": 1,
+		"updated_at": int(Time.get_unix_time_from_system()),
+	})
+	print("[online_smoke] progress_merge=", progress)
 	print("[online_smoke] OK")

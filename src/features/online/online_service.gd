@@ -7,14 +7,19 @@ extends Node
 signal ev_authenticated(session: OnlineSession)
 signal ev_account_view(view: Dictionary)
 signal ev_auth_failed(message: String)
+signal ev_progress_synced(progress: Dictionary)
 signal ev_ready
 
 @export var config: OnlineConfig
+## Optional — when set, merge cloud progress into this PData after auth / sync.
+@export var pdata: PData
 
 var client: OnlineClient
 var last_account_view: Dictionary = {}
+var last_progress: Dictionary = {}
 
 var _auth: PlatformAuth
+var _sync_busy: bool = false
 
 
 func _ready() -> void:
@@ -43,6 +48,7 @@ func authenticate_guest_async() -> OnlineSession:
 		return null
 	ev_authenticated.emit(session)
 	await refresh_account_view_async()
+	await sync_progress_async()
 	return session
 
 
@@ -61,6 +67,7 @@ func authenticate_preferred_async() -> OnlineSession:
 		return null
 	ev_authenticated.emit(session)
 	await refresh_account_view_async()
+	await sync_progress_async()
 	return session
 
 
@@ -93,6 +100,41 @@ func health_ext_async() -> Dictionary:
 	if client == null or not client.has_session():
 		return {}
 	return await client.health_ext_async()
+
+
+## Merge local PData (or override blob) with cloud; write both sides. Offline-safe no-op.
+func sync_progress_async(local_override: Dictionary = {}) -> Dictionary:
+	if client == null or not client.has_session():
+		return {}
+	if _sync_busy:
+		return last_progress
+	_sync_busy = true
+	var local_blob: Dictionary
+	if not local_override.is_empty():
+		local_blob = OnlineProgress.sanitize(local_override)
+	elif pdata != null:
+		local_blob = OnlineProgress.wrap_pdata(pdata)
+	else:
+		local_blob = OnlineProgress.sanitize({})
+	var result := await client.progress_merge_async(local_blob)
+	_sync_busy = false
+	if result.is_empty() or not bool(result.get("ok", false)):
+		return {}
+	var merged: Dictionary = result.get("progress", {})
+	if typeof(merged) != TYPE_DICTIONARY:
+		return {}
+	last_progress = merged
+	if pdata != null:
+		OnlineProgress.apply_to_pdata(pdata, merged)
+	ev_progress_synced.emit(merged)
+	return merged
+
+
+## Disk already written — push/merge best-effort without blocking gameplay.
+func push_progress_after_local_save() -> void:
+	if client == null or not client.has_session() or pdata == null:
+		return
+	sync_progress_async()
 
 
 func _on_request_failed(operation: String, message: String) -> void:
