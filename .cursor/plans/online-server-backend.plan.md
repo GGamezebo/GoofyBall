@@ -19,7 +19,7 @@ todos:
     status: completed
   - id: rooms-mm
     content: "Phase 4 — Room codes + ranked matchmaker + relayed match smoke"
-    status: pending
+    status: completed
   - id: hardening
     content: "Phase 5 — Rate limits, backups, staging, RPC/schema versioning"
     status: pending
@@ -177,21 +177,27 @@ Client: `OnlineProgress` + `OnlineService.sync_progress_async`; `SaveManager` op
 
 ### Phase 4 — Rooms + matchmaker
 
-Rooms first (friend codes):
+Rooms (friend codes):
 
 | RPC | Behavior |
 |---|---|
-| `room_create` | match/party → code `A7K2`, TTL 30–60 min |
-| `room_join` | code → match_id |
-| `room_close` | host |
+| `room_create` | `goofy_match` + code `A7K2`, TTL 45 min |
+| `room_join` | code → match_id (case-insensitive) |
+| `room_close` | host only |
 
-Rules: 2 players, case-insensitive code, brute-force rate limit.
+Matchmaker (HTTP lobby + realtime join):
 
-Matchmaker: pool `ranked_1v1`, properties `skill` / `region`, count = 2.
+| RPC | Behavior |
+|---|---|
+| `mm_enqueue` | pool `ranked_1v1`, skill±200, region; waiting or matched |
+| `mm_status` / `mm_cancel` | poll / leave queue |
 
-Realtime: **relayed** via bridge first; stub authoritative `MatchInit`/`MatchLoop` for later.
+Realtime: `nakama-godot` + `NakamaMultiplayerBridge.join_named_match(match_name)` (relayed).  
+Authoritative `goofy_match` stub remains for later.
 
-**Done when:** Android creates code → HTML joins; separately two clients matchmake
+Smoke: `smoke_rooms.ps1`, `smoke_matchmaker.ps1`; Godot F6 `online_smoke` joins room match.
+
+**Done when:** create code → second client joins same named match; two clients matchmake to same `match_name` and can join via bridge
 
 ### Phase 5 — Hardening
 

@@ -32,5 +32,4 @@ func link_async() -> bool:
 	if client == null or not client.has_session() or not can_authenticate():
 		await _yield_frame()
 		return false
-	await client.link_yandex_async(_player_id, _signature)
-	return true
+	return await client.link_yandex_async(_player_id, _signature)

@@ -101,7 +101,6 @@ Do not reuse `dev` passwords or `server_key` outside your machine.
 - **Nakama restart loop** — `docker compose logs nakama`; usually bad DB password or volume from an old password (`down -v` once, then `up` again).
 - **Smoke fails** — wait ~20s after first pull/start, then re-run `.\scripts\smoke.ps1`.
 
-## Next (Phase 4+)
+## Next (Phase 5+)
 
-Leaderboard: `nakama/modules/leaderboard.lua`. Smoke: `.\scripts\smoke_leaderboard.ps1`.
-Rooms + matchmaker next.
+Rooms/MM: `smoke_rooms.ps1`, `smoke_matchmaker.ps1`. Hardening next (rate limits, WSS, staging).

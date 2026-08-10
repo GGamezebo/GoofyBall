@@ -41,6 +41,7 @@ Touch (`virtual_controls`) is **P1 only** (left half move, right half jump) — 
 | `src/ui/` | Shared UI (loading screen) |
 | `core/` | Project-agnostic (HFSM, FSM, EventListener, ResourceUtils) |
 | `addons/GodotSavesAddon` | Save plugin — do not edit casually |
+| `addons/com.heroiclabs.nakama` | Nakama Godot client + MultiplayerBridge (autoload `Nakama`) |
 | `server/` | Local/prod-bound Nakama + Postgres (Docker); not imported by Godot |
 | `src/features/online/` | Online identity client (Phase 1+); optional, offline play OK |
 

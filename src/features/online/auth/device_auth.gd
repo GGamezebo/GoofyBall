@@ -24,8 +24,7 @@ func link_async() -> bool:
 		await _yield_frame()
 		return false
 	var device_id := _load_or_create_device_id()
-	await client.link_device_async(device_id)
-	return client.has_session()
+	return await client.link_device_async(device_id)
 
 
 func _load_or_create_device_id() -> String:

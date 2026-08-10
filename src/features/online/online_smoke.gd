@@ -40,4 +40,15 @@ func _ready() -> void:
 	print("[online_smoke] submit_match_result=", ranked)
 	var board := await _service.fetch_leaderboard_top_async(5)
 	print("[online_smoke] leaderboard_top=", board)
+	print("[online_smoke] realtime: room create + join named match…")
+	var room := await _service.room_create_async("smoke")
+	print("[online_smoke] room_create=", room)
+	if bool(room.get("ok", false)):
+		print(
+			"[online_smoke] in_match=",
+			_service.realtime.is_in_match(),
+			" match_id=",
+			_service.realtime.get_match_id()
+		)
+		await _service.leave_realtime_match_async()
 	print("[online_smoke] OK")

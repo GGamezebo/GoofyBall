@@ -41,8 +41,7 @@ func link_async() -> bool:
 	if ticket.is_empty():
 		await _yield_frame()
 		return false
-	await client.link_steam_async(ticket)
-	return true
+	return await client.link_steam_async(ticket)
 
 
 func _resolve_ticket() -> String:

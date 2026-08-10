@@ -1,21 +1,30 @@
 class_name OnlineService
 extends Node
 
-## Optional online identity host. Safe defaults: no auto-login unless configured.
-## Does not block offline AI / local 2P — call authenticate explicitly from menu later.
+## Optional online identity + realtime host. Safe defaults: no auto-login.
+## Does not block offline AI / local 2P — call authenticate / join explicitly.
 
 signal ev_authenticated(session: OnlineSession)
 signal ev_account_view(view: Dictionary)
 signal ev_auth_failed(message: String)
 signal ev_progress_synced(progress: Dictionary)
 signal ev_match_result_submitted(result: Dictionary)
+signal ev_room(result: Dictionary)
+signal ev_matchmaker(result: Dictionary)
+signal ev_match_joined(match_id: String)
+signal ev_match_join_failed(message: String)
+signal ev_peer_connected(peer_id: int)
+signal ev_peer_disconnected(peer_id: int)
 signal ev_ready
 
 @export var config: OnlineConfig
 ## Optional — when set, merge cloud progress into this PData after auth / sync.
 @export var pdata: PData
+## Auto socket+join after room/mm success (default on).
+@export var auto_join_realtime: bool = true
 
 var client: OnlineClient
+var realtime: OnlineRealtime
 var last_account_view: Dictionary = {}
 var last_progress: Dictionary = {}
 
@@ -29,6 +38,14 @@ func _ready() -> void:
 	client = OnlineClient.new()
 	client.setup(self, config)
 	client.ev_request_failed.connect(_on_request_failed)
+	realtime = OnlineRealtime.new()
+	realtime.name = "OnlineRealtime"
+	add_child(realtime)
+	realtime.setup(client)
+	realtime.ev_match_joined.connect(func(id: String): ev_match_joined.emit(id))
+	realtime.ev_match_join_failed.connect(func(msg: String): ev_match_join_failed.emit(msg))
+	realtime.ev_peer_connected.connect(func(id: int): ev_peer_connected.emit(id))
+	realtime.ev_peer_disconnected.connect(func(id: int): ev_peer_disconnected.emit(id))
 	_auth = PlatformAuthFactory.create(client, config.preferred_platform)
 	ev_ready.emit()
 	if config.auto_authenticate_on_ready:
@@ -59,7 +76,6 @@ func authenticate_preferred_async() -> OnlineSession:
 	if _auth.get_platform_id() == "device":
 		return await authenticate_guest_async()
 	if not _auth.can_authenticate():
-		# Fall back to guest so boot never hard-fails without SDK tokens.
 		return await authenticate_guest_async()
 	@warning_ignore("redundant_await")
 	var session := await _auth.authenticate_async()
@@ -80,7 +96,6 @@ func link_provider_async(provider: PlatformAuth) -> bool:
 		ev_auth_failed.emit("provider cannot link")
 		return false
 	provider.client = client
-	# Polymorphic PlatformAuth.await: analyzer may still flag; overrides are coroutines.
 	@warning_ignore("redundant_await")
 	var ok := await provider.link_async()
 	if ok:
@@ -103,7 +118,6 @@ func health_ext_async() -> Dictionary:
 	return await client.health_ext_async()
 
 
-## Merge local PData (or override blob) with cloud; write both sides. Offline-safe no-op.
 func sync_progress_async(local_override: Dictionary = {}) -> Dictionary:
 	if client == null or not client.has_session():
 		return {}
@@ -131,14 +145,12 @@ func sync_progress_async(local_override: Dictionary = {}) -> Dictionary:
 	return merged
 
 
-## Disk already written — push/merge best-effort without blocking gameplay.
 func push_progress_after_local_save() -> void:
 	if client == null or not client.has_session() or pdata == null:
 		return
 	sync_progress_async()
 
 
-## Best-effort match report. Casual modes no-op board; ranked updates global_wins.
 func submit_match_result_async(result: Dictionary) -> Dictionary:
 	if client == null or not client.has_session():
 		return {}
@@ -148,7 +160,6 @@ func submit_match_result_async(result: Dictionary) -> Dictionary:
 	if bool(response.get("ok", false)):
 		var progress: Dictionary = response.get("progress", {})
 		if typeof(progress) == TYPE_DICTIONARY and not progress.is_empty() and pdata != null:
-			# Ranked path may bump wins_ranked — keep local in sync without losing casual max-merge later.
 			OnlineProgress.apply_to_pdata(pdata, OnlineProgress.merge(OnlineProgress.wrap_pdata(pdata), progress))
 		ev_match_result_submitted.emit(response)
 	return response
@@ -160,6 +171,108 @@ func fetch_leaderboard_top_async(limit: int = 10) -> Dictionary:
 	return await client.leaderboard_top_async(limit)
 
 
+func connect_realtime_async() -> bool:
+	if client == null or not client.has_session() or realtime == null:
+		return false
+	return await realtime.connect_socket_async()
+
+
+## Join relayed match by name (preferred for rooms / mm).
+func join_realtime_match_async(match_name: String) -> bool:
+	if match_name.strip_edges().is_empty():
+		return false
+	if not await connect_realtime_async():
+		return false
+	return await realtime.join_named_match_async(match_name)
+
+
+func leave_realtime_match_async() -> void:
+	if realtime:
+		await realtime.leave_match_async()
+
+
+func room_create_async(region: String = "any") -> Dictionary:
+	if client == null or not client.has_session():
+		return {}
+	var result := await client.room_create_async(region)
+	if not result.is_empty():
+		ev_room.emit(result)
+		if auto_join_realtime and bool(result.get("ok", false)):
+			await _auto_join_from_lobby(result)
+	return result
+
+
+func room_join_async(code: String) -> Dictionary:
+	if client == null or not client.has_session():
+		return {}
+	var result := await client.room_join_async(code)
+	if not result.is_empty():
+		ev_room.emit(result)
+		if auto_join_realtime and bool(result.get("ok", false)):
+			await _auto_join_from_lobby(result)
+	return result
+
+
+func room_close_async(code: String) -> Dictionary:
+	if client == null or not client.has_session():
+		return {}
+	var result := await client.room_close_async(code)
+	if not result.is_empty():
+		ev_room.emit(result)
+	return result
+
+
+func mm_enqueue_async(skill: int = 0, region: String = "any") -> Dictionary:
+	if client == null or not client.has_session():
+		return {}
+	var result := await client.mm_enqueue_async(skill, region)
+	if not result.is_empty():
+		ev_matchmaker.emit(result)
+		if (
+			auto_join_realtime
+			and bool(result.get("ok", false))
+			and str(result.get("status", "")) == "matched"
+		):
+			await _auto_join_from_lobby(result)
+	return result
+
+
+func mm_status_async(ticket_id: String) -> Dictionary:
+	if client == null or not client.has_session():
+		return {}
+	var result := await client.mm_status_async(ticket_id)
+	if not result.is_empty():
+		ev_matchmaker.emit(result)
+		if (
+			auto_join_realtime
+			and bool(result.get("ok", false))
+			and str(result.get("status", "")) == "matched"
+		):
+			await _auto_join_from_lobby(result)
+	return result
+
+
+func mm_cancel_async(ticket_id: String) -> Dictionary:
+	if client == null or not client.has_session():
+		return {}
+	var result := await client.mm_cancel_async(ticket_id)
+	if not result.is_empty():
+		ev_matchmaker.emit(result)
+	return result
+
+
+func _auto_join_from_lobby(result: Dictionary) -> void:
+	var match_name := str(result.get("match_name", result.get("match_id", "")))
+	if match_name.is_empty():
+		return
+	await join_realtime_match_async(match_name)
+
+
 func _on_request_failed(operation: String, message: String) -> void:
 	push_warning("OnlineClient %s: %s" % [operation, message])
 	ev_auth_failed.emit("%s: %s" % [operation, message])
+
+
+func _exit_tree() -> void:
+	if realtime:
+		realtime.disconnect_socket()
