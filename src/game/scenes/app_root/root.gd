@@ -1,6 +1,7 @@
 extends IScene
 
 ## App-root HFSM scene: shared progress/saves + RootEvents → HFSM bridge.
+## Also opens the sibling platform state (DESKTOP / ANDROID / STEAM / WEB).
 
 @export var root_events: RootEvents
 @export var pdata: PData
@@ -12,11 +13,27 @@ func initialize(_data: Dictionary) -> void:
 	_listener.add(root_events.ev_start_game, _on_ev_start_game)
 	_listener.add(root_events.ev_exit_game, _on_ev_exit_game)
 	_listener.add(root_events.ev_return_to_menu, _on_ev_return_to_menu)
+	_open_host_platform()
 
 
 func deinit() -> void:
 	_listener.deinit()
 	super.deinit()
+
+
+func _open_host_platform() -> void:
+	if OS.has_feature("steam"):
+		add_event("ev.open_steam")
+	elif OS.has_feature("android"):
+		add_event("ev.open_android")
+	elif (
+		OS.has_feature("web")
+		or OS.has_feature("yandex_games")
+		or OS.has_feature("yandex")
+	):
+		add_event("ev.open_web")
+	else:
+		add_event("ev.open_desktop")
 
 
 func _on_ev_start_game(data: Dictionary) -> void:

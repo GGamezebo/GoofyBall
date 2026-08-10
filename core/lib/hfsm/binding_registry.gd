@@ -3,10 +3,15 @@ extends RefCounted
 
 var _entities: Dictionary = {}
 var _instances: Dictionary = {}
+var _hfsm: HFSM = null
 
 
 func _init(entities: Dictionary = {}) -> void:
 	_entities = _build_index(entities)
+
+
+func sync_hfsm(hfsm: HFSM) -> void:
+	_hfsm = hfsm
 
 
 static func _build_index(entities: Dictionary) -> Dictionary:
@@ -68,7 +73,10 @@ func on_enter(state: HfsmStateNode, data: Dictionary = {}) -> void:
 			continue
 		var entity_name: String = state.bindings[slot]
 		var script := _resolve_type(slot, entity_name, state.name)
-		instances[slot] = script.new(event_data)
+		var entity: HfsmBoundEntity = script.new(event_data)
+		if _hfsm:
+			entity.sync_hfsm(_hfsm)
+		instances[slot] = entity
 
 
 func on_event(state: HfsmStateNode, event: HfsmEvent) -> void:

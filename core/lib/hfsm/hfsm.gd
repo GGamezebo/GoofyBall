@@ -23,6 +23,7 @@ func _init(
 ) -> void:
 	tree = p_tree
 	_bindings = HfsmBindingRegistry.new(entities)
+	_bindings.sync_hfsm(self)
 	_setup_scenes(scene_config)
 	reset()
 

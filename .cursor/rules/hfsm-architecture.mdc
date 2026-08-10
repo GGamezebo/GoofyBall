@@ -51,6 +51,7 @@ Port of Library `GDScript/HFSM` / `Python3/HFSM`. Keep transition semantics in s
 
 - Light logic only (`RefCounted`); do **not** mount scenes from entities
 - Scenes own heavy UI via `scene` keyword
+- `sync_hfsm` / `add_event` on `HfsmBoundEntity` (same idea as `IScene`) — BindingRegistry injects HFSM on enter
 
 ## Must / avoid
 

@@ -1,6 +1,6 @@
 ---
 description: App-level HFSM integration (main.gd bootstrap)
-globs: "{src/game/main.gd,src/game/hfsm/**/*,src/game/scenes/app_root/**/*}"
+globs: "{src/game/main.gd,src/game/hfsm/**/*,src/game/contexts/**/*,src/game/scenes/app_root/**/*}"
 alwaysApply: false
 ---
 
@@ -12,14 +12,26 @@ alwaysApply: false
 - Config: `src/game/hfsm/app_hfsm.json`
 - Paths: `HfsmScenePaths`
 - Bridge: `RootEvents.ev_*` → `hfsm.add_event` on **app_root**
+- Entities: `main.gd` registers `{ "context": { DesktopContext, AndroidContext, SteamContext, WEBContext, YandexGamesContext } }`
+- Contexts live in `src/game/contexts/`
 
 ## Scenes
 
-- `app_root` → saves + event bridge
+- `app_root` → saves + event bridge + host platform open (`ev.open_*`)
 - `menu` / `game` / `post_battle`
 - Start payload: `{ "custom_battle": GameConfig }` (`vs_ai` inside)
+
+## Platform open (AppRoot)
+
+| Host | Event | State |
+|------|-------|-------|
+| Steam feature | `ev.open_steam` | `STEAM` |
+| Android | `ev.open_android` | `ANDROID` |
+| Web / Yandex | `ev.open_web` | `WEB` (+ nested `YandexGames` if yandex) |
+| Else | `ev.open_desktop` | `DESKTOP` |
 
 ## Must
 
 - Keep match `GameManager` FSM separate from HFSM
 - New app phase → JSON `scene` + `HfsmScenePaths` export
+- Platform auth/SDK only in context entities — do not duplicate Menu scenes

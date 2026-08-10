@@ -14,7 +14,15 @@ func _ready() -> void:
 	PerformanceTune.apply_boot(get_viewport())
 	_hfsm = HFSM.new(
 		HfsmLoader.load_tree(_hfsm_config_path),
-		{},
+		{
+			"context": {
+				"DesktopContext": DesktopContext,
+				"AndroidContext": AndroidContext,
+				"SteamContext": SteamContext,
+				"WEBContext": WEBContext,
+				"YandexGamesContext": YandexGamesContext,
+			},
+		},
 		{
 			"host": self,
 			"paths": _scene_paths.SCENES,

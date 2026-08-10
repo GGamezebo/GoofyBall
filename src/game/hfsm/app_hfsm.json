@@ -16,6 +16,28 @@
 				"scene": { "id": "post_battle", "async_loading": false },
 				"enter": ["ev.exit_game"],
 				"leave": ["ev.open_menu", "ev.start_game"]
+			},
+			"DESKTOP": {
+				"context": "DesktopContext",
+				"enter": ["ev.open_desktop"]
+			},
+			"ANDROID": {
+				"context": "AndroidContext",
+				"enter": ["ev.open_android"]
+			},
+			"STEAM": {
+				"context": "SteamContext",
+				"enter": ["ev.open_steam"]
+			},
+			"WEB": {
+				"context": "WEBContext",
+				"enter": ["ev.open_web"],
+				"states": {
+					"YandexGames": {
+						"context": "YandexGamesContext",
+						"enter": ["ev.open_yandex_games"]
+					}
+				}
 			}
 		}
 	}

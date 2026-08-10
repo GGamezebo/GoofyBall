@@ -34,6 +34,11 @@ alwaysApply: false
 - Heavy screens: `scene`; light logic: BoundEntity slots when needed
 - Prefer shallow trees
 - Do not put menu UI windows in HFSM — use `WindowStackManager`
-- Platform hooks: nested state under `App`; `WEB` enters on `ev.open_web` emitted by AppRoot after `OS.has_feature("web")`
-- Platform states use the shared `context` slot, e.g. `"context": "WEBContext"`
 
+## Platform states (siblings of Menu)
+
+- Under `App`, beside `Menu` / `Battle` / `PostBattle` — **not** parents of screens
+- One platform state stays active for the session (`ev.open_desktop|android|steam|web`)
+- Shared `context` slot per state, e.g. `"context": "WEBContext"`
+- AppRoot detects host and fires the matching open event
+- `YandexGames` nests **under** `WEB`; `WEBContext` fires `ev.open_yandex_games` when `OS.has_feature("yandex_games"|"yandex")`

@@ -35,6 +35,7 @@ Touch (`virtual_controls`) is **P1 only** (left half move, right half jump) — 
 |------|------|
 | `main.tscn` → `src/game/main.gd` | HFSM bootstrap host |
 | `src/game/scenes/` | Screens: `app_root`, `menu`, `game`, `post_battle` |
+| `src/game/contexts/` | Platform BoundEntities (`Desktop` / `Android` / `Steam` / `WEB` / nested `YandexGames`) |
 | `src/features/` | Isolated gameplay (`blob_player`, `ball`, `ai_opponent`, `virtual_controls`) |
 | `src/common/` | Shared Resources (`GameConfig`, settings) |
 | `src/ui/` | Shared UI (loading screen) |
@@ -65,8 +66,10 @@ PostBattle --ev.return_to_menu--> Menu
 PostBattle --ev.start_game--> Battle (retry)
 ```
 
-- `main.gd` boots HFSM only
-- `app_root` bridges `RootEvents` → `hfsm.add_event`
+Platform states are **siblings** of Menu (not parents): `DESKTOP` | `ANDROID` | `STEAM` | `WEB`(+`YandexGames`).
+
+- `main.gd` boots HFSM + registers `context` entities
+- `app_root` bridges `RootEvents` → `hfsm.add_event` and opens host platform
 - Battle payload: `{ "custom_battle": GameConfig }` (vs_ai flag inside)
 - In-match: `GameEvents` + `GameManager` FSM (not HFSM)
 
@@ -79,6 +82,7 @@ Do not drive win/lose with ad-hoc flags outside the FSM.
 
 - New gameplay unit → `src/features/{name}/`
 - New screen → `src/game/scenes/{name}/`
+- Platform HFSM context → `src/game/contexts/`
 - Shared Resource → `src/common/`
 - Generic util → `core/lib/`
 - Progress disk write only via `RootEvents.ev_save_progress` → `SaveManager`
