@@ -36,6 +36,8 @@ docker compose restart nakama
 
 F6 `online_smoke.tscn` (Nakama running) — guest auth + progress_merge.
 
+In Menu: **Dev account (guest)** → `OnlineService.authenticate_guest_async()` (needs `main` + Nakama).
+
 ## Wiring tokens (later UI)
 
 ```gdscript

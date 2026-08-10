@@ -44,7 +44,7 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[node name="Menu" type="Control" node_paths=PackedStringArray("play_two_button", "play_ai_button", "stats_label", "exit_button")]
+[node name="Menu" type="Control" node_paths=PackedStringArray("play_two_button", "play_ai_button", "dev_login_button", "stats_label", "online_status_label", "exit_button")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -58,7 +58,9 @@ two_player_config = ExtResource("4")
 vs_ai_config = ExtResource("5")
 play_two_button = NodePath("Center/VBox/PlayTwoButton")
 play_ai_button = NodePath("Center/VBox/PlayAiButton")
+dev_login_button = NodePath("Center/VBox/DevLoginButton")
 stats_label = NodePath("Center/VBox/StatsLabel")
+online_status_label = NodePath("Center/VBox/OnlineStatusLabel")
 exit_button = NodePath("Center/VBox/ExitButton")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -123,11 +125,30 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
 text = "Play vs AI"
 
+[node name="DevLoginButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.85, 0.7, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
+text = "Dev account (guest)"
+
 [node name="StatsLabel" type="Label" parent="Center/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.38, 0.58, 0.72, 0.9)
 theme_override_font_sizes/font_size = 14
 text = "Matches: 0"
+horizontal_alignment = 1
+
+[node name="OnlineStatusLabel" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.7, 0.55, 0.95)
+theme_override_font_sizes/font_size = 13
+text = "Online: offline"
 horizontal_alignment = 1
 
 [node name="ExitButton" type="Button" parent="Center/VBox"]
