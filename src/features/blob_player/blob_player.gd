@@ -40,6 +40,13 @@ const NET_LIMIT_X := 0.55
 
 var external_axis: float = 0.0
 var external_jump: bool = false
+## Online: allow last-chance on either side (local 2P still Blue-only).
+var allow_last_chance: bool = false
+## Online client: pose driven by host; skip local simulation.
+var network_puppet: bool = false
+var net_target_pos: Vector3 = Vector3.ZERO
+var net_target_vel: Vector3 = Vector3.ZERO
+var net_has_target: bool = false
 
 var _squash := 1.0
 var _stretch := 1.0
@@ -85,6 +92,14 @@ func is_destroyed() -> bool:
 
 func _physics_process(delta: float) -> void:
 	if _destroyed:
+		return
+	if network_puppet:
+		# Pose assigned each tick by OnlineMatchSync snapshot sampler.
+		if net_has_target:
+			global_position = Vector3(net_target_pos.x, net_target_pos.y, PLANE_Z)
+			velocity = net_target_vel
+			velocity.z = 0.0
+		_update_ground_shadow()
 		return
 
 	if use_player_input and _can_use_last_chance_input() \
@@ -132,13 +147,13 @@ func _physics_process(delta: float) -> void:
 
 
 func _can_use_last_chance_input() -> bool:
-	# Blue / P1 only — local 2P has no dual last-chance.
-	return player_index == 0 and can_try_last_chance()
+	# Blue / P1 only for local; online sets allow_last_chance on both sides.
+	return (player_index == 0 or allow_last_chance) and can_try_last_chance()
 
 
 ## True when blast is currently allowed (own half, live ball, charge left).
 func can_try_last_chance() -> bool:
-	if player_index != 0:
+	if player_index != 0 and not allow_last_chance:
 		return false
 	if _destroyed or _last_chance_used:
 		return false
@@ -264,13 +279,13 @@ func _revive() -> void:
 		mesh_root.scale = Vector3.ONE
 
 
-func _set_body_visible(visible: bool) -> void:
+func _set_body_visible(show_body: bool) -> void:
 	if mesh_root:
-		mesh_root.visible = visible
+		mesh_root.visible = show_body
 	if _ground_shadow:
-		_ground_shadow.visible = visible
+		_ground_shadow.visible = show_body
 	if _glow:
-		_glow.visible = visible
+		_glow.visible = show_body
 
 
 func _update_ground_shadow() -> void:
@@ -333,6 +348,69 @@ func set_ai_controlled(enabled: bool) -> void:
 	use_player_input = not enabled
 	external_axis = 0.0
 	external_jump = false
+
+
+func apply_network_state(pos: Vector3, vel: Vector3, destroyed: bool) -> void:
+	var target := Vector3(pos.x, pos.y, PLANE_Z)
+	var v := Vector3(vel.x, vel.y, 0.0)
+	if destroyed and not _destroyed:
+		_destroyed = true
+		_set_body_visible(false)
+		if _collision:
+			_collision.disabled = true
+		collision_layer = 0
+		collision_mask = 0
+		net_has_target = false
+		_update_ground_shadow()
+		return
+	elif not destroyed and _destroyed:
+		# Authority started a new rally — restore charge like prepare_round().
+		_last_chance_used = false
+		_revive()
+		ev_last_chance_ready.emit()
+	if network_puppet:
+		apply_interp_pose(target, v)
+	else:
+		soft_reconcile(target, v)
+	_update_ground_shadow()
+
+
+## CS remote entity: pose already interpolated by OnlineMatchSync — apply directly.
+func apply_interp_pose(pos: Variant, vel: Variant) -> void:
+	if _destroyed:
+		return
+	var target := Vector3((pos as Vector3).x, (pos as Vector3).y, PLANE_Z)
+	var v := Vector3((vel as Vector3).x, (vel as Vector3).y, 0.0)
+	net_target_pos = target
+	net_target_vel = v
+	net_has_target = true
+	if network_puppet:
+		global_position = target
+		velocity = v
+		global_position.z = PLANE_Z
+
+
+## CS local prediction correction. Small errors ignored; large errors snap.
+func soft_reconcile(
+	pos: Variant,
+	vel: Variant,
+	ignore_dist: float = 0.45,
+	soft_dist: float = 1.35,
+	snap_dist: float = 2.75
+) -> void:
+	if network_puppet or _destroyed:
+		return
+	var target := Vector3((pos as Vector3).x, (pos as Vector3).y, PLANE_Z)
+	var v := Vector3((vel as Vector3).x, (vel as Vector3).y, 0.0)
+	var dist := (global_position - target).length()
+	if dist <= ignore_dist:
+		return
+	if dist > snap_dist:
+		global_position = target
+		velocity = v
+	elif dist > soft_dist:
+		global_position = global_position.lerp(target, 0.2)
+		velocity = velocity.lerp(v, 0.2)
 
 
 func _apply_color() -> void:

@@ -15,6 +15,7 @@ alwaysApply: false
 
 - Versus human: `{ "custom_battle": GameConfig }` with `vs_ai = false`
 - Versus AI: `{ "custom_battle": GameConfig }` with `vs_ai = true`
+- Online 1v1: `GameConfig.online=true`, `local_side` 0/1, optional `ranked`; start via rooms/MM after 2 peers
 - Return: `ev_return_to_menu`
 - Quit match: `ev_exit_game` with result payload
 

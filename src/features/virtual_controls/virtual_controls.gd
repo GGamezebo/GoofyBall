@@ -41,7 +41,12 @@ var _charge_available: bool = true
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_touch_ui = DisplayServer.is_touchscreen_available()
+	_touch_ui = (
+		DisplayServer.is_touchscreen_available()
+		or OS.has_feature("mobile")
+		or OS.has_feature("android")
+		or OS.has_feature("ios")
+	)
 	_hide_move_feedback()
 	_hide_jump_feedback()
 	_release_all_actions()

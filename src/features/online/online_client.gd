@@ -40,11 +40,15 @@ func get_nakama_session() -> NakamaSession:
 	return session.nakama_session
 
 
-func authenticate_device_async(device_id: String, create: bool = true) -> OnlineSession:
+func authenticate_device_async(
+	device_id: String,
+	create: bool = true,
+	username = null
+) -> OnlineSession:
 	if nakama == null:
 		ev_request_failed.emit("authenticate_device", "Nakama client not setup")
 		return null
-	var nk: NakamaSession = await nakama.authenticate_device_async(device_id, null, create)
+	var nk: NakamaSession = await nakama.authenticate_device_async(device_id, username, create)
 	return _store_session(nk, "device")
 
 

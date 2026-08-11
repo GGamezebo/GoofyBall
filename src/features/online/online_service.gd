@@ -58,8 +58,13 @@ func get_platform_id() -> String:
 	return _auth.get_platform_id()
 
 
-func authenticate_guest_async() -> OnlineSession:
+func authenticate_guest_async(dev_account_index: int = -1) -> OnlineSession:
 	var device := PlatformAuthFactory.create_device(client)
+	if dev_account_index >= 0:
+		device.set_dev_account(
+			DevAccounts.device_id(dev_account_index),
+			DevAccounts.username(dev_account_index)
+		)
 	var session := await device.authenticate_async()
 	if session == null or not session.is_valid():
 		ev_auth_failed.emit("device auth failed")

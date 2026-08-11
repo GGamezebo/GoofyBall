@@ -47,6 +47,9 @@ func _on_ev_exit_game(data: Dictionary = {}) -> void:
 
 
 func _on_ev_return_to_menu(data: Dictionary = {}) -> void:
+	var online := get_node_or_null("OnlineService") as OnlineService
+	if online:
+		online.leave_realtime_match_async()
 	add_event("ev.open_menu", data)
 
 
@@ -64,6 +67,10 @@ func _apply_match_result(data: Dictionary) -> void:
 			pdata.wins_vs_ai += 1
 		elif winner_side == 1:
 			pdata.losses_vs_ai += 1
+	elif game_config.online:
+		var local_side := int(data.get("local_side", game_config.local_side))
+		if winner_side == local_side:
+			pdata.wins_two_player += 1
 	else:
 		if winner_side == 0 or winner_side == 1:
 			pdata.wins_two_player += 1
@@ -79,8 +86,10 @@ func _submit_match_result_online(data: Dictionary) -> void:
 	var mode := "local_2p"
 	if game_config != null and game_config.vs_ai:
 		mode = "vs_ai"
-	elif bool(data.get("ranked", false)):
+	elif bool(data.get("ranked", false)) or (game_config != null and game_config.ranked):
 		mode = "ranked"
+	elif game_config != null and game_config.online:
+		mode = "local_2p"
 	# Fire-and-forget — do not block PostBattle transition.
 	online.submit_match_result_async({
 		"mode": mode,

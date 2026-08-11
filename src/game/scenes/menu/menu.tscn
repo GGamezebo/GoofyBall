@@ -44,7 +44,7 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[node name="Menu" type="Control" node_paths=PackedStringArray("play_two_button", "play_ai_button", "dev_login_button", "stats_label", "online_status_label", "exit_button")]
+[node name="Menu" type="Control" node_paths=PackedStringArray("play_two_button", "play_ai_button", "create_room_button", "join_room_button", "find_match_button", "cancel_online_button", "room_code_edit", "room_code_label", "lobby_status_label", "dev_account_option", "dev_login_button", "open_console_button", "stats_label", "online_status_label", "exit_button")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -58,7 +58,16 @@ two_player_config = ExtResource("4")
 vs_ai_config = ExtResource("5")
 play_two_button = NodePath("Center/VBox/PlayTwoButton")
 play_ai_button = NodePath("Center/VBox/PlayAiButton")
-dev_login_button = NodePath("Center/VBox/DevLoginButton")
+create_room_button = NodePath("Center/VBox/OnlineBox/CreateRoomButton")
+join_room_button = NodePath("Center/VBox/OnlineBox/JoinRow/JoinRoomButton")
+find_match_button = NodePath("Center/VBox/OnlineBox/FindMatchButton")
+cancel_online_button = NodePath("Center/VBox/OnlineBox/CancelOnlineButton")
+room_code_edit = NodePath("Center/VBox/OnlineBox/JoinRow/RoomCodeEdit")
+room_code_label = NodePath("Center/VBox/OnlineBox/RoomCodeLabel")
+lobby_status_label = NodePath("Center/VBox/OnlineBox/LobbyStatusLabel")
+dev_account_option = NodePath("Center/VBox/DevAccountRow/DevAccountOption")
+dev_login_button = NodePath("Center/VBox/DevAccountRow/DevLoginButton")
+open_console_button = NodePath("Center/VBox/OpenConsoleButton")
 stats_label = NodePath("Center/VBox/StatsLabel")
 online_status_label = NodePath("Center/VBox/OnlineStatusLabel")
 exit_button = NodePath("Center/VBox/ExitButton")
@@ -82,7 +91,7 @@ grow_vertical = 2
 
 [node name="VBox" type="VBoxContainer" parent="Center"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="Center/VBox"]
 layout_mode = 2
@@ -102,7 +111,7 @@ text = "Bouncy side-view volleyball"
 horizontal_alignment = 1
 
 [node name="PlayTwoButton" type="Button" parent="Center/VBox"]
-custom_minimum_size = Vector2(280, 48)
+custom_minimum_size = Vector2(320, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.95, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
@@ -114,7 +123,7 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
 text = "Play Together"
 
 [node name="PlayAiButton" type="Button" parent="Center/VBox"]
-custom_minimum_size = Vector2(280, 48)
+custom_minimum_size = Vector2(320, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.95, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
@@ -125,8 +134,19 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
 text = "Play vs AI"
 
-[node name="DevLoginButton" type="Button" parent="Center/VBox"]
-custom_minimum_size = Vector2(280, 40)
+[node name="OnlineBox" type="VBoxContainer" parent="Center/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="OnlineHeader" type="Label" parent="Center/VBox/OnlineBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.85, 0.7, 1)
+theme_override_font_sizes/font_size = 16
+text = "Online"
+horizontal_alignment = 1
+
+[node name="CreateRoomButton" type="Button" parent="Center/VBox/OnlineBox"]
+custom_minimum_size = Vector2(320, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.85, 0.7, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
@@ -135,7 +155,105 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_button")
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
 theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
-text = "Dev account (guest)"
+text = "Create Room"
+
+[node name="JoinRow" type="HBoxContainer" parent="Center/VBox/OnlineBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="RoomCodeEdit" type="LineEdit" parent="Center/VBox/OnlineBox/JoinRow"]
+custom_minimum_size = Vector2(140, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+placeholder_text = "CODE"
+alignment = 1
+max_length = 8
+
+[node name="JoinRoomButton" type="Button" parent="Center/VBox/OnlineBox/JoinRow"]
+custom_minimum_size = Vector2(160, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.85, 0.7, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
+text = "Join Room"
+
+[node name="FindMatchButton" type="Button" parent="Center/VBox/OnlineBox"]
+custom_minimum_size = Vector2(320, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.85, 0.7, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
+text = "Find Ranked Match"
+
+[node name="CancelOnlineButton" type="Button" parent="Center/VBox/OnlineBox"]
+visible = false
+custom_minimum_size = Vector2(320, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.45, 0.55, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
+text = "Cancel"
+
+[node name="RoomCodeLabel" type="Label" parent="Center/VBox/OnlineBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 0.55, 1)
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+
+[node name="LobbyStatusLabel" type="Label" parent="Center/VBox/OnlineBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.75, 0.65, 0.95)
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="DevAccountRow" type="HBoxContainer" parent="Center/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="DevAccountOption" type="OptionButton" parent="Center/VBox/DevAccountRow"]
+custom_minimum_size = Vector2(160, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+fit_to_longest_item = false
+
+[node name="DevLoginButton" type="Button" parent="Center/VBox/DevAccountRow"]
+custom_minimum_size = Vector2(152, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.85, 0.7, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
+text = "Sign in"
+
+[node name="OpenConsoleButton" type="Button" parent="Center/VBox"]
+visible = false
+custom_minimum_size = Vector2(320, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.7, 0.95, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_hover")
+text = "Open Nakama Console"
 
 [node name="StatsLabel" type="Label" parent="Center/VBox"]
 layout_mode = 2
@@ -152,7 +270,7 @@ text = "Online: offline"
 horizontal_alignment = 1
 
 [node name="ExitButton" type="Button" parent="Center/VBox"]
-custom_minimum_size = Vector2(280, 40)
+custom_minimum_size = Vector2(320, 40)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.25, 0.72, 0.9)
 theme_override_styles/normal = SubResource("StyleBoxFlat_button")

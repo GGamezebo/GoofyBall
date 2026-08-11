@@ -23,6 +23,12 @@ var _scored := false
 var _touch_cooldown: float = 0.0
 var _last_touch_body: WeakRef
 var _alarm := false
+## Online client: pose driven by host; skip local simulation (or smooth-follow targets).
+var network_puppet: bool = false
+## When puppet: lerp toward these each physics frame.
+var net_target_pos: Vector3 = Vector3.ZERO
+var net_target_vel: Vector3 = Vector3.ZERO
+var net_has_target: bool = false
 var _body_mat: StandardMaterial3D
 var _stripe_mat: StandardMaterial3D
 
@@ -60,6 +66,16 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	global_position.z = PLANE_Z
+	if network_puppet:
+		if net_has_target:
+			global_position = Vector3(net_target_pos.x, net_target_pos.y, PLANE_Z)
+			linear_velocity = net_target_vel
+			linear_velocity.z = 0.0
+			global_position.z = PLANE_Z
+		if _alarm and not _scored:
+			_update_alarm_visuals()
+		_update_ground_shadow()
+		return
 	if _touch_cooldown > 0.0:
 		_touch_cooldown = maxf(0.0, _touch_cooldown - delta)
 
@@ -93,6 +109,47 @@ func set_alarm(enabled: bool) -> void:
 			_glow.light_energy = 1.6
 
 
+func is_alarm() -> bool:
+	return _alarm
+
+
+func apply_network_state(
+	pos: Vector3,
+	lin_vel: Vector3,
+	ang_vel: Vector3,
+	frozen: bool,
+	alarm: bool
+) -> void:
+	if network_puppet:
+		apply_interp_pose(pos, lin_vel, frozen, alarm)
+		return
+	var target := Vector3(pos.x, pos.y, PLANE_Z)
+	var vel := Vector3(lin_vel.x, lin_vel.y, 0.0)
+	global_position = target
+	linear_velocity = vel
+	angular_velocity = ang_vel
+	freeze = frozen
+	set_alarm(alarm)
+	_update_ground_shadow()
+
+
+## CS remote ball: pose already delayed-interpolated by OnlineMatchSync.
+func apply_interp_pose(pos: Variant, lin_vel: Variant, frozen: bool, alarm: bool) -> void:
+	var target := Vector3((pos as Vector3).x, (pos as Vector3).y, PLANE_Z)
+	var vel := Vector3((lin_vel as Vector3).x, (lin_vel as Vector3).y, 0.0)
+	freeze = true
+	net_target_pos = target
+	net_target_vel = Vector3.ZERO if frozen else vel
+	net_has_target = true
+	angular_velocity = Vector3.ZERO
+	_scored = false
+	set_alarm(alarm)
+	_set_visuals_visible(true)
+	global_position = target
+	linear_velocity = net_target_vel
+	_update_ground_shadow()
+
+
 ## Freeze, hide mesh, burst sparks. Safe to call once per rally.
 func explode() -> void:
 	if _scored:
@@ -117,7 +174,7 @@ func _score_point() -> void:
 
 
 func _on_body_entered(body: Node) -> void:
-	if _scored or freeze:
+	if network_puppet or _scored or freeze:
 		return
 	if not (body is CharacterBody3D):
 		return
@@ -215,14 +272,14 @@ func _apply_ball_color(albedo: Color, emission: Color, body_energy: float, strip
 		_stripe_mat.emission_energy_multiplier = stripe_energy
 
 
-func _set_visuals_visible(visible: bool) -> void:
+func _set_visuals_visible(show_visuals: bool) -> void:
 	if _mesh:
-		_mesh.visible = visible
+		_mesh.visible = show_visuals
 	if _stripe:
-		_stripe.visible = visible
+		_stripe.visible = show_visuals
 	if _stripe2:
-		_stripe2.visible = visible
+		_stripe2.visible = show_visuals
 	if _glow:
-		_glow.visible = visible
+		_glow.visible = show_visuals
 	if _ground_shadow:
-		_ground_shadow.visible = visible
+		_ground_shadow.visible = show_visuals

@@ -131,6 +131,9 @@ func build_result_payload() -> Dictionary:
 		"score_right": score_right,
 		"winner_side": get_winner_side(),
 		"vs_ai": game_config.vs_ai if game_config else false,
+		"ranked": game_config.ranked if game_config else false,
+		"local_side": game_config.local_side if game_config else 0,
+		"online": game_config.online if game_config else false,
 	}
 
 

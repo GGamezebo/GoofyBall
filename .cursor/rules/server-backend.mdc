@@ -45,9 +45,12 @@ alwaysApply: false
 - Single path: nakama-godot SDK only (no parallel HTTP client)
 - `OnlineClient` — `NakamaClient` for auth + RPC; `OnlineSession` wraps `NakamaSession`
 - `OnlineRealtime` — same `NakamaClient` → socket + `NakamaMultiplayerBridge`
+- `OnlineMatchSync` — CS listen-server: host runs physics/FSM; guests predict local blob + interpolate remote/ball from delayed snapshot buffer (`INTERP_DELAY_SEC`)
 - `OnlineService` + `PlatformAuth`; optional auto-login
+- Menu: Create/Join room + Find Ranked → wait 2 peers → `ev_start_game` with `GameConfig.online`
 - Autoload: `Nakama` → `addons/com.heroiclabs.nakama/Nakama.gd`
 - Rooms/MM return `match_name`; service can auto `join_named_match`
 - Must not block offline AI / local 2P; `core/` must not import Nakama
+- Guest life/revive from latest authority snap (not interp); local boom waits for host ack before revive
 
 Plan: `.cursor/plans/online-server-backend.plan.md`
