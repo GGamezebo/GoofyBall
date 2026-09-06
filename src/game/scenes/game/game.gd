@@ -145,6 +145,7 @@ func _make_fighter_label(ui: CanvasLayer, is_left: bool) -> Label:
 	label.add_theme_constant_override("shadow_offset_y", 2)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.z_index = 5
 	label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	label.offset_top = 12.0
 	label.offset_bottom = 56.0

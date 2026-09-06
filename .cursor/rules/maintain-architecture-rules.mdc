@@ -3,9 +3,11 @@ description: Keep architecture rules accurate when the project structure changes
 alwaysApply: true
 ---
 
-# Maintain architecture rules
+# Maintain architecture rules + docs
 
-When a change alters structure, contracts, or placement conventions, update `.cursor/rules/` in the **same** task. Stale rules waste tokens and cause wrong edits.
+When a change alters structure, contracts, or placement conventions, update
+`.cursor/rules/` **and** the matching `.cursor/docs/` pages in the **same** task.
+Stale rules/docs waste tokens and cause wrong edits.
 
 ## Update when
 
@@ -21,20 +23,27 @@ When a change alters structure, contracts, or placement conventions, update `.cu
 - Level layout or `LevelsConfig` container IDs change
 - Entry point or main-scene wiring changes
 - Path-resolution convention (`class_name` / `@export` vs hardcoded `res://`)
-- Server/Docker/Nakama conventions under `server/` (`server-backend.mdc`)
-- Online identity feature under `src/features/online/`
+- Server/Docker/Nakama conventions under `server/` (`server-backend.mdc`, `docs/server.md`)
+- Online identity / sync under `src/features/online/` (`docs/online.md`)
+- Match loop / gameplay ownership changes (`docs/gameplay.md`, `docs/entities.md`)
 - A convention in these rules is deliberately broken or replaced
 
-## How
+## How — rules
 
 1. Edit the smallest relevant rule file (prefer patch over rewrite).
 2. Keep each rule under ~50 lines; one concern per file.
 3. Prefer paths + must/never over prose.
 4. If a rule becomes wrong, fix or delete it — never leave contradictions.
-5. After structural work, briefly confirm rules still match reality.
+
+## How — docs (`.cursor/docs/`)
+
+1. Patch the smallest page (see `docs/README.md` index); keep mermaid diagrams accurate.
+2. Rules = constraints for agents; docs = how systems work for humans — do not paste full docs into rules.
+3. After structural work, briefly confirm rules **and** docs still match reality.
 
 ## Do not
 
 - Duplicate the same map across many rule files
 - Document one-off bugs or temporary hacks as architecture
 - Expand rules with unused library details (e.g. unused FSM Conditional)
+- Leave docs describing removed Phase behavior (e.g. obsolete sync model)

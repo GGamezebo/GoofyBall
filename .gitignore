@@ -3,6 +3,9 @@
 /android/
 /bin/
 
+# IDE
+.idea/
+
 # Server secrets / local backend
 server/.env
 

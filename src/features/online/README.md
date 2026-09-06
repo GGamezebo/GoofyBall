@@ -19,7 +19,7 @@ All auth, RPC, and realtime go through **nakama-godot** (`NakamaClient` / `Nakam
 |-------|------|
 | `OnlineClient` | `authenticate_*` / `link_*` / `rpc_async` via SDK |
 | `OnlineRealtime` | Socket from same client + `NakamaMultiplayerBridge` |
-| `OnlineMatchSync` | Host-authoritative `@rpc` for blobs + ball |
+| `OnlineMatchSync` | CS listen-server `@rpc` (predict + snapshot interp) |
 | `join_named_match` | Rooms / MM (`match_name`) — relayed, first peer = host |
 | `OnlineService.auto_join_realtime` | After room/mm success → socket + join |
 
@@ -55,4 +55,5 @@ F6 `online_smoke.tscn` — guest + progress + LB + room create/join realtime (AP
 
 ## Note
 
-Sync is minimal (pose / velocity / HUD). Offline AI / local 2P unchanged.
+Sync: CS listen-server via `OnlineMatchSync` (host physics/FSM; guest prediction + snapshot interp).
+Offline AI / local 2P unchanged. See `.cursor/docs/online.md`.

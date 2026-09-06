@@ -89,3 +89,7 @@ Do not drive win/lose with ad-hoc flags outside the FSM.
 - Progress disk write only via `RootEvents.ev_save_progress` → `SaveManager`
 - Cloud progress (optional): `SaveManager` → `OnlineService.sync` when online; never block offline play
 - Mobile/Web quality: `PerformanceTune` (disable glow/fog/sun-shadows/omni fill, 3D scale 0.7)
+
+## Docs
+
+Human diagrams + entity map: `.cursor/docs/` (index `README.md`). Update with rules on structural change.
