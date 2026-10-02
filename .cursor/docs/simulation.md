@@ -29,6 +29,9 @@ the same build.
 **determinism + save/load roundtrip**. `test_rollback.gd` drives the real `SyncManager`
 (mechanized mode) with late remote input and checks the result equals a rollback-free replay.
 `test_gameplay.gd` plays bot-vs-bot matches and runs the real game scene offline.
+`tests/e2e/online_peer.gd` starts **two Godot processes** (host + guest over ENet on localhost) that play a
+scripted match through the real game scene, `OnlineRollback` and `SyncManager`, with forced rollbacks and
+dropped input messages; it fails on any `remote_state_mismatch` / `sync_error`.
 
 ```powershell
 godot --headless --path . --script res://tests/run_all.gd
