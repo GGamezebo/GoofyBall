@@ -75,7 +75,10 @@ func test_late_remote_input_rolls_back_to_identical_state() -> void:
 		if frame.tick > SyncManager._state_complete_tick or frame.tick < 1 or frame.tick > TOTAL_TICKS:
 			continue
 		var got: Dictionary = frame.data[str(rb.get_path())]
-		expect(got == ref_states[frame.tick], "tick %d identical after rollback/resim" % frame.tick)
+		var same: bool = got == ref_states[frame.tick]
+		expect(same, "tick %d identical after rollback/resim" % frame.tick)
+		if not same and checked == 0:
+			print("[rollback] first mismatch @tick %d: %s" % [frame.tick, _diff(got, ref_states[frame.tick])])
 		checked += 1
 	expect(checked > 5, "enough confirmed ticks compared (%d)" % checked)
 
@@ -87,3 +90,22 @@ func test_late_remote_input_rolls_back_to_identical_state() -> void:
 	for child in rb.get_children():
 		child.remove_from_group("network_sync")
 	rb.queue_free()
+
+
+func _diff(a: Variant, b: Variant, path: String = "") -> String:
+	if a is Dictionary and b is Dictionary:
+		var out := ""
+		for k in a:
+			if not b.has(k):
+				out += " +%s%s" % [path, str(k)]
+			else:
+				out += _diff(a[k], b[k], "%s%s." % [path, str(k)])
+		return out
+	if a is Array and b is Array:
+		var out2 := ""
+		for i in mini(a.size(), b.size()):
+			out2 += _diff(a[i], b[i], "%s[%d]." % [path, i])
+		return out2
+	if a != b:
+		return " %s: got %s want %s;" % [path, str(a), str(b)]
+	return ""
