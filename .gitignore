@@ -9,3 +9,6 @@
 # Server secrets / local backend
 server/.env
 
+
+# Nakama runtime cookie
+server/nakama/.cookie

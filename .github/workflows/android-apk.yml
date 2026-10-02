@@ -1,4 +1,4 @@
-name: Android APK
+name: Build
 
 on:
   workflow_dispatch:
@@ -10,7 +10,33 @@ env:
   GODOT_TEMPLATES_DIR: 4.7.2.stable
 
 jobs:
-  build:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot
+        run: |
+          base=https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}
+          curl -fsSL -o godot.zip "$base/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q godot.zip && sudo mv Godot_v${GODOT_VERSION}_linux.x86_64 /usr/local/bin/godot
+
+      - name: Import project
+        run: godot --headless --path . --import || true
+
+      - name: Run headless tests
+        run: |
+          set +e
+          godot --headless --path . --script res://tests/run_all.gd 2>&1 | tee test.log
+          status=${PIPESTATUS[0]}
+          if grep -E "SCRIPT ERROR|Parse Error" test.log; then
+            echo "::error::GDScript errors found in test log"
+            status=1
+          fi
+          exit $status
+
+  apk:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
