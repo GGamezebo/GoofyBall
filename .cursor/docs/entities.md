@@ -8,10 +8,9 @@ Named types and ownership. Paths are under the repo root unless noted.
 |------|------|------|
 | `GameConfig` | `src/common/game_config.gd` (+ `.tres` variants) | Match settings: `vs_ai`, `online`, `ranked`, `local_side`, scores, touches, timers |
 | `RootEvents` | `src/game/scenes/app_root/root_events.gd` | App navigation / save / battle lifecycle signals |
-| `GameEvents` | `src/game/scenes/game/game_events.gd` | In-match HUD / score / state signals |
 | `PData` / saves | `src/game/account/` | Persistent progress mirrored to disk (+ optional cloud) |
 | `OnlineConfig` | `src/features/online/online_config.gd` | Host, ports, server key, preferred platform |
-| `OnlineEndpoints` | `src/features/online/online_endpoints.gd` | LAN constants for local multiplayer testing |
+| `OnlineEndpoints` | `src/features/online/online_endpoints.gd` | Nakama host/port/key: env vars or `user://online.cfg`, localhost by default |
 
 ### GameConfig fields (match)
 
@@ -31,24 +30,27 @@ Named types and ownership. Paths are under the repo root unless noted.
 |-------|--------|------|
 | App root | `src/game/scenes/app_root/root.gd` | Saves, RootEvents → HFSM, open platform |
 | Menu | `src/game/scenes/menu/menu.gd` | Offline modes + online lobby |
-| Game | `src/game/scenes/game/game.gd` | Wires match + online sync |
+| Game | `src/game/scenes/game/game.gd` | Wires match runner/view + online rollback |
 | Post-battle | `src/game/scenes/post_battle/` | Results → menu / retry |
 
 ## Match orchestration
 
 | Type | Role |
 |------|------|
-| `GameManager` | Match FSM host (`Serve` → `Play` → `Point` → …) |
-| `MatchController` | Score, serve side, touch faults, court reset |
-| FSM states | `serve_state`, `play_state`, `point_state`, `match_end_state` |
+| `VolleySim` | Deterministic simulation: all rules, physics, phases (`src/features/volley_sim/`) |
+| `MatchRunner` | Owns one `VolleySim`; steps it offline, exposes save/load/step for rollback |
+| `MatchView` | Renders sim state: poses views, HUD, FX from state serials |
+| `game.gd` | Wires config → runner → view; starts online via `OnlineRollback` |
 
 ## Gameplay features
 
 | Feature | Types | Notes |
 |---------|-------|-------|
-| `blob_player` | `BlobPlayer` | CharacterBody3D; `external_*` for AI/online; last-chance blast |
-| `ball` | `Ball` | RigidBody3D; network puppet on guests |
-| `ai_opponent` | `AiOpponent` | Drives right blob when `vs_ai` |
+| `volley_sim` | `VolleySim` | Pure state machine, no nodes (see [simulation.md](simulation.md)) |
+| `blob_view` | `BlobView` | Node3D; `apply_state`, hit/blast FX |
+| `ball_view` | `BallView` | Node3D; `apply_state`, alarm blink, explosion FX |
+| `ai_opponent` | `AiOpponent` | `decide(state)` → input; `side` selects the blob |
+| `player_input` | `PlayerInput` | InputMap/touch → `{x, j, b}` |
 | `virtual_controls` | `VirtualControls` | Touch → `p1_*`; BOOM on touchscreen |
 
 ## Online feature
@@ -58,11 +60,11 @@ Named types and ownership. Paths are under the repo root unless noted.
 | `OnlineService` | Facade: auth, progress, rooms, MM, realtime |
 | `OnlineClient` | NakamaClient auth + RPC |
 | `OnlineRealtime` | Socket + `NakamaMultiplayerBridge` |
-| `OnlineMatchSync` | CS listen-server sync (host physics, guest prediction + interp) |
+| `OnlineRollback` + `RollbackInput` | godot-rollback-netcode glue: handshake, input nodes, state callbacks |
 | `OnlineSession` | Wrapper around `NakamaSession` |
 | `OnlineProgress` | Cloud progress pull/push/merge helpers |
 | `PlatformAuth` + factory | Device / Google / Steam / Yandex adapters |
-| `DevAccounts` | Debug A–D usernames for LAN testing |
+| `DevAccounts` | Debug A–D usernames for local testing |
 
 ## Platform contexts
 
@@ -75,7 +77,7 @@ BoundEntities registered from `main.gd`:
 | Type | Role |
 |------|------|
 | `HFSM` / loader | App state machine from JSON |
-| `FSM` / `FSMState` | In-match state machine |
+| `FSM` / `FSMState` | Generic state machine library (no longer used in-match) |
 | `EventListener` | Safe signal subscribe/unsubscribe |
 | `ResourceUtils` | Merge Resource fields at runtime |
 | `PerformanceTune` | Mobile/Web quality cuts |

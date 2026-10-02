@@ -12,8 +12,9 @@ flowchart TB
   Service --> RT[OnlineRealtime]
   RT --> Bridge[NakamaMultiplayerBridge]
   Bridge --> Peer[SceneMultiplayer peer]
-  Game[game.gd] --> Sync[OnlineMatchSync]
-  Sync -->|rpc_input / rpc_world_state| Peer
+  Game[game.gd] --> Roll[OnlineRollback]
+  Roll --> SM[SyncManager rollback addon]
+  SM -->|input ticks via RPC| Peer
   Client -->|auth + RPC| Nakama[Nakama HTTP]
   RT -->|socket match join| Nakama
 ```
@@ -22,12 +23,12 @@ flowchart TB
 
 | Piece | Role |
 |-------|------|
-| `OnlineEndpoints` | LAN `HOST` / ports / `SERVER_KEY` for phone→PC testing |
+| `OnlineEndpoints` | Host/port/key from env or `user://online.cfg` (default `127.0.0.1`) |
 | `OnlineConfig` | Resource defaults (can override endpoints) |
 | `OnlineService` | Auth, progress, rooms, MM, auto realtime join |
 | `OnlineClient` | SDK-only auth + `rpc_async` |
 | `OnlineRealtime` | Socket from same client + bridge |
-| `OnlineMatchSync` | Listen-server gameplay sync |
+| `OnlineRollback` | Rollback netcode glue (handshake, input nodes, state callbacks) |
 | `PlatformAuth*` | Device / Google / Steam / Yandex |
 | `DevAccounts` | Debug users A–D |
 
@@ -53,45 +54,42 @@ sequenceDiagram
 2. Create Room / Join code / Find Ranked  
 3. Wait until 2 peers  
 4. `ev_start_game` with `online`, `local_side`, optional `ranked`, display name  
-5. Host runs `GameManager`; guest does **not** — HUD/world from sync  
+5. Both peers run the same `VolleySim`; `OnlineRollback` syncs inputs (host = peer 1 = left, guest = right)  
 
 Rooms / MM return `match_name` (`gb_room_*` / `gb_mm_*`); service can auto `join_named_match`.
 
-## CS listen-server sync
+## Rollback netcode
 
-Host (peer 1) = authority for physics + match FSM. Guests are thin clients for the world.
+Both peers simulate the **whole** match locally (`VolleySim`) and exchange only inputs.
+`SyncManager` (autoload, `addons/godot-rollback-netcode`) predicts the remote input, and when the
+real input arrives and differs it loads the saved state and re-simulates — invisible to the player.
+Transport is the Nakama `MultiplayerBridge` peer (`RPCNetworkAdaptor`, plain Godot RPCs) — no WebRTC.
 
 ```mermaid
-flowchart LR
-  subgraph host [Host phone]
-    InputH[Local p1_*]
-    Phys[Physics + FSM]
-    Snap[Snapshots ~30 Hz]
-    InputH --> Phys --> Snap
-    RemIn[Remote input RPC] --> Phys
+sequenceDiagram
+  participant H as Host (peer 1, Blue/left)
+  participant G as Guest (Red/right)
+  H->>G: _rpc_ready(name, side)  (resent every 0.5 s)
+  G->>H: _rpc_ready(name, side)
+  H->>G: SyncManager.start() → remote_start
+  loop every physics tick (60 Hz)
+    H-->>G: input ticks (unreliable, last N)
+    G-->>H: input ticks
+    Note over H,G: _network_process → OnlineRollback steps VolleySim<br/>late input ⇒ load_state + replay
   end
-  subgraph guest [Guest phone]
-    Pred[Predict local blob]
-    Buf[Snapshot buffer]
-    Interp[Interp remote + ball ~100ms]
-    Pred --> Send[rpc_input]
-    Buf --> Interp
-  end
-  Send --> RemIn
-  Snap --> Buf
 ```
 
-| Concern | Host | Guest |
-|---------|------|-------|
-| Own blob | Immediate | Client-side prediction + soft reconcile |
-| Remote blob / ball | Simulated | Delayed snapshot interpolation |
-| Match FSM / score | Owns | Receives via HUD / state snaps |
-| Boom / revive | `prepare_round` | Latest authority life flags (not interp frame) |
+| Piece | Role |
+|-------|------|
+| `RollbackInput` ×2 | One per side; authority = that side's peer; `_get_local_input()` samples `PlayerInput` |
+| `OnlineRollback` | `_network_postprocess` steps the sim; `_save_state`/`_load_state` snapshot it |
+| `MatchRunner.over_gate` | Match result is only reported once the tick's inputs are confirmed |
+| Project settings | `[network] rollback/*` in `project.godot` (input delay 3 ticks, buffer 30) |
 
-Implementation: `OnlineMatchSync` (`INTERP_DELAY_SEC`, snapshot buffer, `_rpc_input`, `_rpc_world_state`).
+Failure handling: opponent disconnect / `sync_error` → `ev_aborted` → menu (or the result if the
+match was already decided). State-hash mismatches are logged (`remote_state_mismatch`).
 
-**Not yet:** dedicated Nakama match authority, lag compensation, full input history reconcile.  
-`goofy_match` Lua handler remains a stub for later ranked authority.
+**Not yet:** server-side result verification for ranked, reconnect, spectators.
 
 ## Local testing
 
@@ -102,7 +100,7 @@ docker compose up -d
 .\scripts\smoke_matchmaker.ps1
 ```
 
-Set `OnlineEndpoints.HOST` to the PC LAN IP when testing phones.  
+On a phone, point it at your PC / server: create `user://online.cfg` with `[nakama]` `host="192.168.x.x"` (or set `GOOFY_NAKAMA_HOST`).  
 F6 `online_smoke.tscn` — API smoke without full battle UI.
 
 Also see `src/features/online/README.md`.

@@ -38,12 +38,14 @@ flowchart TB
 | `main.tscn` → `src/game/main.gd` | HFSM bootstrap |
 | `src/game/scenes/` | Screens: `app_root`, `menu`, `game`, `post_battle` |
 | `src/game/contexts/` | Platform BoundEntities (Desktop / Android / Steam / WEB / YandexGames) |
-| `src/features/` | Isolated gameplay + online client |
+| `src/features/` | Gameplay features (sim, views, AI, input) + online client |
 | `src/common/` | Shared Resources (`GameConfig`, …) |
 | `src/ui/` | Shared UI (loading screen) |
 | `core/` | HFSM, FSM, EventListener, ResourceUtils, PerformanceTune |
+| `tests/` | Headless tests (`run_all.gd`), run in CI |
 | `server/` | Nakama + Postgres (Docker) |
 | `addons/com.heroiclabs.nakama` | Official client; autoload `Nakama` |
+| `addons/godot-rollback-netcode` | Rollback netcode (`SyncManager` autoload) — online only |
 | `addons/GodotSavesAddon` | Local saves — edit carefully |
 
 ## Contracts (critical)

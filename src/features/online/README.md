@@ -3,14 +3,15 @@
 Feature folder: `src/features/online/`.
 Addon: `addons/com.heroiclabs.nakama` (autoload `Nakama`).
 
-## Local LAN Nakama endpoints for local multiplayer testing (PC + phones).
-## Change `OnlineEndpoints.HOST` when your PC Wi‑Fi IP changes.
+## Nakama endpoints
 
-| Constant | Default |
-|----------|---------|
-| `OnlineEndpoints.HOST` | LAN IP of PC |
-| `PORT` / `CONSOLE_PORT` | 7350 / 7351 |
-| `SERVER_KEY` | must match `server/.env` |
+`OnlineEndpoints` resolves host / port / server key in this order:
+
+1. env vars `GOOFY_NAKAMA_HOST`, `GOOFY_NAKAMA_PORT`, `GOOFY_NAKAMA_KEY`
+2. `user://online.cfg` — `[nakama]` section with `host`, `port`, `server_key`
+3. defaults: `127.0.0.1:7350`, key `goofyballs_dev_server_key` (must match `server/.env`)
+
+For phone testing put your PC's LAN IP (`ipconfig`) into `user://online.cfg` on the device.
 
 All auth, RPC, and realtime go through **nakama-godot** (`NakamaClient` / `NakamaSocket`).
 `OnlineClient` wraps the SDK; `OnlineRealtime` reuses the same `NakamaClient` + session.
@@ -19,7 +20,8 @@ All auth, RPC, and realtime go through **nakama-godot** (`NakamaClient` / `Nakam
 |-------|------|
 | `OnlineClient` | `authenticate_*` / `link_*` / `rpc_async` via SDK |
 | `OnlineRealtime` | Socket from same client + `NakamaMultiplayerBridge` |
-| `OnlineMatchSync` | CS listen-server `@rpc` (predict + snapshot interp) |
+| `OnlineRollback` | godot-rollback-netcode glue (`SyncManager`): handshake, per-side input nodes, state callbacks |
+| `RollbackInput` | Input node per side (authority = that side's peer) |
 | `join_named_match` | Rooms / MM (`match_name`) — relayed, first peer = host |
 | `OnlineService.auto_join_realtime` | After room/mm success → socket + join |
 
@@ -29,7 +31,7 @@ All auth, RPC, and realtime go through **nakama-godot** (`NakamaClient` / `Nakam
 2. Create Room / Join code / Find Ranked
 3. Wait until 2 peers in match
 4. `ev_start_game` with `GameConfig.online=true`, `local_side` (host=0 / guest=1), `ranked` for MM
-5. Host runs GameManager FSM; client puppets via `OnlineMatchSync`
+5. Both peers run the same `VolleySim`; `OnlineRollback` exchanges inputs and rolls back on misprediction
 
 Two clients on one PC: editor = Player A, export = Player B (different dropdown).
 
@@ -55,5 +57,5 @@ F6 `online_smoke.tscn` — guest + progress + LB + room create/join realtime (AP
 
 ## Note
 
-Sync: CS listen-server via `OnlineMatchSync` (host physics/FSM; guest prediction + snapshot interp).
+Sync: rollback netcode via `OnlineRollback` + `SyncManager` (inputs only; deterministic `VolleySim`).
 Offline AI / local 2P unchanged. See `.cursor/docs/online.md`.

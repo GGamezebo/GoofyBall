@@ -35,6 +35,6 @@ alwaysApply: false
 
 ## Avoid
 
-- Autoloads for flow (`RootEvents` / `GameEvents` instead)
+- Autoloads for flow (`RootEvents` event bus instead; `SyncManager` and `Nakama` are the only gameplay-adjacent autoloads)
 - Cross-feature internal imports
-- Parallel FSM beside match `GameManager`
+- A second match state machine beside `VolleySim` phases

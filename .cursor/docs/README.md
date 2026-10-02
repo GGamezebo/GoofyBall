@@ -8,8 +8,9 @@ Agent rules (short must/never) live in [../rules/](../rules/).
 | [architecture.md](architecture.md) | Layers, folders, contracts, high-level diagrams |
 | [entities.md](entities.md) | Key types / Resources / scenes and who owns what |
 | [navigation-hfsm.md](navigation-hfsm.md) | App HFSM, screens, RootEvents |
-| [gameplay.md](gameplay.md) | Match FSM, scoring, features (blob / ball / AI / touch) |
-| [online.md](online.md) | Nakama client, rooms/MM, CS listen-server sync |
+| [gameplay.md](gameplay.md) | Match phases, scoring, presentation, AI, touch |
+| [simulation.md](simulation.md) | Deterministic `VolleySim`, rollback contract, tests |
+| [online.md](online.md) | Nakama client, rooms/MM, rollback netcode |
 | [server.md](server.md) | Docker, Lua modules, ports, smoke scripts |
 
 Related:

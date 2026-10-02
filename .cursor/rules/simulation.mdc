@@ -1,0 +1,23 @@
+---
+description: Determinism contract for the gameplay simulation (rollback netcode)
+globs: "src/features/volley_sim/**/*,src/features/online/**/*,tests/**/*"
+alwaysApply: false
+---
+
+# VolleySim determinism
+
+`VolleySim` must be a pure function `(state, inputs) -> state`. godot-rollback-netcode replays it.
+
+## Must
+
+- Keep ALL match state in `sim.s` (ints/floats/bools/arrays/dicts only)
+- Use only `+ - * /`, `sqrt`, `min/max/clamp/abs/sign`, `move_toward` on floats
+- Derive FX/HUD from state (`*_serial`, `msg`, `phase`) in `MatchView`
+- Add/adjust a test in `tests/cases/` for every rule change; run `godot --headless --path . --script res://tests/run_all.gd`
+
+## Never
+
+- `randf`/`randi`, `Time.*`, `OS.*`, node access, signals, tweens/timers, engine physics inside the sim
+- `sin/cos/pow/log` or other libm calls (can differ per CPU)
+- Fire FX or emit signals from inside `step()`
+- Change sim constants/ordering without telling online players to update (peers must run the same build)

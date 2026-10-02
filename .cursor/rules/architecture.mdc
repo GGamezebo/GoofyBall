@@ -36,12 +36,14 @@ Touch (`virtual_controls`) is **P1 only** (left half move, right half jump) — 
 | `main.tscn` → `src/game/main.gd` | HFSM bootstrap host |
 | `src/game/scenes/` | Screens: `app_root`, `menu`, `game`, `post_battle` |
 | `src/game/contexts/` | Platform BoundEntities (`Desktop` / `Android` / `Steam` / `WEB` / nested `YandexGames`) |
-| `src/features/` | Isolated gameplay (`blob_player`, `ball`, `ai_opponent`, `virtual_controls`) |
+| `src/features/` | Gameplay (`volley_sim`, `blob_view`, `ball_view`, `ai_opponent`, `player_input`, `virtual_controls`) + `online` |
+| `tests/` | Headless tests, run in CI (`tests/run_all.gd`) |
 | `src/common/` | Shared Resources (`GameConfig`, settings) |
 | `src/ui/` | Shared UI (loading screen) |
 | `core/` | Project-agnostic (HFSM, FSM, EventListener, ResourceUtils) |
 | `addons/GodotSavesAddon` | Save plugin — do not edit casually |
 | `addons/com.heroiclabs.nakama` | Nakama Godot client + MultiplayerBridge (autoload `Nakama`) |
+| `addons/godot-rollback-netcode` | Rollback netcode (autoload `SyncManager`) — online only |
 | `server/` | Local/prod-bound Nakama + Postgres (Docker); not imported by Godot |
 | `src/features/online/` | Online identity client (Phase 1+); optional, offline play OK |
 
@@ -72,12 +74,12 @@ Platform states are **siblings** of Menu (not parents): `DESKTOP` | `ANDROID` | 
 - `main.gd` boots HFSM + registers `context` entities
 - `app_root` bridges `RootEvents` → `hfsm.add_event` and opens host platform
 - Battle payload: `{ "custom_battle": GameConfig }` (vs_ai flag inside)
-- In-match: `GameEvents` + `GameManager` FSM (not HFSM)
+- In-match: `VolleySim` phases (not HFSM); HUD/FX derived from sim state in `MatchView`
 
 ## Match loop
 
-`GameManager` FSM: `Serve` → `Play` → `Point` → (`Serve` | `MatchEnd`).
-Do not drive win/lose with ad-hoc flags outside the FSM.
+`VolleySim` phases: `SERVE` → `PLAY` → `POINT` → (`SERVE` | `MATCH_END`).
+Do not drive win/lose with ad-hoc flags outside the sim state.
 
 ## Placement
 

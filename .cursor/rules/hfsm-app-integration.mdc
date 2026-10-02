@@ -32,6 +32,6 @@ alwaysApply: false
 
 ## Must
 
-- Keep match `GameManager` FSM separate from HFSM
+- Keep match logic (`VolleySim`) separate from HFSM
 - New app phase → JSON `scene` + `HfsmScenePaths` export
 - Platform auth/SDK only in context entities — do not duplicate Menu scenes
