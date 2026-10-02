@@ -19,6 +19,7 @@ var _mismatches := 0
 var _errors := 0
 var _started := false
 var _local_ticks := 0
+var _state_loads := 0
 
 
 func _initialize() -> void:
@@ -63,6 +64,11 @@ func _run() -> void:
 		printerr("[e2e] %s: sync error: %s" % [role, msg]))
 	sync.sync_started.connect(func() -> void: _started = true)
 	sync.tick_finished.connect(func(_rb: bool) -> void: _ticks_seen += 1)
+	# Stress: localhost has no latency, so force rollbacks and drop input messages to make
+	# prediction, replay and redundancy do real work.
+	sync.state_loaded.connect(func(_n: int) -> void: _state_loads += 1)
+	sync.debug_random_rollback_ticks = 6
+	sync.debug_skip_nth_message = 5
 
 	var game: Node = (load("res://src/game/scenes/game/game.tscn") as PackedScene).instantiate()
 	root.add_child(game)
@@ -89,10 +95,10 @@ func _run() -> void:
 	await create_timer(RUN_SECONDS).timeout
 
 	var sim_tick: int = int(runner.sim.s.get("tick", 0))
-	print("[e2e] %s: started=%s sim_tick=%d rollbacks=%d mismatches=%d errors=%d score=%d:%d" % [
-		role, _started, sim_tick, _rollbacks, _mismatches, _errors,
+	print("[e2e] %s: started=%s sim_tick=%d state_loads=%d mismatches=%d errors=%d score=%d:%d" % [
+		role, _started, sim_tick, _state_loads, _mismatches, _errors,
 		int(runner.sim.s.get("score_l", 0)), int(runner.sim.s.get("score_r", 0)),
 	])
-	var ok := _started and sim_tick > 600 and _mismatches == 0 and _errors == 0
+	var ok := _started and sim_tick > 600 and _state_loads > 20 and _mismatches == 0 and _errors == 0
 	game.deinit()
 	quit(0 if ok else 1)
