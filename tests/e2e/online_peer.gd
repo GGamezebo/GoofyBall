@@ -52,15 +52,17 @@ func _run() -> void:
 	# Give the other side a moment to be fully connected too.
 	await create_timer(0.3).timeout
 
-	SyncManager.rollback_flagged.connect(func(_tick: int) -> void: _rollbacks += 1)
-	SyncManager.remote_state_mismatch.connect(func(tick: int, _p: int, lh: int, rh: int) -> void:
+	# Autoloads are not compile-time identifiers inside a MainLoop script.
+	var sync = root.get_node("SyncManager")
+	sync.rollback_flagged.connect(func(_tick: int) -> void: _rollbacks += 1)
+	sync.remote_state_mismatch.connect(func(tick: int, _p: int, lh: int, rh: int) -> void:
 		_mismatches += 1
 		printerr("[e2e] %s: STATE MISMATCH tick %d local %d remote %d" % [role, tick, lh, rh]))
-	SyncManager.sync_error.connect(func(msg: String) -> void:
+	sync.sync_error.connect(func(msg: String) -> void:
 		_errors += 1
 		printerr("[e2e] %s: sync error: %s" % [role, msg]))
-	SyncManager.sync_started.connect(func() -> void: _started = true)
-	SyncManager.tick_finished.connect(func(_rb: bool) -> void: _ticks_seen += 1)
+	sync.sync_started.connect(func() -> void: _started = true)
+	sync.tick_finished.connect(func(_rb: bool) -> void: _ticks_seen += 1)
 
 	var game: Node = (load("res://src/game/scenes/game/game.tscn") as PackedScene).instantiate()
 	root.add_child(game)
