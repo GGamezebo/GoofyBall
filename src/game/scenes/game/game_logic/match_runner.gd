@@ -25,6 +25,11 @@ var over_gate: Callable
 var _over_emitted: bool = false
 
 
+func _ready() -> void:
+	# Nothing to step until `initialize()` has built the simulation.
+	set_physics_process(false)
+
+
 func initialize(config: GameConfig) -> void:
 	game_config = config
 	var allow_blast: Array = [true, true] if config.online else [true, false]
@@ -78,6 +83,8 @@ func build_result_payload() -> Dictionary:
 
 
 func _physics_process(_delta: float) -> void:
+	if sim.s.is_empty():
+		return
 	prev_state = sim.save_state()
 	var left := _input_p1.sample("p1")
 	var right: Dictionary = _ai.decide(sim.s) if _ai else _input_p2.sample("p2")
