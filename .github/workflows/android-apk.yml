@@ -33,7 +33,7 @@ jobs:
             echo "::error::Engine/GDScript errors found in test log"
             status=1
           fi
-          grep -E "^\[(tests|gameplay|FAIL)\]" test.log || true
+          grep -E "^\[(tests|gameplay|FAIL|rollback)\]" test.log | head -80 || true
           exit $status
 
   apk:
