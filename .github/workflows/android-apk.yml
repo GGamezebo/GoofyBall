@@ -63,8 +63,9 @@ jobs:
 
       - name: Configure editor for Android export
         run: |
-          keytool -genkeypair -v -keystore "$HOME/debug.keystore" -storepass android -alias androiddebugkey \
-            -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          # Fixed DEBUG keystore (public on purpose): every CI build is signed the same way,
+          # so new APKs install over old ones. Release signing must use real secrets.
+          cp ci/debug.keystore "$HOME/debug.keystore"
           mkdir -p ~/.config/godot
           for f in editor_settings-4.tres editor_settings-4.7.tres; do
           cat > ~/.config/godot/$f <<CFG
