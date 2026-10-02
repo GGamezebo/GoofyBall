@@ -51,23 +51,30 @@ func test_late_remote_input_rolls_back_to_identical_state() -> void:
 
 	var left_path := str(rb.get_node("InputLeft").get_path())
 	var right_path := str(rb.get_node("InputRight").get_path())
-	var rollbacks := [0]
-	var on_rollback := func(_tick: int) -> void: rollbacks[0] += 1
-	SyncManager.rollback_flagged.connect(on_rollback)
-
+	var rollbacks := 0
 	var delay: int = SyncManager.input_delay
 	var calls := TOTAL_TICKS + delay
 	for call in range(1, calls + 1):
-		# Remote input for sim tick n only "arrives" REMOTE_DELAY calls after it was needed.
 		SyncManager.mechanized_input_received[1] = {call: {left_path: _scripted(call, 0)}}
+		# Remote input for frame n only "arrives" REMOTE_DELAY calls late.
 		var arriving := call - REMOTE_DELAY
 		if arriving >= 1:
-			SyncManager.mechanized_input_received[2] = {arriving: {right_path: _scripted(arriving, 7)}}
+			var actual := {right_path: _scripted(arriving, 7)}
+			SyncManager._calculate_data_hash(actual)
+			# Mechanized mode has no network receive path, so mirror what
+			# SyncManager._on_received_input_tick() does: a prediction miss => roll back.
+			var frame = SyncManager.get_input_frame(arriving)
+			if frame != null and frame.players.has(2) and frame.players[2].predicted \
+					and frame.players[2].input["$"] != actual["$"]:
+				rollbacks += 1
+				SyncManager.mechanized_rollback_ticks = maxi(
+					SyncManager.mechanized_rollback_ticks, SyncManager.current_tick - arriving + 1
+				)
+			SyncManager.mechanized_input_received[2] = {arriving: actual}
 		SyncManager.execute_mechanized_tick()
 		SyncManager.execute_mechanized_interpolation_frame(1.0 / 60.0)
 
-	SyncManager.rollback_flagged.disconnect(on_rollback)
-	expect(rollbacks[0] > 0, "late remote input caused rollbacks (%d)" % rollbacks[0])
+	expect(rollbacks > 0, "late remote input caused prediction misses (%d)" % rollbacks)
 
 	# Every tick whose inputs are complete must equal the clean replay.
 	var checked := 0
