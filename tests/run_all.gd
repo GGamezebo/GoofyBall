@@ -12,6 +12,8 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	# Let the SceneTree finish starting so scenes added to root are inside the tree.
+	await process_frame
 	var total_checks := 0
 	var failures: Array[String] = []
 

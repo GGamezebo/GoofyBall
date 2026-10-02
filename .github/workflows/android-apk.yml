@@ -29,10 +29,11 @@ jobs:
           set +e
           godot --headless --path . --script res://tests/run_all.gd 2>&1 | tee test.log
           status=${PIPESTATUS[0]}
-          if grep -E "SCRIPT ERROR|Parse Error" test.log; then
-            echo "::error::GDScript errors found in test log"
+          if grep -E "^(SCRIPT ERROR|ERROR):|Parse Error" test.log | sort | uniq -c | head -20 | grep .; then
+            echo "::error::Engine/GDScript errors found in test log"
             status=1
           fi
+          grep -E "^\[(tests|gameplay|FAIL)\]" test.log || true
           exit $status
 
   apk:
