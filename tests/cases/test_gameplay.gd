@@ -43,7 +43,8 @@ func test_bots_can_rally_and_finish_a_match() -> void:
 	var r := _bot_match(3, 60 * 60 * 6)
 	print("[gameplay] bot match: ", r)
 	expect(bool(r["over"]), "bot match finishes within 6 simulated minutes")
-	expect(int(r["longest"]) >= 2, "bots exchange at least 2 touches in some rally (longest %d)" % int(r["longest"]))
+	expect(int(r["longest"]) >= 4, "bots rally: some rally has >= 4 touches (longest %d)" % int(r["longest"]))
+	expect(int(r["faults"]) <= 2, "bots do not just foul out every point (faults %d)" % int(r["faults"]))
 
 
 func test_game_scene_runs_offline() -> void:

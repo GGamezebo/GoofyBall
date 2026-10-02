@@ -15,6 +15,9 @@ const JUMP_RANGE_X := 1.4
 const JUMP_HEIGHT_MAX := 4.5
 const JUMP_HEIGHT_MIN := 0.9
 const LEAD_TIME := 0.22
+## Stand this far BEHIND the ball (away from the net) so the hit sends it over the net,
+## instead of popping it straight up and re-hitting it until the 3-touch fault.
+const AIM_BEHIND := 0.5
 
 ## Which blob this bot drives (0 = left/Blue, 1 = right/Red).
 var side: int = 1
@@ -42,6 +45,8 @@ func decide(state: Dictionary) -> Dictionary:
 	var target_x := ball_x
 	if ball_vx > 0.35:
 		target_x += ball_vx * LEAD_TIME
+	if ball_x > 0.0:
+		target_x += AIM_BEHIND
 	target_x = clampf(target_x, VolleySim.NET_LIMIT_X, COURT_RIGHT)
 
 	_axis = move_toward(_axis, _steer_axis(target_x - float(blob["x"]) * sgn) * sgn, step)
