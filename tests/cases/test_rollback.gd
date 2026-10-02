@@ -64,6 +64,7 @@ func test_late_remote_input_rolls_back_to_identical_state() -> void:
 		if arriving >= 1:
 			SyncManager.mechanized_input_received[2] = {arriving: {right_path: _scripted(arriving, 7)}}
 		SyncManager.execute_mechanized_tick()
+		SyncManager.execute_mechanized_interpolation_frame(1.0 / 60.0)
 
 	SyncManager.rollback_flagged.disconnect(on_rollback)
 	expect(rollbacks[0] > 0, "late remote input caused rollbacks (%d)" % rollbacks[0])

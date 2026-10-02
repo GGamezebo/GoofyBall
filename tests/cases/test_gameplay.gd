@@ -17,6 +17,7 @@ func _bot_match(win_score: int, max_ticks: int) -> Dictionary:
 	var seen_point := 0
 	var timeouts := 0
 	var faults := 0
+	var log: Array[String] = []
 	var ticks := 0
 	while ticks < max_ticks and not sim.is_match_over():
 		sim.step([left.decide(sim.s), right.decide(sim.s)])
@@ -28,6 +29,7 @@ func _bot_match(win_score: int, max_ticks: int) -> Dictionary:
 		if points != seen_point:
 			seen_point = points
 			longest_rally = maxi(longest_rally, rally_touches)
+			log.append("t%d loser=%d msg=%d touches=%d ball=(%.1f,%.1f)" % [ticks, int(sim.s["point_side"]), int(sim.s["msg"]), rally_touches, float(sim.s["ball"]["x"]), float(sim.s["ball"]["y"])])
 			rally_touches = 0
 			if int(sim.s["msg"]) == VolleySim.Msg.TIMEUP:
 				timeouts += 1
@@ -36,12 +38,15 @@ func _bot_match(win_score: int, max_ticks: int) -> Dictionary:
 	return {
 		"ticks": ticks, "over": sim.is_match_over(), "longest": longest_rally,
 		"timeouts": timeouts, "faults": faults, "score": [int(sim.s["score_l"]), int(sim.s["score_r"])],
+		"log": log,
 	}
 
 
 func test_bots_can_rally_and_finish_a_match() -> void:
 	var r := _bot_match(3, 60 * 60 * 6)
 	print("[gameplay] bot match: ", r)
+	for line in r["log"]:
+		print("[gameplay]   ", line)
 	expect(bool(r["over"]), "bot match finishes within 6 simulated minutes")
 	expect(int(r["longest"]) >= 4, "bots rally: some rally has >= 4 touches (longest %d)" % int(r["longest"]))
 	expect(int(r["faults"]) <= 2, "bots do not just foul out every point (faults %d)" % int(r["faults"]))
