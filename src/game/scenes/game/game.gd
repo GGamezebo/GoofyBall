@@ -9,6 +9,7 @@ extends IScene
 @export var match_view: MatchView
 @export var hint_label: Label
 @export var virtual_controls: VirtualControls
+@export var online_rollback: OnlineRollback
 
 var _listener: EventListener = EventListener.new()
 var _exit_emitted: bool = false
@@ -47,6 +48,8 @@ func initialize(data: Dictionary) -> void:
 	match_view.start()
 
 	_listener.add(match_runner.ev_match_over, _on_match_over)
+	if game_config.online:
+		_start_online()
 	if virtual_controls and not virtual_controls.ev_self_destruct_requested.is_connected(match_runner.request_blast):
 		virtual_controls.ev_self_destruct_requested.connect(match_runner.request_blast)
 
@@ -57,6 +60,8 @@ func initialize(data: Dictionary) -> void:
 
 
 func deinit() -> void:
+	if online_rollback:
+		online_rollback.shutdown()
 	_listener.deinit()
 	root_events.ev_battle_finished.emit()
 	super.deinit()
@@ -64,6 +69,7 @@ func deinit() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
+		_leave_online_if_needed()
 		root_events.ev_return_to_menu.emit({})
 		get_viewport().set_input_as_handled()
 
@@ -72,7 +78,62 @@ func _on_match_over(payload: Dictionary) -> void:
 	if _exit_emitted:
 		return
 	_exit_emitted = true
+	if online_rollback:
+		online_rollback.shutdown()
+	_leave_online_if_needed()
 	root_events.ev_exit_game.emit(payload)
+
+
+func _start_online() -> void:
+	match_runner.over_gate = online_rollback.is_tick_confirmed
+	online_rollback.ev_status.connect(_on_online_status)
+	online_rollback.ev_names_changed.connect(_on_online_names)
+	online_rollback.ev_aborted.connect(_on_online_aborted)
+	var ok := online_rollback.setup(
+		match_runner.sample_local_input,
+		match_runner.step_with,
+		match_runner.save_state,
+		match_runner.load_state,
+		game_config.local_side,
+		_local_display_name
+	)
+	if not ok:
+		return
+	match_view.show_fighter_names(online_rollback.left_name, online_rollback.right_name)
+
+
+func _on_online_status(text: String) -> void:
+	match_view.overlay_text = text
+
+
+func _on_online_names(left_name: String, right_name: String) -> void:
+	match_view.show_fighter_names(left_name, right_name)
+
+
+func _on_online_aborted(_reason: String) -> void:
+	# If the result was already decided, report it; otherwise back to the menu.
+	if int(match_runner.sim.s["phase"]) == VolleySim.Phase.MATCH_END:
+		match_runner.force_match_over()
+		return
+	await get_tree().create_timer(1.5).timeout
+	if _exit_emitted:
+		return
+	_exit_emitted = true
+	_leave_online_if_needed()
+	root_events.ev_return_to_menu.emit({})
+
+
+## Leave the Nakama match so the next lobby starts clean.
+func _leave_online_if_needed() -> void:
+	if game_config == null or not game_config.online:
+		return
+	var n: Node = self
+	while n:
+		var online := n.get_node_or_null("OnlineService") as OnlineService
+		if online:
+			online.leave_realtime_match_async()
+			return
+		n = n.get_parent()
 
 
 func _hint_text() -> String:

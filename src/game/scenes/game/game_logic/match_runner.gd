@@ -20,6 +20,8 @@ var game_config: GameConfig
 var _input_p1 := PlayerInput.new()
 var _input_p2 := PlayerInput.new()
 var _ai: AiOpponent
+## Optional: online sets this so a result is only reported once its inputs are confirmed.
+var over_gate: Callable
 var _over_emitted: bool = false
 
 
@@ -86,6 +88,16 @@ func _check_match_over() -> void:
 	if _over_emitted or int(sim.s["phase"]) != VolleySim.Phase.MATCH_END:
 		return
 	if int(sim.s["phase_ticks"]) < END_LINGER_TICKS:
+		return
+	if over_gate.is_valid() and not bool(over_gate.call()):
+		return
+	_over_emitted = true
+	ev_match_over.emit(build_result_payload())
+
+
+## Peer vanished after the match was already decided: report the result we have.
+func force_match_over() -> void:
+	if _over_emitted or int(sim.s["phase"]) != VolleySim.Phase.MATCH_END:
 		return
 	_over_emitted = true
 	ev_match_over.emit(build_result_payload())

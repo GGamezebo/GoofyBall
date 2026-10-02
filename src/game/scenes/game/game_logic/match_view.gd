@@ -24,6 +24,8 @@ var name_blue: String = "Blue"
 var name_red: String = "Red"
 ## Online displays smoothed-by-SyncManager state; offline interpolates between ticks.
 var interpolate: bool = true
+## When non-empty it replaces the center message (e.g. "Waiting for opponent…").
+var overlay_text: String = ""
 
 var _seen := {}
 var _score_text := ""
@@ -137,6 +139,8 @@ func _hud(s: Dictionary) -> void:
 
 
 func _message_for(s: Dictionary) -> String:
+	if not overlay_text.is_empty():
+		return overlay_text
 	if int(s["phase"]) == VolleySim.Phase.SERVE:
 		return str(runner.sim.serve_countdown_sec())
 	var side := int(s["msg_side"])
