@@ -26,10 +26,8 @@ func test_late_remote_input_rolls_back_to_identical_state() -> void:
 	# Subject: local peer 1 plays left; peer 2 (right) arrives REMOTE_DELAY ticks late.
 	var live := VolleySim.new()
 	live.reset(cfg)
-	var sample_count := [0]
-	var sampler := func() -> Dictionary:
-		sample_count[0] += 1
-		return _scripted(sample_count[0], 0)
+	# Mechanized mode takes ALL inputs (local included) through `mechanized_input_received`.
+	var sampler := func() -> Dictionary: return VolleySim.neutral_input()
 
 	await tree.process_frame
 	var rb := OnlineRollback.new()
@@ -51,6 +49,7 @@ func test_late_remote_input_rolls_back_to_identical_state() -> void:
 	SyncManager.start()
 	expect(SyncManager.started, "SyncManager started (mechanized)")
 
+	var left_path := str(rb.get_node("InputLeft").get_path())
 	var right_path := str(rb.get_node("InputRight").get_path())
 	var rollbacks := [0]
 	var on_rollback := func(_tick: int) -> void: rollbacks[0] += 1
@@ -60,8 +59,9 @@ func test_late_remote_input_rolls_back_to_identical_state() -> void:
 	var calls := TOTAL_TICKS + delay
 	for call in range(1, calls + 1):
 		# Remote input for sim tick n only "arrives" REMOTE_DELAY calls after it was needed.
+		SyncManager.mechanized_input_received[1] = {call: {left_path: _scripted(call, 0)}}
 		var arriving := call - REMOTE_DELAY
-		if arriving >= 1 and arriving <= TOTAL_TICKS:
+		if arriving >= 1:
 			SyncManager.mechanized_input_received[2] = {arriving: {right_path: _scripted(arriving, 7)}}
 		SyncManager.execute_mechanized_tick()
 
