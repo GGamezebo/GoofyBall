@@ -3,6 +3,8 @@ extends RefCounted
 
 ## Base for headless tests. Methods named `test_*` are run by `tests/run_all.gd`.
 
+## Set by the runner so tests can build scenes.
+var tree: SceneTree
 var failures: Array[String] = []
 var checks: int = 0
 var _current: String = ""

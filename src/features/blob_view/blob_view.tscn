@@ -1,9 +1,6 @@
-[gd_scene load_steps=14 format=3 uid="uid://blobplayer01"]
+[gd_scene load_steps=13 format=3 uid="uid://blobplayer01"]
 
-[ext_resource type="Script" path="res://src/features/blob_player/blob_player.gd" id="1_blob"]
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_blob"]
-radius = 0.42
+[ext_resource type="Script" path="res://src/features/blob_view/blob_view.gd" id="1_blob"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_blob"]
 albedo_color = Color(0.02, 0.75, 0.95, 1)
@@ -86,14 +83,8 @@ scale_min = 0.4
 scale_max = 1.35
 color = Color(0.25, 0.9, 1, 1)
 
-[node name="BlobPlayer" type="CharacterBody3D"]
-collision_layer = 2
-collision_mask = 5
-floor_stop_on_slope = false
+[node name="BlobView" type="Node3D"]
 script = ExtResource("1_blob")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("SphereShape3D_blob")
 
 [node name="MeshRoot" type="Node3D" parent="."]
 

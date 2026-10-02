@@ -1,68 +1,64 @@
 class_name AiOpponent
-extends Node
+extends RefCounted
 
-## Reactive bot for the right-side blob — smooth proportional steering.
+## Reactive bot for the right-side blob. Pure function of the sim state (plus a
+## smoothed steering value), so it is trivially testable and never touches nodes.
 
-@export var player: BlobPlayer
-@export var ball: RigidBody3D
-@export var enabled: bool = false
-
-const NET_LIMIT := 0.55
 const COURT_RIGHT := 6.2
 ## Distance at which steering is full strength (±1).
 const FULL_SPEED_DIST := 1.6
 ## Soft stop zone — ease to zero instead of hard cut.
 const STOP_DIST := 0.12
-## How fast external_axis catches up to the desired value.
+## How fast the steering axis catches up to the desired value (per second).
 const AXIS_SMOOTH := 10.0
 const JUMP_RANGE_X := 1.4
 const JUMP_HEIGHT_MAX := 4.5
+const JUMP_HEIGHT_MIN := 0.9
 const LEAD_TIME := 0.22
 
+## Which blob this bot drives (0 = left/Blue, 1 = right/Red).
+var side: int = 1
 var _axis: float = 0.0
 
 
-func setup(p_player: BlobPlayer, p_ball: RigidBody3D, p_enabled: bool) -> void:
-	player = p_player
-	ball = p_ball
-	enabled = p_enabled
+func reset() -> void:
 	_axis = 0.0
-	if player:
-		player.set_ai_controlled(enabled)
-		player.external_axis = 0.0
 
 
-func _physics_process(delta: float) -> void:
-	if not enabled or player == null or ball == null:
-		return
+## Returns a sim input dictionary for the right blob.
+func decide(state: Dictionary) -> Dictionary:
+	var blob: Dictionary = state["p"][side]
+	var ball: Dictionary = state["ball"]
+	var step := AXIS_SMOOTH * VolleySim.DT
 
-	if ball.freeze:
-		_axis = move_toward(_axis, 0.0, AXIS_SMOOTH * delta)
-		player.external_axis = _axis
-		return
+	if bool(ball["frozen"]) or bool(blob["dead"]):
+		_axis = move_toward(_axis, 0.0, step)
+		return {"x": roundi(_axis * 100.0), "j": 0, "b": 0}
 
-	var target_x: float = ball.global_position.x
-	if ball.linear_velocity.x > 0.35:
-		target_x += ball.linear_velocity.x * LEAD_TIME
-	target_x = clampf(target_x, NET_LIMIT, COURT_RIGHT)
+	# Mirror everything into "right side" space so one code path serves both blobs.
+	var sgn := 1.0 if side == 1 else -1.0
+	var ball_x := float(ball["x"]) * sgn
+	var ball_vx := float(ball["vx"]) * sgn
+	var target_x := ball_x
+	if ball_vx > 0.35:
+		target_x += ball_vx * LEAD_TIME
+	target_x = clampf(target_x, VolleySim.NET_LIMIT_X, COURT_RIGHT)
 
-	var dx: float = target_x - player.global_position.x
-	var desired: float = _steer_axis(dx)
-	_axis = move_toward(_axis, desired, AXIS_SMOOTH * delta)
-	player.external_axis = _axis
+	_axis = move_toward(_axis, _steer_axis(target_x - float(blob["x"]) * sgn) * sgn, step)
 
-	var near_x: bool = absf(ball.global_position.x - player.global_position.x) < JUMP_RANGE_X
-	var ball_descending: bool = ball.linear_velocity.y < 0.5
-	var good_height: bool = ball.global_position.y < JUMP_HEIGHT_MAX and ball.global_position.y > 0.9
-	if near_x and ball_descending and good_height and player.is_on_floor():
-		player.external_jump = true
+	var near_x := absf(float(ball["x"]) - float(blob["x"])) < JUMP_RANGE_X
+	var descending := float(ball["vy"]) < 0.5
+	var good_height := float(ball["y"]) < JUMP_HEIGHT_MAX and float(ball["y"]) > JUMP_HEIGHT_MIN
+	var on_floor := float(blob["y"]) <= VolleySim.BLOB_FLOOR_Y + 0.001
+	var jump := near_x and descending and good_height and on_floor
+	return {"x": roundi(_axis * 100.0), "j": 1 if jump else 0, "b": 0}
 
 
-func _steer_axis(dx: float) -> float:
+static func _steer_axis(dx: float) -> float:
 	var abs_dx := absf(dx)
 	if abs_dx <= STOP_DIST:
 		return 0.0
 	# Proportional: closer → slower, far → full speed. Smoothstep softens the ramp.
-	var t: float = clampf((abs_dx - STOP_DIST) / (FULL_SPEED_DIST - STOP_DIST), 0.0, 1.0)
+	var t := clampf((abs_dx - STOP_DIST) / (FULL_SPEED_DIST - STOP_DIST), 0.0, 1.0)
 	t = t * t * (3.0 - 2.0 * t)
 	return signf(dx) * t

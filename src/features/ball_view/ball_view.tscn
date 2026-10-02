@@ -1,13 +1,6 @@
 [gd_scene format=3 uid="uid://ballscene001"]
 
-[ext_resource type="Script" uid="uid://rq48xlaywylu" path="res://src/features/ball/ball.gd" id="1_ball"]
-
-[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ball"]
-friction = 0.12
-bounce = 0.78
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_ball"]
-radius = 0.35
+[ext_resource type="Script" uid="uid://rq48xlaywylu" path="res://src/features/ball_view/ball_view.gd" id="1_ball"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ball"]
 albedo_color = Color(1, 0.82, 0.12, 1)
@@ -79,20 +72,8 @@ height = 0.12
 radial_segments = 8
 rings = 4
 
-[node name="Ball" type="RigidBody3D" unique_id=668254405]
-collision_layer = 4
-collision_mask = 7
-mass = 0.07
-physics_material_override = SubResource("PhysicsMaterial_ball")
-gravity_scale = 0.4
-continuous_cd = true
-contact_monitor = true
-max_contacts_reported = 8
-linear_damp = 0.015
+[node name="BallView" type="Node3D" unique_id=668254405]
 script = ExtResource("1_ball")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1182604027]
-shape = SubResource("SphereShape3D_ball")
 
 [node name="Mesh" type="MeshInstance3D" parent="." unique_id=139659861]
 mesh = SubResource("SphereMesh_ball")

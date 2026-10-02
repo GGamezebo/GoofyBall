@@ -213,7 +213,7 @@ func _step_blob(i: int, blob: Dictionary, inp: Dictionary) -> void:
 		blob["vx"] = target_vx
 	else:
 		var accel := GROUND_ACCEL if on_floor else MOVE_SPEED * AIR_CONTROL * 8.0
-		blob["vx"] = _move_toward(float(blob["vx"]), target_vx, accel * DT)
+		blob["vx"] = move_toward(float(blob["vx"]), target_vx, accel * DT)
 
 	if int(inp.get("j", 0)) != 0 and on_floor:
 		blob["vy"] = JUMP_VELOCITY
@@ -530,9 +530,3 @@ func _register_touch(side: int) -> bool:
 		_award_point(side, Msg.TOUCHES)
 		return true
 	return false
-
-
-static func _move_toward(from: float, to: float, delta: float) -> float:
-	if absf(to - from) <= delta:
-		return to
-	return from + signf(to - from) * delta

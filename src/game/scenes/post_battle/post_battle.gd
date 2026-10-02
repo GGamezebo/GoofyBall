@@ -51,7 +51,8 @@ func _on_menu() -> void:
 
 func _on_repeat() -> void:
 	var game_config: GameConfig = _result.get("game_config") as GameConfig
-	if game_config:
+	# Online rematches need a fresh lobby (peers, sides) — go back to the menu.
+	if game_config and not game_config.online:
 		root_events.ev_start_game.emit({"custom_battle": game_config})
 	else:
 		root_events.ev_return_to_menu.emit({})

@@ -8,6 +8,10 @@ const CASES_DIR := "res://tests/cases"
 
 
 func _initialize() -> void:
+	_run()
+
+
+func _run() -> void:
 	var total_checks := 0
 	var failures: Array[String] = []
 
@@ -21,12 +25,13 @@ func _initialize() -> void:
 			failures.append("%s: failed to load" % file_name)
 			continue
 		var case: TestCase = script.new()
+		case.tree = self
 		for method in script.get_script_method_list():
 			var method_name: String = method["name"]
 			if not method_name.begins_with("test_"):
 				continue
 			case.begin("%s::%s" % [file_name, method_name])
-			case.call(method_name)
+			await case.call(method_name)
 		total_checks += case.checks
 		failures.append_array(case.failures)
 		print("[tests] %s — %d checks" % [file_name, case.checks])
