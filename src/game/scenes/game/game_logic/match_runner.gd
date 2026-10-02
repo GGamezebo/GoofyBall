@@ -22,6 +22,8 @@ var _input_p2 := PlayerInput.new()
 var _ai: AiOpponent
 ## Optional: online sets this so a result is only reported once its inputs are confirmed.
 var over_gate: Callable
+## Optional: replaces local input sampling (tests / bots). Returns a sim input dictionary.
+var input_override: Callable
 var _over_emitted: bool = false
 
 
@@ -56,6 +58,8 @@ func request_blast() -> void:
 
 ## Local human input (always the p1_* actions, whichever side we play on).
 func sample_local_input() -> Dictionary:
+	if input_override.is_valid():
+		return input_override.call()
 	return _input_p1.sample("p1")
 
 

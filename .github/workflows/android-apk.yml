@@ -36,6 +36,21 @@ jobs:
           grep -E "^\[(tests|gameplay|FAIL|rollback)\]" test.log | head -80 || true
           exit $status
 
+      - name: Online end-to-end (two processes, ENet, real rollback)
+        run: |
+          set +e
+          godot --headless --path . --script res://tests/e2e/online_peer.gd -- role=host port=24777 > host.log 2>&1 &
+          host_pid=$!
+          sleep 2
+          godot --headless --path . --script res://tests/e2e/online_peer.gd -- role=guest port=24777 > guest.log 2>&1
+          guest_status=$?
+          wait $host_pid
+          host_status=$?
+          grep -hE "^\[e2e\]" host.log guest.log
+          grep -hE "^(SCRIPT ERROR|ERROR):" host.log guest.log | sort | uniq -c | head -10
+          echo "host=$host_status guest=$guest_status"
+          [ $host_status -eq 0 ] && [ $guest_status -eq 0 ]
+
   apk:
     needs: test
     runs-on: ubuntu-latest
