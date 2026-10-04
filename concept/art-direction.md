@@ -50,5 +50,6 @@
 | `buffs.png` / `.svg` | Иконки бафов и событий |
 | `storyboard.png` / `.svg` | Раскадровка смешных моментов для клипов |
 | `multi-team.png` / `.svg` | Арена на три команды с зонами и жизнями |
+| `ui-*.png` / `.svg` | Макеты всех экранов UI, карта навигации и принципы: см. [`ui.md`](ui.md) |
 
-Перегенерировать: `python3 concept/generate_concepts.py` создаёт SVG, а PNG получаются скриншотом SVG в Chromium. Иконки бафов — это системные эмодзи-заглушки.
+Перегенерировать: `python3 concept/generate_concepts.py` создаёт SVG, а PNG получаются скриншотом SVG в Chromium. Иконки бафов — это системные эмодзи-заглушки. UI-листы: `python concept/generate_ui.py`.

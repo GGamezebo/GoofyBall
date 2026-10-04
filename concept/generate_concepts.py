@@ -144,7 +144,7 @@ def pickup(x, y, icon, col=None, s=1.0):
             + f"<text x='{x}' y='{y+11*s}' font-size='{32*s}' text-anchor='middle'>{icon}</text>")
 
 def save(name, body):
-    with open(os.path.join(OUT, name + ".svg"), "w") as f:
+    with open(os.path.join(OUT, name + ".svg"), "w", encoding="utf-8") as f:
         f.write(body)
 
 # ---------- 1. blobs sheet ----------
@@ -380,6 +380,7 @@ def sheet_jump():
         b.append(text(hx, fl2 + 52, label, 22, C['text'], weight="normal"))
     save("jump", svg(W, H, "".join(b)))
 
-for f in (sheet_jump, sheet_blobs, sheet_gameplay, sheet_buffs, sheet_storyboard, sheet_multiteam):
-    f()
-print("ok")
+if __name__ == "__main__":
+    for f in (sheet_jump, sheet_blobs, sheet_gameplay, sheet_buffs, sheet_storyboard, sheet_multiteam):
+        f()
+    print("ok")

@@ -7,3 +7,4 @@ Read docs ONLY when the task needs them:
 - sim/net/server architecture → `docs/tech/architecture.md`
 - stage order → `docs/roadmap.md`
 - art style → `concept/art-direction.md`
+- UI screens, navigation, UI principles → `concept/ui.md`
