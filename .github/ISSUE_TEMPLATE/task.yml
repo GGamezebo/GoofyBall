@@ -1,0 +1,20 @@
+name: Task
+description: Development task from the roadmap
+labels: [task]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+    validations:
+      required: true
+  - type: textarea
+    id: ac
+    attributes:
+      label: Definition of done
+      placeholder: "- [ ] ..."
+  - type: input
+    id: stage
+    attributes:
+      label: Roadmap stage
+      placeholder: "e.g. 1 - project skeleton"

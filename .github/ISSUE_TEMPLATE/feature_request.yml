@@ -1,0 +1,21 @@
+name: Feature / buff idea
+description: Propose a feature, buff, event or mode
+labels: [feature]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What and why (is it funny without sound/context?)
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Design details
+      description: Rules, balance, edge cases, N teams x N players
+  - type: textarea
+    id: ac
+    attributes:
+      label: Acceptance criteria
+      placeholder: "- [ ] ..."

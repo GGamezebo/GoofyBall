@@ -1,0 +1,17 @@
+# name: color | description   (applied by .github/setup/github_setup.sh)
+bug: d73a4a | Something is broken
+feature: a2eeef | New feature, buff, event or mode
+task: 0e8a16 | Roadmap development task
+design: fbca04 | Game design / balance
+art: f9d0c4 | Art, animation, VFX
+audio: c5def5 | Sound and music
+sim: 5319e7 | volley_sim / deterministic simulation
+buffs: d4c5f9 | Buffs, events, modifiers
+net: 1d76db | Netcode, rollback, Nakama
+ui: bfdadc | UI, HUD, menus, touch controls
+infra: 6f7378 | CI, build, tooling, repo
+docs: 0075ca | Documentation
+P0: b60205 | Blocker
+P1: ff9f1a | Important
+P2: cccccc | Nice to have
+good first issue: 7057ff | Good for newcomers

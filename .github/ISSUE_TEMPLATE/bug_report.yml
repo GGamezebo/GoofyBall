@@ -1,0 +1,26 @@
+name: Bug report
+description: Something works incorrectly
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Expected vs actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Platform / build
+      placeholder: "Android 14 / Web / Windows, commit or version"
+  - type: textarea
+    id: extra
+    attributes:
+      label: Logs, screenshots, replay
