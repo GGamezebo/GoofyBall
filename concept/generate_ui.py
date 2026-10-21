@@ -1,5 +1,6 @@
 """UI concept sheets for Goofy Ball. Every screen is authored in 1600x900 (landscape phone)
-and placed scaled into a phone bezel on a sheet. Run: python concept/generate_ui.py"""
+and placed scaled into a phone bezel on a sheet; the same screens also build the clickable
+ui-prototype.html. Run: python concept/generate_ui.py"""
 import os, sys, math, random, shutil, subprocess
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from generate_concepts import C, lighten, svg, text, blob, ball, stars, court, burst
@@ -90,8 +91,6 @@ def topbar_profile():
     return (blob(78, 96, 34, C['cyan'], "happy", glow=False)
             + text(130, 58, "Slimy_42", 28, anchor="start")
             + text(130, 90, "🥈 Серебро II · 1420", 20, C['sub'], anchor="start", weight="normal")
-            + rr(610, 28, 380, 64, 32, PANEL2, stroke=C['ball'], sop=0.6)
-            + text(640, 60, "⭐ Сезон 3 · ур. 12", 22, C['ball'], anchor="start") + bar(640, 70, 320, 10, 0.45, C['ball'])
             + currency() + iconbtn(1540, 56, 30, "⚙"))
 
 def topbar_back(title, money=True):
@@ -171,6 +170,7 @@ def scr_splash():
             + blob(900, 690, 58, C['mag'], "scared", 1.15, 0.85)
             + ball(810, 470, 28, trail=(-14, 10))
             + bar(600, 770, 400, 14, 0.6, C['ball']) + text(800, 830, "Загрузка… 60%", 24, C['sub'], weight="normal")
+            + text(800, 860, "тихий вход · аккаунт платформы", 18, C['sub'], weight="normal", extra="opacity='0.75'")
             + text(1560, 880, "v0.1", 18, C['sub'], anchor="end", weight="normal"))
 
 def home_body():
@@ -180,17 +180,11 @@ def home_body():
             + ball(610, 300, 40)
             + rr(110, 140, 420, 64, 32, PANEL2, stroke=C['cyan'], sop=0.6)
             + text(140, 182, "🐸 Прыгун · прыжок +25%", 24, anchor="start") + text(500, 182, "✎", 26, C['cyan'])
-            + rr(880, 140, 660, 84, 24, PANEL, stroke=C['mag'], sw=3, sop=0.8)
-            + text(910, 176, "🏆 Кубок выходных", 28, anchor="start")
-            + text(910, 208, "старт через 2ч 14м · приз: шапка", 20, C['sub'], anchor="start", weight="normal")
-            + text(1505, 196, "›", 44, C['mag'])
-            + rr(880, 250, 660, 70, 35, PANEL2, stroke=C['sub'], sop=0.4)
-            + rr(886, 256, 324, 58, 29, C['cyan'], op=0.9) + text(1048, 296, "Быстрый", 28, INK)
-            + text(1375, 296, "Ранговый", 28, C['text'], weight="normal")
-            + btn(880, 340, 660, 170, "▶  ИГРАТЬ", size=72)
-            + btn(880, 530, 320, 100, "🤖 Против AI", "secondary", 30)
-            + btn(1220, 530, 320, 100, "👥 С другом", "secondary", 30)
-            + text(1210, 690, "🟢 1 284 игрока онлайн", 22, C['sub'], weight="normal"))
+            + rr(850, 170, 720, 500, 40, C['ball'], op=0.05, stroke=C['ball'], sw=2, sop=0.35)
+            + btn(880, 200, 660, 220, "▶  ИГРАТЬ", size=76, sub="онлайн · на рейтинг")
+            + btn(880, 445, 320, 110, "🤖 Против AI", size=32)
+            + btn(1220, 445, 320, 110, "👥 С другом", size=32)
+            + text(1210, 625, "🟢 1 284 игрока онлайн · ~15 с до матча", 22, C['sub'], weight="normal"))
 
 def scr_home():
     return stars(1600, 900, 40, 5) + home_body() + topbar_profile() + navbar(0)
@@ -239,8 +233,9 @@ def scr_ai():
 
 # ---------- screens: matchmaking & lobby ----------
 def scr_search():
-    return (stars(1600, 900, 60, 9) + text(800, 190, "Ищем соперника…", 56)
-            + text(800, 265, "0:12", 46, C['ball']) + text(800, 305, "обычно ~20 с · Быстрый матч", 22, C['sub'], weight="normal")
+    return (stars(1600, 900, 60, 9) + text(800, 150, "Ищем соперника…", 56)
+            + text(800, 220, "0:12", 46, C['ball']) + text(800, 262, "ищем соперника твоего уровня: 1320–1520", 24, C['sub'], weight="normal")
+            + text(800, 296, "диапазон расширяется каждые 5 с — матч найдётся всегда", 20, C['sub'], weight="normal", extra="opacity='0.8'")
             + f"<rect x='560' y='640' width='480' height='4' fill='{C['cyan']}' opacity='0.6' filter='url(#glow)'/>"
             + blob(800, 640, 90, C['cyan'], "happy", 1.35, 0.7, glow=False, opacity=0.12)
             + blob(800, 540, 90, C['cyan'], "happy", 0.85, 1.15, ground=False, floor_y=640)
@@ -255,10 +250,12 @@ def scr_vs():
             + rr(640, 80, 320, 64, 32, PANEL, stroke=C['sub'], sop=0.5) + text(800, 124, "Старт через 3", 30)
             + blob(380, 620, 130, C['cyan'], "angry", look=1) + blob(1220, 620, 130, C['mag'], "smug", 1.15, 0.9, look=-1)
             + text(800, 470, "VS", 150, C['ball'], extra="filter='url(#glow)'")
-            + text(380, 700, "Slimy_42", 40, C['cyan']) + text(380, 745, "🐸 Прыгун · 1420", 24, C['sub'], weight="normal")
-            + text(1220, 700, "BlobKing", 40, C['mag']) + text(1220, 745, "🐷 Толстяк · 1395", 24, C['sub'], weight="normal")
-            + rr(470, 800, 660, 64, 32, PANEL, stroke=C['sub'], sop=0.4)
-            + text(800, 842, "Неоновый стадион · Classic · до 7", 24, weight="normal"))
+            + text(380, 690, "Slimy_42", 40, C['cyan']) + text(380, 728, "🐸 Прыгун · 1420", 24, C['sub'], weight="normal")
+            + text(1220, 690, "BlobKing", 40, C['mag']) + text(1220, 728, "🐷 Толстяк · 1395", 24, C['sub'], weight="normal")
+            + text(330, 772, "+14", 30, C['lime']) + text(440, 772, "−17", 30, C['danger'])
+            + text(1170, 772, "+17", 30, C['lime']) + text(1280, 772, "−14", 30, C['danger'])
+            + rr(470, 810, 660, 64, 32, PANEL, stroke=C['sub'], sop=0.4)
+            + text(800, 852, "Неоновый стадион · Classic · до 7", 24, weight="normal"))
 
 def slot(x, y, col, nick=None, ready=False, empty="+ Бот", mood="happy"):
     if nick:
@@ -374,29 +371,27 @@ def scr_result(win=True):
         out.append(blob(430, 760, 140, C['cyan'], "smug", look=0.5) + text(430, 470, "👑", 90))
     else:
         out.append(blob(430, 760, 120, C['cyan'], "dead", 1.5, 0.55))
-    rating = ("1420 → 1438", "+18", C['lime']) if win else ("1420 → 1408", "−12", C['danger'])
-    out.append(rr(880, 60, 660, 100, 24, PANEL, stroke=C['sub'], sop=0.4)
+    rating = ("1420 → 1434", "+14", C['lime']) if win else ("1420 → 1403", "−17", C['danger'])
+    out.append(rr(880, 60, 660, 135, 24, PANEL, stroke=C['sub'], sop=0.4)
                + text(910, 96, "Рейтинг", 22, C['sub'], anchor="start", weight="normal")
-               + text(910, 140, rating[0], 36, anchor="start") + text(1510, 130, rating[1], 46, rating[2], anchor="end"))
-    out.append(rr(880, 175, 660, 100, 24, PANEL, stroke=C['sub'], sop=0.4)
-               + text(910, 211, "⭐ Сезон · ур. 12", 22, C['ball'], anchor="start")
-               + text(1510, 211, "+120 XP" if win else "+60 XP", 22, C['ball'], anchor="end") + bar(910, 235, 600, 14, 0.62, C['ball']))
-    out.append(rr(880, 290, 660, 100, 24, PANEL, stroke=C['sub'], sop=0.4)
-               + text(910, 355, "🪙 +50" if win else "🪙 +20", 36, anchor="start")
-               + btn(1220, 305, 300, 70, "▶ ×2 за видео", "buff", 24))
-    out.append(rr(880, 405, 660, 220, 24, PANEL, stroke=C['mag'], sw=3, sop=0.8)
-               + rr(905, 430, 280, 170, 16, "#000", op=0.6)
-               + f"<polygon points='930,560 1150,535 1155,575 925,590' fill='#3A4466' stroke='white' stroke-width='3'/>"
-               + blob(1045, 598, 30, C['mag'], "dead", 1.8, 0.4, glow=False) + text(1045, 525, "▶", 50, "white", extra="opacity='0.85'")
-               + text(1210, 470, "Лучший момент", 24, C['sub'], anchor="start", weight="normal")
-               + text(1210, 510, "Потолок раздавил" if win else "Взрыв в упор", 28, anchor="start")
-               + text(1210, 545, "BlobKing 💀" if win else "в свою сетку 🤦", 28, anchor="start")
-               + btn(1210, 560, 310, 52, "📤 Поделиться", "accent", 24))
+               + text(910, 142, rating[0], 38, anchor="start") + text(1510, 140, rating[1], 50, rating[2], anchor="end")
+               + text(910, 178, "соперник 1395 — ставка была +14 / −17", 20, C['sub'], anchor="start", weight="normal"))
+    out.append(rr(880, 210, 660, 100, 24, PANEL, stroke=C['sub'], sop=0.4)
+               + text(910, 275, "🪙 +50" if win else "🪙 +20", 36, anchor="start")
+               + btn(1220, 225, 300, 70, "▶ ×2 за видео", "buff", 24))
+    out.append(rr(880, 325, 660, 220, 24, PANEL, stroke=C['mag'], sw=3, sop=0.8)
+               + rr(905, 350, 280, 170, 16, "#000", op=0.6)
+               + f"<polygon points='930,480 1150,455 1155,495 925,510' fill='#3A4466' stroke='white' stroke-width='3'/>"
+               + blob(1045, 518, 30, C['mag'], "dead", 1.8, 0.4, glow=False) + text(1045, 445, "▶", 50, "white", extra="opacity='0.85'")
+               + text(1210, 390, "Лучший момент", 24, C['sub'], anchor="start", weight="normal")
+               + text(1210, 430, "Потолок раздавил" if win else "Взрыв в упор", 28, anchor="start")
+               + text(1210, 465, "BlobKing 💀" if win else "в свою сетку 🤦", 28, anchor="start")
+               + btn(1210, 480, 310, 52, "📤 Поделиться", "accent", 24))
     if win:
-        out.append(btn(880, 660, 310, 110, "↻ Реванш", "secondary", 32) + btn(1210, 660, 330, 110, "Дальше ›", size=38))
+        out.append(btn(880, 580, 310, 110, "↻ Реванш", "secondary", 32) + btn(1210, 580, 330, 110, "Дальше ›", size=38))
     else:
-        out.append(btn(880, 660, 330, 110, "↻ Реванш", size=38) + btn(1230, 660, 310, 110, "Дальше ›", "secondary", 32))
-        out.append(text(1210, 820, "💡 Толстяк плохо прыгает — бей высоко", 22, C['sub'], weight="normal"))
+        out.append(btn(880, 580, 330, 110, "↻ Реванш", size=38) + btn(1230, 580, 310, 110, "Дальше ›", "secondary", 32))
+        out.append(text(1210, 745, "💡 Толстяк плохо прыгает — бей высоко", 22, C['sub'], weight="normal"))
     return "".join(out)
 
 def scr_share():
@@ -444,7 +439,7 @@ def scr_blob():
            text(370, 820, "🐸 Прыгун · «Звёздный» · Колпак", 24, C['sub'], weight="normal"),
            chips(720, 125, ["Персонаж", "Скин", "Шапка", "Руки/ноги", "Мяч", "Победа"], 2, C['ball'], 10, 22, 54)]
     items = [("✓", C['ball'], 0), ("", C['orange'], 0), ("", C['lime'], 0), ("🔒 300", C['mag'], 1),
-             ("🔒 Сезон", C['buff'], 2), ("🔒 500", C['cyan'], 1), ("🔒 ▶", C['orange'], 1), ("🔒 Кубок", C['danger'], 2)]
+             ("🔒 Золото", C['buff'], 2), ("🔒 500", C['cyan'], 1), ("🔒 ▶", C['orange'], 1), ("🔒 100 побед", C['danger'], 2)]
     for i, (lab, col, st) in enumerate(items):
         x = 720 + (i % 4) * 205; y = 210 + (i // 4) * 255; on = i == 3
         out.append(rr(x, y, 185, 235, 22, PANEL2, stroke=C['ball'] if on else C['sub'], sw=4 if on else 2, sop=1 if on else 0.4))
@@ -469,40 +464,8 @@ def scr_shop():
             + offer(565, 180, 470, 370, "Мяч «Арбуз»", "мяч", "300 🪙", f"<circle cx='800' cy='290' r='70' fill='{C['lime']}' stroke='white' stroke-width='5' filter='url(#glow)'/>")
             + offer(1070, 180, 470, 370, "Перчатки", "руки/ноги", "40 💎", f"<ellipse cx='1260' cy='290' rx='48' ry='40' fill='{C['danger']}' stroke='white' stroke-width='4'/><ellipse cx='1360' cy='290' rx='48' ry='40' fill='{C['danger']}' stroke='white' stroke-width='4'/>", "secondary")
             + offer(60, 580, 470, 300, "Без рекламы", "навсегда", "299 ₽", text(295, 650, "🚫📺", 54))
-            + offer(565, 580, 470, 300, "Батл-пасс", "Сезон 3 · премиум", "499 ₽", text(800, 650, "👑", 54))
+            + offer(565, 580, 470, 300, "Набор новичка", "3 скина · один раз", "199 ₽", blob(740, 680, 34, C['lime'], "happy", glow=False) + blob(800, 680, 40, C['orange'], "smug", glow=False) + blob(860, 680, 34, C['buff'], "happy", glow=False))
             + offer(1070, 580, 470, 300, "Бесплатно", "осталось 3 из 5", "▶ Видео → 🪙 +50", text(1305, 650, "🎁", 54), "buff"))
-
-def scr_pass():
-    out = [stars(1600, 900, 40, 61), topbar_back("Батл-пасс · Сезон 3"),
-           text(60, 165, "осталось 21 д · только косметика", 22, C['sub'], anchor="start", weight="normal"),
-           text(150, 340, "Бесплатно", 24, C['text'], weight="normal"), text(150, 540, "👑 Премиум", 24, C['ball']),
-           bar(270, 215, 1270, 12, 0.36, C['ball'])]
-    free = ["🪙", "🎩", "🪙", "🧢", "💎", "🪙", "🎨"]; prem = ["🧤", "✨", "🐉", "💎", "🏐", "🎆", "👑"]
-    for i in range(7):
-        lv = 10 + i; x = 290 + i * 180; got = lv < 12; cur = lv == 12
-        out.append(f"<circle cx='{x+70}' cy='221' r='26' fill='{C['ball'] if lv <= 12 else PANEL2}' stroke='{C['ball']}' stroke-width='3'/>")
-        out.append(text(x + 70, 231, str(lv), 24, INK if lv <= 12 else C['sub']))
-        for row, ic in ((0, free[i]), (1, prem[i])):
-            y = 270 + row * 200
-            st = C['ball'] if cur else C['sub']
-            out.append(rr(x, y, 140, 160, 20, PANEL2, stroke=st, sw=4 if cur else 2, sop=1 if cur else 0.4))
-            out.append(text(x + 70, y + 95, ic, 56, extra="opacity='0.45'" if got or row == 1 else ""))
-            if got and row == 0:
-                out.append(text(x + 70, y + 145, "✓", 28, C['lime']))
-            elif row == 1:
-                out.append(text(x + 70, y + 145, "🔒", 24))
-            elif cur:
-                out.append(text(x + 70, y + 145, "Забрать", 22, C['ball']))
-    out.append(text(60, 760, "XP за любые матчи · задания недели +300 XP", 22, C['sub'], anchor="start", weight="normal"))
-    out.append(btn(1140, 720, 400, 110, "Премиум · 499 ₽", size=34))
-    return "".join(out)
-
-def rating_tabs(active):
-    return (topbar_back("Рейтинг")
-            + rr(60, 125, 520, 66, 33, PANEL2, stroke=C['sub'], sop=0.4)
-            + rr(66 + 254 * active, 131, 254, 54, 27, C['cyan'], op=0.9)
-            + text(193, 168, "Лидерборд", 26, INK if active == 0 else C['text'], weight="bold" if active == 0 else "normal")
-            + text(447, 168, "Кубки", 26, INK if active == 1 else C['text'], weight="bold" if active == 1 else "normal"))
 
 def lb_row(y, rank, nick, col, rating, badge, me=False):
     return (rr(60, y, 1480, 92, 20, C['cyan'] if me else PANEL2, op=0.18 if me else 1, stroke=C['cyan'] if me else None, sw=3, sop=0.9)
@@ -515,24 +478,11 @@ def scr_leader():
     rows = [("🥇", "BlobKing", C['mag'], "2 410", "💎 Алмаз I"), ("🥈", "JellyBoi", C['lime'], "2 388", "💎 Алмаз I"),
             ("🥉", "SquishMaster", C['orange'], "2 301", "💎 Алмаз II"), ("4", "Splat", C['buff'], "2 254", "🏅 Платина I"),
             ("5", "GooGoo", C['cyan'], "2 230", "🏅 Платина I")]
-    out = [stars(1600, 900, 40, 71), rating_tabs(0),
-           chips(700, 128, ["Глобальный", "Неделя", "Друзья", "🇷🇺 Страна"], 0, size=22, h=60)]
+    out = [stars(1600, 900, 40, 71), topbar_back("Рейтинг"),
+           chips(60, 128, ["Глобальный", "Неделя", "Друзья", "🇷🇺 Страна"], 0, size=24, h=60)]
     out += [lb_row(215 + i * 104, *r) for i, r in enumerate(rows)]
     out.append(lb_row(780, "#1 284", "Slimy_42 · ты", C['cyan'], "1 420", "🥈 Серебро II", me=True))
     return "".join(out)
-
-def cup(y, title, info, timer, col, action, kind):
-    return (rr(60, y, 1480, 170, 26, PANEL2, stroke=col, sw=3, sop=0.7)
-            + text(130, y + 100, "🏆", 64) + text(210, y + 70, title, 34, anchor="start")
-            + text(210, y + 112, info, 22, C['sub'], anchor="start", weight="normal")
-            + text(210, y + 145, timer, 22, col, anchor="start")
-            + (btn(1180, y + 45, 330, 84, action, kind, 30) if action else ""))
-
-def scr_cups():
-    return (stars(1600, 900, 40, 81) + rating_tabs(1)
-            + cup(220, "Кубок выходных", "сетка на 16 · 1×1 · Classic · приз: шапка «Корона»", "старт через 2ч 14м", C['ball'], "Записаться", "primary")
-            + cup(410, "Часовой турнир", "по времени: больше побед за час · 34 игрока", "● идёт · 0:42 осталось", C['lime'], "Войти", "secondary")
-            + cup(600, "Кубок блогера SLIMY", "код автора · 2×2 · Chaos · приз: скин мяча", "скоро · 12 окт", C['mag'], "Напомнить", "ghost"))
 
 def scr_settings():
     tabs = ["🎮 Управление", "🔊 Звук", "✨ Графика", "🌐 Язык", "👤 Аккаунт"]
@@ -561,113 +511,544 @@ def scr_settings():
     return "".join(out)
 
 
+# ---------- screens: account / linking ----------
+def provider_row(x, y, w, icon, name, sub, state="linked"):
+    """state: linked | add | primary"""
+    h = 92
+    stroke = C['lime'] if state == "linked" else (C['ball'] if state == "primary" else C['sub'])
+    out = rr(x, y, w, h, 22, PANEL2, stroke=stroke, sop=0.7 if state != "add" else 0.35)
+    out += text(x + 56, y + 58, icon, 36)
+    out += text(x + 100, y + 48, name, 28, anchor="start")
+    out += text(x + 100, y + 78, sub, 20, C['sub'], anchor="start", weight="normal")
+    if state == "linked":
+        out += text(x + w - 36, y + 58, "✓", 32, C['lime'], anchor="end")
+    elif state == "add":
+        out += rr(x + w - 160, y + 22, 130, 48, 24, C['cyan'], op=0.18, stroke=C['cyan'], sw=2, sop=0.8)
+        out += text(x + w - 95, y + 54, "Добавить", 22, lighten(C['cyan'], 0.5))
+    elif state == "primary":
+        out += text(x + w - 36, y + 58, "→", 32, C['ball'], anchor="end")
+    return out
+
+def scr_home_guest():
+    """Browser / unlinked guest: same home, soft non-blocking save strip."""
+    banner = (rr(850, 655, 720, 72, 22, PANEL, stroke=C['ball'], sw=2, sop=0.65)
+              + text(880, 700, "💾 Прогресс только здесь", 24, anchor="start")
+              + rr(1220, 668, 320, 48, 24, C['ball'], op=0.95)
+              + text(1380, 701, "Сохранить", 24, INK))
+    return stars(1600, 900, 40, 5) + home_body() + topbar_profile() + navbar(0) + banner
+
+def scr_save():
+    """Soft save / first link — never a registration wall before Play."""
+    body = (rr(280, 120, 1040, 680, 36, PANEL, stroke=C['sub'], sop=0.5)
+            + text(800, 190, "Сохрани прогресс", 48)
+            + text(800, 240, "Один аккаунт Goofy Ball — скины и рейтинг везде", 24, C['sub'], weight="normal")
+            + iconbtn(1260, 175, 30, "✕")
+            + btn(360, 290, 880, 100, "G  Продолжить с Google", size=34)
+            + btn(360, 410, 880, 100, "🍎  Продолжить с Apple", "secondary", 34)
+            + btn(360, 530, 420, 90, "🎮 Steam", "ghost", 28)
+            + btn(800, 530, 440, 90, "📱 Код с телефона", "ghost", 28)
+            + text(800, 660, "Браузер: Google — основной. Код — если уже играешь на телефоне.", 20, C['sub'], weight="normal")
+            + text(800, 700, "Пароль не придумываем. Почту не спрашиваем.", 20, C['sub'], weight="normal")
+            + btn(480, 740, 640, 70, "Позже — продолжить как гость", "ghost", 26))
+    return (stars(1600, 900, 40, 5) + home_body() + topbar_profile() + navbar(0) + dim() + body)
+
+def scr_account():
+    """Settings → Аккаунт: linked providers + explain linking."""
+    tabs = ["🎮 Управление", "🔊 Звук", "✨ Графика", "🌐 Язык", "👤 Аккаунт"]
+    out = [stars(1600, 900, 40, 93), topbar_back("Настройки", money=False)]
+    for i, t in enumerate(tabs):
+        on = i == 4
+        out.append(rr(60, 130 + i * 92, 340, 76, 22, C['cyan'] if on else PANEL2, op=0.9 if on else 1, stroke=None if on else C['sub'], sop=0.3))
+        out.append(text(90, 178 + i * 92, t, 26, INK if on else C['text'], anchor="start", weight="bold" if on else "normal"))
+    # profile card
+    out.append(rr(440, 130, 1100, 150, 26, PANEL2, stroke=C['cyan'], sop=0.45))
+    out.append(blob(520, 250, 48, C['cyan'], "happy", glow=False))
+    out.append(text(590, 190, "Slimy_42", 34, anchor="start"))
+    out.append(text(590, 230, "Goofy ID · gb_8f2a · создан через Google Play", 22, C['sub'], anchor="start", weight="normal"))
+    out.append(text(590, 262, "Линковка = те же скины и рейтинг на другой платформе", 20, C['ball'], anchor="start", weight="normal"))
+    # providers
+    out.append(text(460, 330, "Способы входа", 24, C['sub'], anchor="start", weight="normal"))
+    out.append(provider_row(440, 350, 1100, "G", "Google Play / Google", "основной · Android и браузер", "linked"))
+    out.append(provider_row(440, 455, 1100, "🍎", "Apple", "не привязан · добавь для iPhone", "add"))
+    out.append(provider_row(440, 560, 1100, "🎮", "Steam", "не привязан", "add"))
+    out.append(provider_row(440, 665, 1100, "📱", "Код устройства", "разовый код · перенос в браузер", "add"))
+    out.append(btn(440, 780, 520, 80, "+ Добавить вход", "secondary", 28))
+    out.append(btn(1000, 780, 540, 80, "Уже есть аккаунт?", "ghost", 28))
+    return "".join(out)
+
+def scr_link():
+    """Explain linking + pick a provider to attach."""
+    out = [stars(1600, 900, 40, 94), topbar_back("Добавить вход", money=False),
+           text(80, 160, "Что такое линковка?", 42, anchor="start"),
+           rr(60, 190, 1480, 160, 26, PANEL, stroke=C['ball'], sw=2, sop=0.45),
+           text(100, 250, "У тебя один аккаунт Goofy Ball. «Входы» (Google, Apple, Steam) — это ключи к нему.", 26, anchor="start", weight="normal"),
+           text(100, 295, "Добавил Apple на Android-аккаунт → на iPhone открыл игру → тот же блоб, скины, рейтинг.", 26, anchor="start", weight="normal"),
+           text(100, 335, "Ничего не копируем вручную. Не создаём второй профиль «с нуля».", 24, C['sub'], anchor="start", weight="normal"),
+           text(80, 410, "Куда добавить вход?", 28, C['sub'], anchor="start", weight="normal"),
+           provider_row(60, 430, 1480, "🍎", "Apple", "Sign in with Apple · 1 системный тап", "primary"),
+           provider_row(60, 540, 1480, "🎮", "Steam", "если играешь с ПК", "primary"),
+           provider_row(60, 650, 1480, "📱", "Показать код для браузера", "6 символов · ввести на сайте · 5 минут", "primary"),
+           text(800, 800, "Старый вход не отключается. Можно отвязать позже в настройках.", 22, C['sub'], weight="normal"),
+           btn(520, 820, 560, 70, "Отмена", "ghost", 28)]
+    return "".join(out)
+
+def scr_restore():
+    """Cross-platform: I already play elsewhere."""
+    body = (rr(280, 100, 1040, 720, 36, PANEL, stroke=C['sub'], sop=0.5)
+            + iconbtn(1260, 155, 30, "✕")
+            + text(800, 180, "Уже играл?", 48)
+            + text(800, 235, "Войди тем же способом — прогресс подтянется", 24, C['sub'], weight="normal")
+            + btn(360, 300, 880, 100, "G  Войти через Google", size=34)
+            + btn(360, 420, 880, 100, "🍎  Войти через Apple", "secondary", 34)
+            + btn(360, 540, 880, 100, "📱 Ввести код с другого устройства", "ghost", 30)
+            + rr(360, 670, 880, 100, 22, PANEL2, stroke=C['sub'], sop=0.35)
+            + text(800, 715, "Код:  ·  ·  ·  ·  ·  ·", 36, C['ball'])
+            + text(800, 755, "Настройки → Аккаунт → «Показать код» на телефоне", 20, C['sub'], weight="normal"))
+    return (stars(1600, 900, 40, 5) + home_body() + topbar_profile() + navbar(0) + dim() + body)
+
+def scr_merge():
+    """Two accounts met via linking — pick / combine without losing cosmetics."""
+    def card(x, title, sub, items, col, pick=False):
+        o = rr(x, 280, 460, 380, 28, PANEL2, stroke=C['ball'] if pick else col, sw=4 if pick else 2, sop=0.9)
+        o += text(x + 230, 340, title, 30) + text(x + 230, 380, sub, 22, C['sub'], weight="normal")
+        for i, line in enumerate(items):
+            o += text(x + 40, 440 + i * 42, line, 24, anchor="start", weight="normal")
+        if pick:
+            o += rr(x + 80, 580, 300, 56, 28, C['ball'], op=0.95) + text(x + 230, 618, "Оставить этот", 24, INK)
+        return o
+    return (stars(1600, 900, 40, 95) + dim(0.55)
+            + rr(200, 80, 1200, 760, 36, PANEL, stroke=C['orange'], sw=3, sop=0.7)
+            + text(800, 160, "Нашли два прогресса", 44)
+            + text(800, 215, "Ты привязал вход, у которого уже был другой аккаунт. Выбери основной —", 24, C['sub'], weight="normal")
+            + text(800, 255, "косметику со второго можно забрать сюда (рейтинг — один, выше).", 24, C['sub'], weight="normal")
+            + card(280, "Этот телефон", "Google Play · сейчас",
+                   ["🪙 1 250 · 🥈 1420", "🐸 Прыгун + 3 скина", "создан сегодня"], C['cyan'], True)
+            + card(860, "Старый аккаунт", "Apple · iPhone",
+                   ["🪙 4 800 · 🏅 1880", "🐷 Толстяк + 12 скинов", "играешь 2 месяца"], C['mag'])
+            + btn(360, 700, 400, 90, "Объединить косметику", "secondary", 26)
+            + btn(840, 700, 400, 90, "Отмена", "ghost", 28))
+
+
 # ---------- navigation map ----------
 def sheet_flow():
-    W, H = 1900, 1260
-    out = [stars(W, H, 50), text(W / 2, 72, "UI — карта экранов", 46),
-           text(W / 2, 114, "жёлтый путь — главный сценарий: от запуска до матча за 1 тап", 24, C['sub'], weight="normal"),
+    """Interactive flow map: nodes carry data-t=SCREENS key for prototype clicks."""
+    W, H = 2000, 1680
+    NW, NH = 248, 88
+    out = [stars(W, H, 60), text(W / 2, 56, "UI — карта экранов", 44),
+           text(W / 2, 94, "жёлтый — матч · циан — аккаунт · клик по окну открывает экран в прототипе", 22, C['sub'], weight="normal"),
            "<defs>"
            + "".join(f"<marker id='ar{k}' viewBox='0 0 10 10' refX='9' refY='5' markerWidth='7' markerHeight='7' orient='auto-start-reverse'><path d='M0,0 L10,5 L0,10 z' fill='{c}'/></marker>"
-                     for k, c in (("Y", C['ball']), ("S", C['sub'])))
+                     for k, c in (("Y", C['ball']), ("S", C['sub']), ("C", C['cyan']), ("M", C['mag'])))
            + "</defs>"]
-    NW, NH = 280, 96
-    nodes = {"load": (190, 300, "Загрузка", "гостевой вход", C['sub']), "tut": (190, 500, "Обучение", "только 1-й запуск", C['sub']),
-             "home": (560, 400, "Главная", "ИГРАТЬ · AI · друг", C['ball']),
-             "search": (930, 240, "Поиск", "быстрый / ранговый", C['ball']), "ai": (930, 400, "Против AI", "всё по умолчанию", C['cyan']),
-             "room": (930, 560, "Комната", "код · ссылка", C['cyan']),
-             "vs": (1300, 240, "VS", "3 с до старта", C['ball']), "match": (1300, 400, "Матч", "счёт · 2 кнопки", C['ball']),
-             "pause": (1300, 560, "Пауза / меню", "", C['sub']),
-             "res": (1670, 400, "Итоги", "реванш · дальше", C['ball']), "clip": (1670, 560, "Клип", "поделиться", C['mag']),
-             "rank": (1670, 240, "Новый ранг", "попап, редко", C['sub'])}
-    def edge(a, b, col="S", dash=False, both=False, side="h"):
+    # id → (cx, cy, title, subtitle, stroke, screens_key|None)
+    nodes = {
+        "splash": (160, 280, "Загрузка", "тихий вход", C['sub'], "splash"),
+        "tutorial": (160, 460, "Обучение", "только 1-й раз", C['sub'], "tutorial"),
+        "home": (480, 280, "Главная", "Play / Apple / Steam", C['ball'], "home"),
+        "home_guest": (480, 460, "Главная · гость", "браузер", C['cyan'], "home_guest"),
+        "save": (760, 460, "Сохранить", "Google / Apple / код", C['cyan'], "save"),
+        "account": (1040, 460, "Аккаунт", "ключи · Goofy ID", C['cyan'], "account"),
+        "link": (1320, 460, "Линковка", "добавить вход", C['cyan'], "link"),
+        "restore": (1040, 620, "Уже играл?", "войти / код", C['cyan'], "restore"),
+        "merge": (1320, 620, "Два прогресса", "редко · merge", C['orange'], "merge"),
+        "friend": (760, 200, "С другом", "код · ссылка", C['ball'], "friend"),
+        "ai": (760, 280, "Против AI", "всё по умолчанию", C['ball'], "ai"),
+        "search": (760, 360, "Поиск", "1 тап · рейтинг", C['ball'], "search"),
+        "room": (1040, 200, "Комната", "после «с другом»", C['ball'], "room"),
+        "vs": (1040, 300, "VS", "3 с · ставка", C['ball'], "vs"),
+        "hud": (1320, 300, "Матч HUD", "счёт · 2 кнопки", C['ball'], "hud"),
+        "pause": (1320, 200, "Пауза", "меню в онлайне", C['sub'], "pause"),
+        "point": (1600, 220, "Очко", "слоумо · клип", C['sub'], "point"),
+        "reconnect": (1600, 320, "Связь", "соперник оффлайн", C['orange'], "reconnect"),
+        "multi": (1600, 420, "3 команды", "жизни зон", C['sub'], "multi"),
+        "win": (1840, 220, "Победа", "реванш · дальше", C['ball'], "win"),
+        "lose": (1840, 330, "Поражение", "реванш главнее", C['danger'], "lose"),
+        "share": (1840, 440, "Клип", "поделиться", C['mag'], "share"),
+        "rankup": (1840, 550, "Новый ранг", "попап · редко", C['sub'], "rankup"),
+        "blob": (280, 820, "Блоб", "скины", C['cyan'], "blob"),
+        "shop": (560, 820, "Магазин", "косметика", C['cyan'], "shop"),
+        "leader": (840, 820, "Рейтинг", "лидерборд", C['cyan'], "leader"),
+        "settings": (1120, 820, "Настройки", "управление…", C['cyan'], "settings"),
+    }
+    colmap = {"Y": C['ball'], "S": C['sub'], "C": C['cyan'], "M": C['mag']}
+
+    def edge(a, b, kind="S", dash=False, both=False, side="h", label=None):
         ax, ay = nodes[a][:2]; bx, by = nodes[b][:2]
         if side == "h":
-            x1, y1, x2, y2 = ax + NW / 2, ay, bx - NW / 2 - 4, by; mx = (x1 + x2) / 2
+            x1, y1, x2, y2 = ax + NW / 2, ay, bx - NW / 2 - 4, by
+            mx = (x1 + x2) / 2
             d = f"M{x1},{y1} C{mx},{y1} {mx},{y2} {x2},{y2}"
-        else:
+            lx, ly = (x1 + x2) / 2, (y1 + y2) / 2 - 14
+        elif side == "v":
             sgn = 1 if by > ay else -1
-            d = f"M{ax},{ay + sgn*NH/2 + (sgn*4 if both else 0)} L{bx},{by - sgn*NH/2 - sgn*4}"
-        c = C['ball'] if col == "Y" else C['sub']
-        return (f"<path d='{d}' stroke='{c}' stroke-width='{5 if col == 'Y' else 3}' fill='none' opacity='0.9'"
-                + (" stroke-dasharray='10 8'" if dash else "") + f" marker-end='url(#ar{col})'"
-                + (f" marker-start='url(#ar{col})'" if both else "") + "/>")
-    out += [edge("load", "home"), edge("load", "tut", dash=True, side="v"), edge("tut", "home"),
-            edge("home", "search", "Y"), edge("home", "ai"), edge("home", "room"),
-            edge("search", "vs", "Y"), edge("ai", "vs"), edge("room", "vs"),
-            edge("vs", "match", "Y", side="v"), edge("match", "pause", both=True, side="v"),
-            edge("match", "res", "Y"), edge("res", "clip", side="v"), edge("res", "rank", dash=True, side="v")]
-    out.append(text(700, 250, "1 тап", 26, C['ball'], anchor="end"))
-    for k, (x, y, t, s, col) in nodes.items():
-        big = k == "home"
-        out.append(rr(x - NW / 2, y - NH / 2, NW, NH, 24, PANEL, stroke=col, sw=5 if big else 3, sop=0.95, glow=big))
-        out.append(text(x, y - (2 if s else -10), t, 30))
+            d = f"M{ax},{ay + sgn * NH / 2 + (sgn * 4 if both else 0)} L{bx},{by - sgn * NH / 2 - sgn * 4}"
+            lx, ly = ax + 8, (ay + by) / 2
+        else:  # bend down then across
+            mid = max(ay, by) + 70
+            d = f"M{ax},{ay + NH / 2} L{ax},{mid} L{bx},{mid} L{bx},{by + NH / 2}"
+            lx, ly = (ax + bx) / 2, mid - 14
+        c = colmap[kind]
+        sw = 5 if kind == "Y" else 3
+        s = (f"<path d='{d}' stroke='{c}' stroke-width='{sw}' fill='none' opacity='0.9'"
+             + (" stroke-dasharray='10 8'" if dash else "") + f" marker-end='url(#ar{kind})'"
+             + (f" marker-start='url(#ar{kind})'" if both else "") + "/>")
+        if label:
+            s += text(lx, ly, label, 16, c, weight="normal")
+        return s
+
+    # --- auth variants ---
+    out.append(rr(40, 150, 1560, 560, 28, PANEL, op=0.35, stroke=C['cyan'], sw=2, sop=0.35))
+    out.append(text(60, 190, "ВАРИАНТЫ ВХОДА И АККАУНТА", 22, C['cyan'], anchor="start"))
+    out.append(text(60, 222, "Play / Apple / Steam → сразу Главная · браузер → гость → сохранить по желанию · линковка = ещё ключ", 18, C['sub'], anchor="start", weight="normal"))
+
+    out += [
+        edge("splash", "home", "S", label="магазин"),
+        edge("splash", "home_guest", "C", dash=True, side="v", label="браузер"),
+        edge("splash", "tutorial", "S", dash=True, side="v", label="1-й раз"),
+        edge("tutorial", "home", "S"),
+        edge("home_guest", "save", "C"),
+        edge("save", "account", "C"),
+        edge("account", "link", "C"),
+        edge("account", "restore", "C", side="v"),
+        edge("link", "merge", "S", dash=True, side="v", label="конфликт"),
+        edge("restore", "account", "C", dash=True),
+        edge("home_guest", "search", "Y", dash=True, label="играть без сохранения"),
+    ]
+
+    # --- match path ---
+    out.append(rr(620, 150, 1340, 560, 28, PANEL, op=0.2, stroke=C['ball'], sw=2, sop=0.35))
+    out.append(text(640, 190, "МАТЧ", 22, C['ball'], anchor="start"))
+    out += [
+        edge("home", "search", "Y", label="1 тап"),
+        edge("home", "ai", "Y"),
+        edge("home", "friend", "Y"),
+        edge("friend", "room", "S"),
+        edge("ai", "vs", "S"),
+        edge("search", "vs", "Y"),
+        edge("room", "vs", "S"),
+        edge("vs", "hud", "Y"),
+        edge("hud", "pause", "S", both=True, side="v"),
+        edge("hud", "point", "S"),
+        edge("hud", "reconnect", "S", dash=True),
+        edge("point", "win", "Y"),
+        edge("point", "lose", "S", dash=True),
+        edge("reconnect", "win", "S", dash=True),
+        edge("win", "share", "M", side="v"),
+        edge("win", "rankup", "S", dash=True, side="v"),
+        edge("lose", "share", "M", dash=True),
+    ]
+
+    # --- meta tabs ---
+    out.append(rr(40, 740, 1400, 200, 28, PANEL, op=0.3, stroke=C['sub'], sw=2, sop=0.4))
+    out.append(text(60, 780, "МЕНЮ С ГЛАВНОЙ", 22, C['sub'], anchor="start"))
+    out.append(f"<path d='M480,{280 + NH/2} L480,740' stroke='{C['sub']}' stroke-width='3' fill='none' stroke-dasharray='8 8'/>")
+    out.append(f"<path d='M280,740 L1120,740' stroke='{C['sub']}' stroke-width='3' fill='none'/>")
+    # settings → account is the same screen cluster; show as label only (avoid crossing edge)
+    out.append(text(1280, 820, "→ Аккаунт", 18, C['cyan'], anchor="start", weight="normal"))
+
+    # draw nodes (clickable groups)
+    for k, (x, y, t, s, col, target) in nodes.items():
+        big = k in ("home", "search", "hud")
+        hit = rr(x - NW / 2, y - NH / 2, NW, NH, 22, PANEL, stroke=col, sw=5 if big else 3, sop=0.95, glow=big)
+        body = hit + text(x, y - (4 if s else -8), t, 26)
         if s:
-            out.append(text(x, y + 30, s, 20, C['sub'], weight="normal"))
-    out.append(text(1670, 650, "Реванш → VS · Дальше → Главная", 20, C['sub'], weight="normal"))
-    # bus to tabs
-    tabs = [("🫧 Блоб", "персонаж · скины"), ("🛒 Магазин", "косметика · без рекламы"), ("🏆 Рейтинг", "лидерборд · кубки"),
-            ("⭐ Батл-пасс", "из шапки"), ("⚙ Настройки", "из шапки и паузы")]
-    out.append(f"<path d='M560,{400 + NH/2} L560,730 M190,730 L1630,730' stroke='{C['sub']}' stroke-width='3' fill='none'/>")
-    out.append(text(580, 715, "нижняя навигация и шапка главной", 20, C['sub'], anchor="start", weight="normal"))
-    for i, (t, s) in enumerate(tabs):
-        x = 190 + i * 360
-        out.append(f"<path d='M{x},730 L{x},{776}' stroke='{C['sub']}' stroke-width='3' marker-end='url(#arS)'/>")
-        out.append(rr(x - 150, 780, 300, NH, 24, PANEL, stroke=C['cyan'], sw=3, sop=0.7))
-        out.append(text(x, 820, t, 28) + text(x, 852, s, 20, C['sub'], weight="normal"))
-    # principles
-    pr = ["1. Одна главная кнопка «ИГРАТЬ» — 1 тап до поиска.",
-          "2. У всего есть значение по умолчанию — можно не настраивать.",
-          "3. Глубина ≤ 2: вкладка → экран. Модалки — для коротких выборов.",
-          "4. Главное действие справа снизу, под большой палец; кнопки ≥ 88 px.",
-          "5. В матче почти нет UI: счёт, пауза, 2 кнопки. Остальное — в мире.",
-          "6. Цвет = смысл: жёлтый — главное, циан — второе, маджента — поделиться.",
-          "7. Иконка + 1–2 слова: читается без звука и почти без языка.",
-          "8. Один макет для тача, мыши и геймпада (фокус-рамка, хоткеи на PC).",
-          "9. Покупки не мешают игре: нет попапов перед матчем, нет рекламы в ранговых.",
-          "10. Смешной момент → «★ сохранён» → одна кнопка «Поделиться» в итогах."]
-    out.append(rr(50, 930, 1800, 300, 30, PANEL, stroke=C['ball'], sw=3, sop=0.5))
-    out.append(text(90, 980, "ПРИНЦИПЫ UI", 26, C['ball'], anchor="start"))
+            body += text(x, y + 28, s, 17, C['sub'], weight="normal")
+        if target:
+            # <a> is a reliable SVG hit-target; data-t drives the prototype router
+            out.append(f"<a class='map-node' data-t='{target}' href='#{target}' role='link' tabindex='0'>"
+                       f"<title>{t} — открыть</title>{body}</a>")
+        else:
+            out.append(body)
+
+    # legend + principles
+    out.append(rr(1480, 740, 480, 200, 24, PANEL, stroke=C['sub'], sop=0.4))
+    out.append(text(1520, 785, "ЛЕГЕНДА", 22, C['ball'], anchor="start"))
+    legend = [("жёлтый", C['ball'], "главный путь к матчу"),
+              ("циан", C['cyan'], "аккаунт / линковка"),
+              ("пунктир", C['sub'], "опционально / редко"),
+              ("клик", C['lime'], "по окну → этот экран")]
+    for i, (lab, col, desc) in enumerate(legend):
+        out.append(f"<circle cx='1540' cy='{820 + i * 28}' r='8' fill='{col}'/>"
+                   + text(1565, 826 + i * 28, f"{lab}: {desc}", 18, anchor="start", weight="normal"))
+
+    pr = ["1. «ИГРАТЬ» = онлайн на рейтинг, 1 тап.  2. Одна очередь.  3. Дефолты везде.  4. Жёлтые кнопки запуска вместе.",
+          "5. Главное действие справа снизу.  6. В матче минимум UI.  7. Цвет = смысл.  8. Иконка + 1–2 слова.",
+          "9. Только косметика.  10. Аккаунт тихо по платформе; линковка добровольно, без стен регистрации."]
+    out.append(rr(40, 980, 1920, 160, 28, PANEL, stroke=C['ball'], sw=2, sop=0.45))
+    out.append(text(70, 1030, "ПРИНЦИПЫ", 24, C['ball'], anchor="start"))
     for i, p in enumerate(pr):
-        out.append(text(90 + (i // 5) * 900, 1030 + (i % 5) * 40, p, 22, anchor="start", weight="normal"))
+        out.append(text(70, 1070 + i * 32, p, 20, anchor="start", weight="normal"))
+
+    # variants callouts
+    out.append(rr(40, 1180, 1920, 440, 28, PANEL, stroke=C['cyan'], sw=2, sop=0.4))
+    out.append(text(70, 1230, "ЧТО МОЖЕТ ПРОИЗОЙТИ", 26, C['cyan'], anchor="start"))
+    variants = [
+        ("A. Магазин (Android / iOS / Steam)", "Загрузка → тихий вход платформы → Главная → ИГРАТЬ. Аккаунт уже есть, форм нет."),
+        ("B. Первый запуск", "Загрузка → Обучение (матч с AI) → Главная. Можно пропустить."),
+        ("C. Браузер, новый игрок", "Загрузка → Главная·гость → ИГРАТЬ сразу. Плашка «Сохранить» не блокирует матч."),
+        ("D. Сохранить прогресс", "Гость → Сохранить → Google / Apple / Steam / код с телефона → Аккаунт с ключом."),
+        ("E. Линковка на другую платформу", "Аккаунт → Добавить вход → Apple/Steam/код. Тот же Goofy ID, новый ключ."),
+        ("F. Уже играл на другом устройстве", "Уже играл? → войти тем же ключом или ввести код → прогресс подтягивается."),
+        ("G. Конфликт двух аккаунтов", "Привязали ключ, у которого уже был другой Goofy ID → Два прогресса (выбор / merge косметики)."),
+        ("H. После матча", "Победа или поражение → Реванш (VS) / Дальше (Главная) / Клип / редкий Новый ранг."),
+    ]
+    for i, (title, desc) in enumerate(variants):
+        col = i % 2
+        row = i // 2
+        x = 70 + col * 960
+        y = 1270 + row * 80
+        out.append(text(x, y, title, 22, C['ball'] if i < 3 else C['text'], anchor="start"))
+        out.append(text(x, y + 32, desc, 18, C['sub'], anchor="start", weight="normal"))
+
     return save("ui-flow", svg(W, H, "".join(out))), W, H
+
+
+# ---------- screen registry: title, render fn, notes, hotspots (x, y, w, h, target, label), auto (ms, target) ----------
+BACK = (42, 26, 68, 68, "back", "← Назад")
+GEAR = (1508, 24, 64, 64, "settings", "⚙ Настройки")
+FULL = lambda target, label: (0, 0, 1600, 900, target, label)
+
+SCREENS = {
+    "splash": ("Загрузка", scr_splash, ["Тихий вход: Play Games / Game Center / Steam / гость в браузере.", "Игрок не выбирает «как зарегистрироваться» — аккаунт создаётся сам.", "Первый запуск → обучение. Без экранов «введите ник» и стен с паролем."],
+               [FULL("tutorial", "Тап → обучение")], (2200, "tutorial")),
+    "home": ("Главная", scr_home, ["Блок запуска: ИГРАТЬ (онлайн, на рейтинг), Против AI, С другом —", "все жёлтые и стоят одной группой. Выбора «быстрый/ранговый» нет.", "Тап по блобу или «✎» → «Блоб». Шапка: профиль и ранг, валюта, ⚙."],
+             [(880, 200, 660, 220, "search", "ИГРАТЬ"), (880, 445, 320, 110, "ai", "Против AI"), (1220, 445, 320, 110, "friend", "С другом"),
+              (110, 140, 420, 64, "blob", "Персонаж ✎"), (280, 470, 300, 300, "blob", "Блоб"), (400, 800, 400, 100, "blob", "Вкладка «Блоб»"),
+              (800, 800, 400, 100, "shop", "Вкладка «Магазин»"), (1200, 800, 400, 100, "leader", "Вкладка «Рейтинг»"), GEAR], None),
+    "home_guest": ("Главная · гость", scr_home_guest, ["Браузер / ещё не сохранил: та же главная + мягкая плашка под блоком запуска.", "«ИГРАТЬ» не блокируется. Сохранение — по желанию, после интереса к прогрессу."],
+                   [(1220, 668, 320, 48, "save", "Сохранить"), (880, 200, 660, 220, "search", "ИГРАТЬ"),
+                    (880, 445, 320, 110, "ai", "Против AI"), (1220, 445, 320, 110, "friend", "С другом"), GEAR], None),
+    "save": ("Сохранить прогресс", scr_save, ["Мягкий шит, не стена перед матчем. Google / Apple / Steam / код с телефона.", "Браузер: Google — основной; код — если уже есть прогресс на телефоне.", "«Позже» оставляет гостя. Пароль и email-формы нет."],
+             [(1228, 143, 64, 64, "home_guest", "✕"), (360, 290, 880, 100, "account", "Google"),
+              (360, 410, 880, 100, "account", "Apple"), (800, 530, 440, 90, "restore", "Код с телефона"),
+              (480, 740, 640, 70, "home_guest", "Позже")], None),
+    "account": ("Аккаунт", scr_account, ["Раздел настроек: Goofy ID + список входов (линковка).", "Линковка = привязать ещё один ключ (Apple, Steam, код) к тому же аккаунту.", "Прогресс не «переносится файлом» — ты просто входишь тем же профилем на другой платформе."],
+                [BACK, (60, 498, 340, 76, "settings", "← к управлению"), (440, 455, 1100, 92, "link", "Добавить Apple"),
+                 (440, 665, 1100, 92, "link", "Код устройства"), (440, 780, 520, 80, "link", "+ Добавить вход"),
+                 (1000, 780, 540, 80, "restore", "Уже есть аккаунт?")], None),
+    "link": ("Линковка", scr_link, ["Объяснение простым языком + выбор нового входа.", "Старый вход остаётся. Отвязка — позже, если остался хотя бы один способ."],
+             [BACK, (60, 430, 1480, 92, "merge", "Apple (демо конфликта)"), (60, 540, 1480, 92, "account", "Steam"),
+              (60, 650, 1480, 92, "restore", "Код для браузера"), (520, 820, 560, 70, "account", "Отмена")], None),
+    "restore": ("Уже играл?", scr_restore, ["Вход существующим способом или код с другого устройства.", "После успеха — тот же Goofy ID, без второго профиля."],
+                [(1228, 123, 64, 64, "account", "✕"), (360, 300, 880, 100, "account", "Google"),
+                 (360, 420, 880, 100, "account", "Apple"), (360, 540, 880, 100, "account", "Код")], None),
+    "merge": ("Два прогресса", scr_merge, ["Редкий кейс: привязали вход, у которого уже был другой аккаунт.", "Выбор основного + опция забрать косметику. Рейтинг — один (выше)."],
+              [(360, 580, 300, 56, "account", "Оставить этот"), (360, 700, 400, 90, "account", "Объединить"),
+               (840, 700, 400, 90, "link", "Отмена")], None),
+    "friend": ("С другом", scr_friend, ["Модалка из двух вариантов: создать или войти по коду.", "Ссылка-приглашение открывает комнату сразу (в вебе — без установки).", "«Вдвоём на одном ПК» — только PC; на мобильных кнопки нет."],
+               [FULL("home", "Тап мимо — закрыть"), (1213, 163, 64, 64, "home", "✕ Закрыть"), (390, 530, 340, 70, "room", "Создать"),
+                (870, 530, 340, 70, "room", "Войти"), (440, 650, 720, 90, "hud", "Вдвоём на одном ПК")], None),
+    "ai": ("Против AI", scr_ai, ["Один экран вместо мастера из шагов. Всё выбрано по умолчанию", "(последний выбор запоминается) — «Играть» можно жать сразу.", "Этот же экран — шаблон настроек комнаты и будущей кампании."],
+           [BACK, GEAR, (1140, 770, 400, 100, "vs", "ИГРАТЬ")], None),
+    "search": ("Поиск соперника", scr_search, ["Одна очередь для всех: ищем близкого по рейтингу, диапазон растёт.", "Онлайн не делится на режимы — матч находится даже при малом онлайне.", "Отмена — крупная, снизу по центру. Совет дня обучает механикам."],
+               [(620, 760, 360, 90, "home", "Отмена")], (2600, "vs")),
+    "vs": ("VS", scr_vs, ["3 секунды: ники, персонажи, рейтинг и ставка (+ за победу / − за поражение).", "Сильнее соперник → больше за победу и меньше за поражение.", "Слабее → наоборот. Внизу арена и пресет."],
+           [], (2600, "hud")),
+    "room": ("Комната", scr_room, ["Код огромный — его диктуют голосом. «Пригласить» = системный шаринг.", "Слоты по командам; пустой слот → «+ Бот». N команд × N игроков.", "Настройки — чипы-выпадашки в одну строку, меняет только хозяин."],
+             [(42, 26, 68, 68, "home", "← Назад"), (1140, 760, 400, 100, "vs", "СТАРТ")], None),
+    "hud": ("HUD 1×1", scr_hud, ["1 пауза (онлайн — меню) · 2 счёт и ники · 3 плашка события за 1–2 с", "4 движение: вся левая половина, drag от точки касания · 5 прыжок", "6 «Действие»: иконка бафа в слоте, пусто → 💥 самоуничтожение"],
+            [FULL("point", "Тап — забить очко (демо)"), (38, 26, 64, 64, "pause", "⏸ Пауза")], (6000, "point")),
+    "tutorial": ("Обучение (1-й запуск)", scr_tutorial, ["Настоящий матч против AI с подсказками поверх: 3 шага —", "движение, прыжок, «Действие». Можно пропустить в любой момент."],
+                 [FULL("home", "Тап — завершить обучение (демо)"), (1380, 30, 190, 56, "home", "Пропустить")], None),
+    "multi": ("3 команды", scr_multi, ["Вместо счёта — жизни каждой команды над её зоной.", "Плашки в цвете команды. Выбывшая зона гаснет и схлопывается."],
+              [FULL("win", "Тап — к итогам (демо)"), (38, 26, 64, 64, "pause", "⏸ Пауза")], None),
+    "point": ("Очко + повтор", scr_point, ["После яркого очка: кино-полосы, слоумо 0.5×, «ОЧКО!» и новый счёт.", "Момент сам сохраняется для клипа — ничего нажимать не нужно."],
+              [FULL("win", "Тап — к итогам")], (2600, "win")),
+    "pause": ("Пауза", scr_pause, ["Три большие кнопки, «Продолжить» — главная.", "Выход из онлайн-матча — с подтверждением (засчитывается поражение)."],
+              [(580, 260, 440, 110, "back", "Продолжить"), (580, 400, 440, 95, "settings", "Настройки"), (580, 525, 440, 95, "lose", "Выйти")], None),
+    "reconnect": ("Переподключение", scr_reconnect, ["Соперник отвалился — честный таймер и понятный исход.", "Свой плохой пинг — маленькая плашка справа сверху, не мешает игре."],
+                  [FULL("win", "Тап — соперник не вернулся")], (3500, "win")),
+    "win": ("Победа", lambda: scr_result(True), ["Слева эмоция, справа: рейтинг со ставкой от силы соперника, монеты.", "«Лучший момент» с превью — главный вирусный крючок.", "«Дальше» — главная, «Реванш» — второй по важности."],
+            [(880, 580, 310, 110, "vs", "Реванш"), (1210, 580, 330, 110, "rankup", "Дальше"), (905, 350, 280, 170, "share", "Превью момента"),
+             (1210, 480, 310, 52, "share", "Поделиться")], None),
+    "lose": ("Поражение", lambda: scr_result(False), ["Та же раскладка. Главная кнопка — «Реванш».", "Совет против персонажа соперника вместо пустого «Вы проиграли»."],
+             [(880, 580, 330, 110, "vs", "Реванш"), (1230, 580, 310, 110, "home", "Дальше"), (905, 350, 280, 170, "share", "Превью момента"),
+              (1210, 480, 310, 52, "share", "Поделиться")], None),
+    "share": ("Поделиться клипом", scr_share, ["Превью 9:16 с водяным знаком и подписью. 4 переключателя, без редактора.", "Одна главная кнопка → системное меню шаринга (без логотипов соцсетей).", "«Вызов другу» — ссылка, которая открывает веб-версию."],
+              [BACK], None),
+    "rankup": ("Новый ранг", scr_rankup, ["Ранг — ступень единого рейтинга. Редкий попап: ранг + награда.", "Не больше одного попапа за раз; очередь наград — по порядку."],
+               [(620, 780, 360, 90, "home", "Круто!")], None),
+    "blob": ("Блоб", scr_blob, ["Слева примерка, справа сетка. Тап по предмету = надеть сразу.", "Замок показывает способ получения: цена, ранг, достижение, видео."],
+             [BACK, GEAR], None),
+    "shop": ("Магазин", scr_shop, ["Сверху 3 предложения дня, снизу постоянные: без рекламы, набор, видео.", "Только косметика. Без батл-пасса и сундуков за деньги."],
+             [BACK, GEAR], None),
+    "leader": ("Рейтинг", scr_leader, ["Один экран без подвкладок, фильтры — чипами.", "Своя строка всегда закреплена внизу."],
+               [BACK, GEAR], None),
+    "settings": ("Настройки", scr_settings, ["Слева разделы, справа содержимое. Управление — первым:", "кнопки двигаются прямо на превью, размер и прозрачность — ползунки.", "Вкладка «Аккаунт» → экран линковки входов."],
+                 [BACK, (60, 498, 340, 76, "account", "👤 Аккаунт")], None),
+}
+
+GROUPS = [
+    ("ui-home", "Вход и главная", "UI — вход и главная", "главный экран = персонаж слева, жёлтый блок запуска справа", ["splash", "home", "friend", "ai"]),
+    ("ui-auth", "Аккаунт", "UI — тихий вход и линковка", "аккаунт создаётся сам; сохранение и линковка — по желанию", ["home_guest", "save", "account", "link", "restore", "merge"]),
+    ("ui-lobby", "Поиск и комната", "UI — поиск, VS и комната", "между тапом «Играть» и матчем — максимум два экрана", ["search", "vs", "room"]),
+    ("ui-match", "Матч", "UI — матч", "минимум интерфейса: всё важное — внутри арены", ["hud", "tutorial", "multi", "point", "pause", "reconnect"]),
+    ("ui-results", "Итоги", "UI — итоги и клипы", "после матча: результат, награды и одна кнопка «Поделиться»", ["win", "lose", "share", "rankup"]),
+    ("ui-meta", "Меню", "UI — блоб, магазин, рейтинг, настройки", "вкладки нижней навигации и настройки", ["blob", "shop", "leader", "settings"]),
+]
+
+
+# ---------- clickable HTML prototype ----------
+PROTO_CSS = """
+:root{--bg:#010310;--bg1:#05091F;--panel:#0A1030;--panel2:#111A3F;--text:#E8F0FF;--sub:#7A8BB5;--ball:#FFD20A;--cyan:#03B8FF;--mag:#FF05AD;--line:#2C3658}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:radial-gradient(ellipse at 50% 30%,var(--bg1),var(--bg) 70%) fixed;color:var(--text);font-family:Nunito,'Segoe UI',system-ui,sans-serif;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+aside{border-right:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;overflow:auto}
+aside h1{font-size:20px;font-weight:900;margin:0 0 4px 8px;letter-spacing:.5px}
+aside h1 b{color:var(--cyan)}aside h1 i{color:var(--mag);font-style:normal}
+aside .lead{color:var(--sub);font-size:13px;margin:0 0 18px 8px}
+aside h2{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--sub);margin:16px 8px 6px}
+aside nav button{display:block;width:100%;text-align:left;background:none;border:0;border-radius:10px;padding:7px 10px;font-size:15px;font-weight:700;color:var(--text)}
+aside nav button:hover{background:var(--panel2)}
+aside nav button.on{background:var(--ball);color:#170F00}
+main{padding:20px clamp(12px,3vw,40px) 40px;display:flex;flex-direction:column;align-items:center;gap:16px;min-width:0}
+.bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.bar button{background:var(--panel2);border:2px solid var(--line);border-radius:22px;padding:8px 16px;font-weight:800;font-size:14px}
+.bar button:hover{border-color:var(--cyan)}.bar button.on{border-color:var(--ball);color:var(--ball)}
+.phone{position:relative;width:min(100%,calc((100vh - 260px)*16/9),1280px);min-width:280px;aspect-ratio:16/9;border:12px solid #151B33;outline:3px solid var(--line);border-radius:38px;overflow:hidden;background:var(--bg)}
+.scr{position:absolute;inset:0;display:none}
+.scr.on{display:block;animation:enter .3s ease}
+@keyframes enter{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
+.scr svg{display:block;width:100%;height:100%}
+.hot{position:absolute;background:transparent;border:0;padding:0;border-radius:14px;outline:none}
+.hot:focus-visible{box-shadow:0 0 0 3px var(--ball)}
+.show-hot .hot,.flash .hot{background:rgba(255,210,10,.14);box-shadow:inset 0 0 0 2px rgba(255,210,10,.85)}
+.hot.full{border-radius:0}.show-hot .hot.full,.flash .hot.full{background:transparent;box-shadow:inset 0 0 0 2px rgba(255,210,10,.3)}
+.timer{position:absolute;left:0;bottom:0;height:5px;background:var(--ball);width:0;box-shadow:0 0 10px var(--ball)}
+.info{width:min(100%,1280px);display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px 24px;align-items:start}
+.info h3{margin:0;font-size:24px;font-weight:900}
+.info .crumb{color:var(--sub);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.info ul{margin:6px 0 0;padding-left:18px;color:#C3CDE6;font-size:15px;line-height:1.5}
+.links{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.links span{width:100%;text-align:right;color:var(--sub);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.links button{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:5px 12px;font-size:13px;font-weight:700}
+.links button:hover{border-color:var(--ball);color:var(--ball)}
+.links .auto{border-style:dashed;color:var(--sub)}
+.map{position:fixed;inset:0;background:rgba(1,3,16,.92);display:none;align-items:center;justify-content:center;padding:24px;z-index:9}
+.map.on{display:flex;flex-direction:column}.map svg{width:min(100%,1600px);height:auto;max-height:calc(100vh - 80px);cursor:default}
+.map .map-hint{color:var(--sub);font-size:14px;font-weight:700;margin-bottom:8px;text-align:center}
+.map button.close{position:absolute;top:16px;right:20px;background:var(--panel2);border:2px solid var(--line);border-radius:22px;padding:8px 16px;font-weight:800}
+.map .map-node{cursor:pointer;outline:none}
+.map .map-node rect{pointer-events:all}
+.map .map-node text{pointer-events:none}
+.map .map-node:hover rect,.map .map-node:focus-within rect{stroke:#FFD20A!important;stroke-width:6px}
+@media (max-width:900px){.app{grid-template-columns:1fr}aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:12px}
+aside nav{display:flex;gap:4px;overflow-x:auto}aside h2{display:none}aside nav button{white-space:nowrap;width:auto}
+.phone{width:100%;border-width:6px;border-radius:20px}.info{grid-template-columns:1fr}.links{justify-content:flex-start}.links span{text-align:left}}
+"""
+
+PROTO_JS = """
+const S = DATA, scr = {}, hist = [];
+let cur = null, timer = null, raf = null;
+document.querySelectorAll('.scr').forEach(e => scr[e.dataset.k] = e);
+const $ = s => document.querySelector(s), phone = $('.phone'), bar = $('.timer');
+function go(t) {
+  if (t === 'back') { t = hist.pop() || 'home'; show(t); return; }
+  if (cur && cur !== t) hist.push(cur);
+  show(t);
+}
+function show(k) {
+  if (!S[k]) k = 'splash';
+  clearTimeout(timer); cancelAnimationFrame(raf); bar.style.width = 0;
+  if (cur) scr[cur].classList.remove('on');
+  scr[k].classList.add('on'); cur = k;
+  const s = S[k];
+  $('#crumb').textContent = s.group; $('#title').textContent = s.title;
+  $('#notes').innerHTML = s.notes.map(n => '<li>' + n + '</li>').join('');
+  const links = s.hot.filter(h => h[4]).map(h => `<button data-t="${h[4]}">${h[5]} → ${h[4] === 'back' ? 'назад' : S[h[4]].title}</button>`);
+  if (s.auto) links.push(`<button class="auto" data-t="${s.auto[1]}">авто ${s.auto[0] / 1000} с → ${S[s.auto[1]].title}</button>`);
+  $('#links').innerHTML = '<span>Переходы</span>' + (links.join('') || '<button disabled>—</button>');
+  document.querySelectorAll('aside nav button').forEach(b => b.classList.toggle('on', b.dataset.k === k));
+  history.replaceState(null, '', '#' + k);
+  if (s.auto) {
+    const t0 = performance.now(), d = s.auto[0];
+    const tick = now => { bar.style.width = Math.min(100, (now - t0) / d * 100) + '%'; if (now - t0 < d) raf = requestAnimationFrame(tick); };
+    raf = requestAnimationFrame(tick);
+    timer = setTimeout(() => go(s.auto[1]), d);
+  }
+}
+function closeMap() { $('.map').classList.remove('on'); }
+function openFromMap(k) {
+  closeMap(); hist.length = 0; show(k);
+}
+document.addEventListener('click', e => {
+  // Map nodes: close overlay then jump (don't leave map open over the new screen)
+  const mapNode = e.target.closest('.map-node');
+  if (mapNode && mapNode.closest('.map') && mapNode.dataset.t) {
+    e.preventDefault();
+    openFromMap(mapNode.dataset.t);
+    return;
+  }
+  if (e.target.closest('.map .close')) { closeMap(); return; }
+  const b = e.target.closest('[data-t]'); if (b) { go(b.dataset.t); return; }
+  const n = e.target.closest('aside nav button'); if (n) { hist.length = 0; show(n.dataset.k); return; }
+  if (e.target.closest('.phone')) { phone.classList.add('flash'); setTimeout(() => phone.classList.remove('flash'), 350); }
+});
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.classList.contains('map-node')) {
+    e.preventDefault(); openFromMap(document.activeElement.dataset.t); return;
+  }
+  if (e.key === 'Escape') closeMap();
+  if (e.key === 'Backspace' || e.key === 'ArrowLeft') go('back');
+  if (e.key === 'h' || e.key === 'р') $('#hot').click();
+});
+$('#restart').onclick = () => { hist.length = 0; cur && scr[cur].classList.remove('on'); cur = null; show('splash'); };
+$('#hot').onclick = e => { document.body.classList.toggle('show-hot'); e.currentTarget.classList.toggle('on'); };
+$('#mapbtn').onclick = () => $('.map').classList.add('on');
+show(location.hash.slice(1) || 'splash');
+"""
+
+def build_prototype(flow_svg_path):
+    import html, json, re
+    from generate_concepts import defs as svg_defs
+    colors = {k: C[k] for k in ("cyan", "mag", "lime", "orange", "buff")}
+    group_of = {k: g[1] for g in GROUPS for k in g[4]}
+    screens, nav, data = [], [], {}
+    for _, gname, _, _, keys in GROUPS:
+        nav.append(f"<h2>{gname}</h2><nav>" + "".join(f"<button data-k='{k}'>{html.escape(SCREENS[k][0])}</button>" for k in keys) + "</nav>")
+    for k, (title, fn, notes, hot, auto) in SCREENS.items():
+        hs = []
+        for (x, y, w, h, t, lab) in sorted(hot, key=lambda h: -h[2] * h[3]):
+            cls = "hot full" if w * h >= 1600 * 900 else "hot"
+            hs.append(f"<button class='{cls}' data-t='{t}' aria-label='{html.escape(lab)}' title='{html.escape(lab)}' "
+                      f"style='left:{x/16:.3f}%;top:{y/9:.3f}%;width:{w/16:.3f}%;height:{h/9:.3f}%'></button>")
+        screens.append(f"<div class='scr' data-k='{k}'><svg viewBox='0 0 1600 900' preserveAspectRatio='xMidYMid meet' role='img' aria-label='{html.escape(title)}'>"
+                       f"<rect width='1600' height='900' fill='url(#bgG)'/>{fn()}</svg>{''.join(hs)}</div>")
+        data[k] = dict(title=title, group=group_of[k], notes=[html.escape(n) for n in notes], hot=[list(h) for h in hot], auto=list(auto) if auto else None)
+    flow = open(flow_svg_path, encoding="utf-8").read()
+    # strip width/height so the overlay scales; keep viewBox from sheet_flow
+    flow = re.sub(r"^<svg[^>]*>",
+                  lambda m: re.sub(r"\s(width|height)='[^']*'", "", m.group(0)),
+                  flow, count=1)
+    page = f"""<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Goofy Ball UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>{PROTO_CSS}</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">{svg_defs(colors)}</svg>
+<div class="app"><aside><h1><b>GOOFY</b> <i>BALL</i></h1><p class="lead">Кликабельный прототип UI · 1600×900</p>{''.join(nav)}</aside>
+<main><div class="bar"><button id="restart">⟲ С начала</button><button id="hot">▢ Подсветить клики (H)</button><button id="mapbtn">🗺 Карта экранов</button><button data-t="back">← Назад</button></div>
+<div class="phone">{''.join(screens)}<div class="timer"></div></div>
+<div class="info"><div><div class="crumb" id="crumb"></div><h3 id="title"></h3><ul id="notes"></ul></div><div class="links" id="links"></div></div>
+</main></div>
+<div class="map" role="dialog" aria-label="Карта экранов"><button class="close" type="button">✕ Закрыть</button>
+<p class="map-hint">Клик по окну на карте → открыть этот экран</p>{flow}</div>
+<script>const DATA = {json.dumps(data, ensure_ascii=False)};{PROTO_JS}</script></body></html>"""
+    path = os.path.join(OUT, "ui-prototype.html")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(page)
+    return path
 
 
 # ---------- sheets ----------
 def build():
-    yield sheet_flow()
-    yield sheet("ui-home", "UI — вход и главная", "главный экран = персонаж слева, одна большая кнопка справа", [
-        ("Загрузка", scr_splash(), ["Гостевой вход без регистрации. Первый запуск → сразу обучение,", "без экранов «введите ник» и соглашений-стен."]),
-        ("Главная", scr_home(), ["Справа: режим (Быстрый/Ранговый) → ИГРАТЬ. Ниже — AI и друг.", "Тап по блобу или «✎» → вкладка «Блоб». Шапка: профиль, сезон, валюта, ⚙.", "Баннер кубка — единственное «событие» на главной."]),
-        ("С другом", scr_friend(), ["Модалка из двух вариантов: создать или войти по коду.", "Ссылка-приглашение открывает комнату сразу (в вебе — без установки).", "«Вдвоём на одном ПК» — только PC; на мобильных кнопки нет."]),
-        ("Против AI", scr_ai(), ["Один экран вместо мастера из шагов. Всё выбрано по умолчанию", "(последний выбор запоминается) — «Играть» можно жать сразу.", "Этот же экран — шаблон настроек комнаты и будущей кампании."]),
-    ])
-    yield sheet("ui-lobby", "UI — поиск, VS и комната", "между тапом «Играть» и матчем — максимум два экрана", [
-        ("Поиск соперника", scr_search(), ["Таймер и ожидаемое время. Блоб прыгает — экран не «висит».", "Отмена — крупная, снизу по центру. Совет дня обучает механикам."]),
-        ("VS", scr_vs(), ["3 секунды: ники, персонажи, рейтинг, арена и пресет.", "Цвет команды = цвет блоба в матче. Тап ничего не делает — просто отсчёт."]),
-        ("Комната", scr_room(), ["Код огромный — его диктуют голосом. «Пригласить» = системный шаринг.", "Слоты по командам; пустой слот → «+ Бот». N команд × N игроков.", "Настройки — чипы-выпадашки в одну строку, меняет только хозяин."]),
-    ])
-    yield sheet("ui-match", "UI — матч", "минимум интерфейса: всё важное — внутри арены", [
-        ("HUD 1×1", scr_hud(), ["1 пауза (онлайн — меню) · 2 счёт и ники · 3 плашка события за 1–2 с", "4 движение: вся левая половина, drag от точки касания · 5 прыжок", "6 «Действие»: иконка бафа в слоте, пусто → 💥 самоуничтожение"]),
-        ("Обучение (1-й запуск)", scr_tutorial(), ["Настоящий матч против AI с подсказками поверх: 3 шага —", "движение, прыжок, «Действие». Можно пропустить в любой момент."]),
-        ("3 команды", scr_multi(), ["Вместо счёта — жизни каждой команды над её зоной.", "Плашки в цвете команды. Выбывшая зона гаснет и схлопывается."]),
-        ("Очко + повтор", scr_point(), ["После яркого очка: кино-полосы, слоумо 0.5×, «ОЧКО!» и новый счёт.", "Момент сам сохраняется для клипа — ничего нажимать не нужно."]),
-        ("Пауза", scr_pause(), ["Три большие кнопки, «Продолжить» — главная.", "Выход из онлайн-матча — с подтверждением (засчитывается поражение)."]),
-        ("Переподключение", scr_reconnect(), ["Соперник отвалился — честный таймер и понятный исход.", "Свой плохой пинг — маленькая плашка справа сверху, не мешает игре."]),
-    ])
-    yield sheet("ui-results", "UI — итоги и клипы", "после матча: результат, награды и одна кнопка «Поделиться»", [
-        ("Победа", scr_result(True), ["Слева эмоция (блоб-победитель), справа цифры: рейтинг, XP, монеты.", "«Лучший момент» с превью — главный вирусный крючок.", "«Дальше» — главная, «Реванш» — второй по важности."]),
-        ("Поражение", scr_result(False), ["Та же раскладка. Главная кнопка — «Реванш».", "Совет против персонажа соперника вместо пустого «Вы проиграли»."]),
-        ("Поделиться клипом", scr_share(), ["Превью 9:16 с водяным знаком и подписью. 4 переключателя, без редактора.", "Одна главная кнопка → системное меню шаринга (без логотипов соцсетей).", "«Вызов другу» — ссылка, которая открывает веб-версию."]),
-        ("Новый ранг", scr_rankup(), ["Редкий попап поверх итогов: ранг + награда, одна кнопка.", "Не больше одного попапа за раз; очередь наград — по порядку."]),
-    ])
-    yield sheet("ui-meta", "UI — блоб, магазин, рейтинг, настройки", "вкладки нижней навигации и экраны из шапки", [
-        ("Блоб", scr_blob(), ["Слева примерка, справа сетка. Тап по предмету = надеть сразу.", "Замок показывает способ получения: цена, сезон, кубок, видео."]),
-        ("Магазин", scr_shop(), ["Сверху 3 предложения дня, снизу постоянные: без рекламы, пасс, видео.", "Только косметика. Никаких сундуков за деньги."]),
-        ("Батл-пасс", scr_pass(), ["Горизонтальная дорожка: бесплатная и премиум линейки.", "Текущий уровень подсвечен, «Забрать» — прямо в ячейке."]),
-        ("Рейтинг · лидерборд", scr_leader(), ["Две вкладки: Лидерборд и Кубки. Фильтры — чипами.", "Своя строка всегда закреплена внизу."]),
-        ("Рейтинг · кубки", scr_cups(), ["Карточка кубка: формат, приз, таймер, одна кнопка.", "Цвет таймера = статус: скоро / идёт / анонс."]),
-        ("Настройки", scr_settings(), ["Слева разделы, справа содержимое. Управление — первым:", "кнопки двигаются прямо на превью, размер и прозрачность — ползунки."]),
-    ])
+    flow = sheet_flow()
+    yield flow
+    for name, _, title, subtitle, keys in GROUPS:
+        yield sheet(name, title, subtitle, [(SCREENS[k][0], SCREENS[k][1](), SCREENS[k][2]) for k in keys])
+    print("ok", os.path.basename(build_prototype(flow[0])))
 
 
 def find_browser():
