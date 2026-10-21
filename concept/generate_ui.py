@@ -91,20 +91,25 @@ def topbar_profile():
     return (blob(78, 96, 34, C['cyan'], "happy", glow=False)
             + text(130, 58, "Slimy_42", 28, anchor="start")
             + text(130, 90, "🥈 Серебро II · 1420", 20, C['sub'], anchor="start", weight="normal")
+            + rr(600, 28, 400, 60, 30, PANEL2, stroke=C['ball'], sop=0.6)
+            + text(630, 68, "📋 Задания 1/3", 24, anchor="start") + text(975, 68, "×2 🏆", 22, C['lime'], anchor="end")
+            + f"<circle cx='992' cy='34' r='10' fill='{C['danger']}'/>"
             + currency() + iconbtn(1540, 56, 30, "⚙"))
 
 def topbar_back(title, money=True):
     return iconbtn(76, 60, 34, "←") + text(130, 74, title, 40, anchor="start") + (currency() + iconbtn(1540, 56, 30, "⚙") if money else "")
 
 def navbar(active=0):
-    tabs = [("🏐", "Играть"), ("🫧", "Блоб"), ("🛒", "Магазин"), ("🏆", "Рейтинг")]
+    tabs = [("🏐", "Играть"), ("👥", "Друзья"), ("🫧", "Блоб"), ("🛒", "Магазин"), ("🏆", "Рейтинг")]
     out = [f"<rect x='0' y='800' width='1600' height='100' fill='#060A1E'/>", f"<rect x='0' y='800' width='1600' height='2' fill='{C['sub']}' opacity='0.3'/>"]
     for i, (ic, lab) in enumerate(tabs):
-        cx = 200 + i * 400; on = i == active; col = C['ball'] if on else C['sub']
+        cx = 160 + i * 320; on = i == active; col = C['ball'] if on else C['sub']
         out.append(text(cx, 848, ic, 36, extra="" if on else "opacity='0.6'"))
         out.append(text(cx, 884, lab, 20, col, weight="bold" if on else "normal"))
         if on:
             out.append(rr(cx - 60, 802, 120, 6, 3, col, glow=True))
+        if lab == "Друзья":
+            out.append(f"<circle cx='{cx + 30}' cy='824' r='14' fill='{C['lime']}'/>" + text(cx + 30, 831, "3", 18, INK))
     return "".join(out)
 
 def arena(nets=((800, 230),), floor=760, ceil=120, seed=3):
@@ -180,11 +185,16 @@ def home_body():
             + ball(610, 300, 40)
             + rr(110, 140, 420, 64, 32, PANEL2, stroke=C['cyan'], sop=0.6)
             + text(140, 182, "🐸 Прыгун · прыжок +25%", 24, anchor="start") + text(500, 182, "✎", 26, C['cyan'])
-            + rr(850, 170, 720, 500, 40, C['ball'], op=0.05, stroke=C['ball'], sw=2, sop=0.35)
+            + rr(110, 222, 420, 60, 30, PANEL2, stroke=C['lime'], sop=0.5)
+            + blob(146, 270, 18, C['lime'], "happy", glow=False) + blob(180, 270, 18, C['orange'], "happy", glow=False) + blob(214, 270, 18, C['buff'], "happy", glow=False)
+            + text(250, 262, "3 друга в игре", 24, anchor="start") + text(500, 263, "›", 30, C['lime'])
+            + rr(850, 170, 720, 560, 40, C['ball'], op=0.05, stroke=C['ball'], sw=2, sop=0.35)
             + btn(880, 200, 660, 220, "▶  ИГРАТЬ", size=76, sub="онлайн · на рейтинг")
             + btn(880, 445, 320, 110, "🤖 Против AI", size=32)
             + btn(1220, 445, 320, 110, "👥 С другом", size=32)
-            + text(1210, 625, "🟢 1 284 игрока онлайн · ~15 с до матча", 22, C['sub'], weight="normal"))
+            + rr(880, 575, 660, 80, 26, PANEL2, stroke=C['cyan'], sw=2, sop=0.8)
+            + text(910, 625, "🧊 Неделя льда · новый баф «Коньки»", 26, anchor="start") + text(1510, 627, "›", 36, C['cyan'], anchor="end")
+            + text(1210, 703, "🟢 1 284 игрока онлайн · ~15 с до матча", 22, C['sub'], weight="normal"))
 
 def scr_home():
     return stars(1600, 900, 40, 5) + home_body() + topbar_profile() + navbar(0)
@@ -226,7 +236,8 @@ def scr_ai():
     out.append(chips(860, 540, ["Неон", "Крыша", "Космос", "Кухня"], 0, C['mag'], size=22))
     out.append(text(860, 640, "Физика", 22, C['sub'], anchor="start"))
     out.append(chips(860, 655, ["Classic", "Moon", "Ice", "Bouncy", "Chaos"], 0, C['lime'], size=22))
-    out.append(text(80, 830, "Всё уже выбрано — можно сразу жать «Играть»", 22, C['sub'], anchor="start", weight="normal"))
+    out.append(btn(80, 770, 460, 100, "🎯 Испытания 12/40 ★", "secondary", 30))
+    out.append(text(580, 830, "всё уже выбрано — можно сразу «Играть»", 22, C['sub'], anchor="start", weight="normal"))
     out.append(btn(1140, 770, 400, 100, "▶ ИГРАТЬ", size=44))
     return "".join(out)
 
@@ -248,6 +259,7 @@ def scr_vs():
             + f"<polygon points='860,0 1600,0 1600,900 740,900' fill='{C['mag']}' opacity='0.12'/>"
             + f"<line x1='860' y1='0' x2='740' y2='900' stroke='white' stroke-width='6' opacity='0.6' filter='url(#glow)'/>"
             + rr(640, 80, 320, 64, 32, PANEL, stroke=C['sub'], sop=0.5) + text(800, 124, "Старт через 3", 30)
+            + text(800, 188, "ваши встречи: 3 : 1", 26, C['ball'])
             + blob(380, 620, 130, C['cyan'], "angry", look=1) + blob(1220, 620, 130, C['mag'], "smug", 1.15, 0.9, look=-1)
             + text(800, 470, "VS", 150, C['ball'], extra="filter='url(#glow)'")
             + text(380, 690, "Slimy_42", 40, C['cyan']) + text(380, 728, "🐸 Прыгун · 1420", 24, C['sub'], weight="normal")
@@ -288,8 +300,8 @@ def scr_hud():
             + text(1150, floor - 160, "BlobKing", 22, C['mag'], weight="normal", extra="opacity='0.8'")
             + f"<g filter='url(#glow)'><rect x='610' y='130' width='380' height='60' rx='18' fill='{C['danger']}' opacity='0.18' stroke='{C['danger']}' stroke-width='3'/></g>"
             + text(800, 171, "⚠ Луна через 2…", 30, "#FFD0D0")
-            + hud_score(4, 3) + pause_btn() + touch()
-            + marker(130, 58, "1") + marker(985, 112, "2") + marker(1030, 160, "3")
+            + hud_score(4, 3) + pause_btn() + touch() + iconbtn(1540, 58, 32, "😀")
+            + marker(1470, 110, "7") + marker(130, 58, "1") + marker(985, 112, "2") + marker(1030, 160, "3")
             + marker(330, 330, "4") + marker(1385, 860, "5") + marker(1555, 660, "6"))
 
 def scr_tutorial():
@@ -377,7 +389,8 @@ def scr_result(win=True):
                + text(910, 142, rating[0], 38, anchor="start") + text(1510, 140, rating[1], 50, rating[2], anchor="end")
                + text(910, 178, "соперник 1395 — ставка была +14 / −17", 20, C['sub'], anchor="start", weight="normal"))
     out.append(rr(880, 210, 660, 100, 24, PANEL, stroke=C['sub'], sop=0.4)
-               + text(910, 275, "🪙 +50" if win else "🪙 +20", 36, anchor="start")
+               + text(910, 262, "🪙 +100" if win else "🪙 +20", 36, anchor="start")
+               + text(910, 295, "×2 — первая победа дня · задание ✓" if win else "задание «3 матча»: 2/3", 18, C['lime'] if win else C['sub'], anchor="start", weight="normal")
                + btn(1220, 225, 300, 70, "▶ ×2 за видео", "buff", 24))
     out.append(rr(880, 325, 660, 220, 24, PANEL, stroke=C['mag'], sw=3, sop=0.8)
                + rr(905, 350, 280, 170, 16, "#000", op=0.6)
@@ -391,7 +404,8 @@ def scr_result(win=True):
         out.append(btn(880, 580, 310, 110, "↻ Реванш", "secondary", 32) + btn(1210, 580, 330, 110, "Дальше ›", size=38))
     else:
         out.append(btn(880, 580, 330, 110, "↻ Реванш", size=38) + btn(1230, 580, 310, 110, "Дальше ›", "secondary", 32))
-        out.append(text(1210, 745, "💡 Толстяк плохо прыгает — бей высоко", 22, C['sub'], weight="normal"))
+        out.append(text(1210, 830, "💡 Толстяк плохо прыгает — бей высоко", 22, C['sub'], weight="normal"))
+    out.append(btn(880, 710, 660, 76, "👋 BlobKing → в друзья · ваши встречи 3 : 1", "secondary", 24))
     return "".join(out)
 
 def scr_share():
@@ -446,7 +460,8 @@ def scr_blob():
         out.append(f"<polygon points='{x+52},{y+150} {x+132},{y+150} {x+102},{y+40}' fill='{col}' stroke='white' stroke-width='3' opacity='{0.55 if st else 1}'/>")
         out.append(f"<circle cx='{x+102}' cy='{y+40}' r='12' fill='white' opacity='{0.55 if st else 1}'/>")
         out.append(text(x + 92, y + 205, lab or "есть", 22, C['ball'] if lab == "✓" else (C['text'] if lab else C['sub']), weight="bold" if lab else "normal"))
-    out.append(text(720, 830, "Только внешний вид — на игру не влияет", 22, C['sub'], anchor="start", weight="normal"))
+    out.append(text(720, 740, "Только внешний вид — на игру не влияет", 22, C['sub'], anchor="start", weight="normal"))
+    out.append(btn(720, 770, 420, 100, "🎖 Коллекция 34/120", "secondary", 28))
     out.append(btn(1170, 770, 370, 100, "Купить · 300 🪙", size=34))
     return "".join(out)
 
@@ -479,7 +494,8 @@ def scr_leader():
             ("🥉", "SquishMaster", C['orange'], "2 301", "💎 Алмаз II"), ("4", "Splat", C['buff'], "2 254", "🏅 Платина I"),
             ("5", "GooGoo", C['cyan'], "2 230", "🏅 Платина I")]
     out = [stars(1600, 900, 40, 71), topbar_back("Рейтинг"),
-           chips(60, 128, ["Глобальный", "Неделя", "Друзья", "🇷🇺 Страна"], 0, size=24, h=60)]
+           chips(60, 128, ["Глобальный", "Неделя", "Друзья", "🇷🇺 Страна"], 0, size=24, h=60),
+           btn(1140, 128, 400, 60, "🏅 Сезон 3 · ещё 41 д ›", "secondary", 24)]
     out += [lb_row(215 + i * 104, *r) for i, r in enumerate(rows)]
     out.append(lb_row(780, "#1 284", "Slimy_42 · ты", C['cyan'], "1 420", "🥈 Серебро II", me=True))
     return "".join(out)
@@ -531,10 +547,10 @@ def provider_row(x, y, w, icon, name, sub, state="linked"):
 
 def scr_home_guest():
     """Browser / unlinked guest: same home, soft non-blocking save strip."""
-    banner = (rr(850, 655, 720, 72, 22, PANEL, stroke=C['ball'], sw=2, sop=0.65)
-              + text(880, 700, "💾 Прогресс только здесь", 24, anchor="start")
-              + rr(1220, 668, 320, 48, 24, C['ball'], op=0.95)
-              + text(1380, 701, "Сохранить", 24, INK))
+    banner = (rr(850, 740, 720, 54, 22, PANEL, stroke=C['ball'], sw=2, sop=0.65)
+              + text(880, 776, "💾 Прогресс только здесь", 24, anchor="start")
+              + rr(1220, 745, 320, 44, 22, C['ball'], op=0.95)
+              + text(1380, 776, "Сохранить", 24, INK))
     return stars(1600, 900, 40, 5) + home_body() + topbar_profile() + navbar(0) + banner
 
 def scr_save():
@@ -629,10 +645,261 @@ def scr_merge():
             + btn(840, 700, 400, 90, "Отмена", "ghost", 28))
 
 
+# ---------- screens: retention (friends, habit, fresh content, mastery, collection) ----------
+def mini_blobs(x, y, cols, r=18, step=34):
+    return "".join(blob(x + i * step, y, r, c, "happy", glow=False) for i, c in enumerate(cols))
+
+def friend_row(x, y, w, col, nick, status, scol, score, action, kind):
+    return (rr(x, y, w, 92, 22, PANEL2, stroke=scol if scol == C['lime'] else None, sop=0.45)
+            + blob(x + 56, y + 84, 32, col, "happy", glow=False)
+            + text(x + 110, y + 42, nick, 30, anchor="start")
+            + text(x + 110, y + 74, status, 20, scol, anchor="start", weight="normal")
+            + text(x + w - 240, y + 56, score, 22, C['sub'], anchor="end", weight="normal")
+            + btn(x + w - 210, y + 16, 190, 60, action, kind, 24))
+
+def scr_friends():
+    rows = [(C['lime'], "JellyBoi", "🟢 в меню", C['lime'], "ты 12 : 9", "Позвать", "primary"),
+            (C['orange'], "Vasya_007", "🟢 в матче · 3 : 2", C['lime'], "ты 4 : 7", "После матча", "ghost"),
+            (C['buff'], "GooGoo", "🟢 в меню", C['lime'], "ты 3 : 3", "Позвать", "primary"),
+            (C['mag'], "Splat", "был 2 ч назад", C['sub'], "ты 1 : 0", "Вызов", "secondary"),
+            (C['cyan'], "Mops", "был вчера", C['sub'], "—", "Вызов", "secondary")]
+    out = [stars(1600, 900, 40, 101), topbar_back("Друзья"),
+           chips(60, 128, ["Все 12", "🟢 В игре 3", "Запросы 2"], 0, size=24, h=60),
+           btn(1060, 128, 480, 60, "🔗 Ссылка-приглашение", "secondary", 24)]
+    out += [friend_row(60, 215 + i * 105, 940, *r) for i, r in enumerate(rows)]
+    out.append(rr(1040, 215, 500, 512, 28, PANEL, stroke=C['ball'], sw=3, sop=0.6)
+               + text(1290, 270, "Компания «Слизни»", 32)
+               + text(1290, 305, "5 участников · 2 в игре", 22, C['sub'], weight="normal")
+               + mini_blobs(1205, 390, [C['cyan'], C['lime'], C['orange'], C['buff'], C['mag']], 22, 42)
+               + text(1080, 450, "Неделя: кто кого", 22, C['sub'], anchor="start", weight="normal"))
+    for i, (n, sc) in enumerate((("👑 JellyBoi", "14 побед"), ("Slimy_42 · ты", "11 побед"), ("Vasya_007", "9 побед"))):
+        out.append(text(1080, 495 + i * 42, n, 24, C['ball'] if i == 0 else C['text'], anchor="start")
+                   + text(1500, 495 + i * 42, sc, 22, C['sub'], anchor="end", weight="normal"))
+    out.append(btn(1080, 640, 420, 66, "Открыть компанию", "secondary", 26))
+    out.append(text(60, 800, "«Позвать» = приглашение в комнату · друг увидит его на главной или поверх меню", 22, C['sub'], anchor="start", weight="normal"))
+    out.append(text(60, 836, "Личный счёт «ты 12 : 9» — со всеми, с кем играл; соперничество держит лучше рейтинга", 22, C['sub'], anchor="start", weight="normal"))
+    return "".join(out)
+
+def scr_crew():
+    members = [(C['cyan'], "ты", True), (C['lime'], "JellyBoi", True), (C['orange'], "Vasya", False), (C['buff'], "GooGoo", False), (C['mag'], "Splat", False)]
+    out = [stars(1600, 900, 40, 102), topbar_back("Компания «Слизни»"),
+           rr(60, 130, 720, 280, 28, PANEL, stroke=C['sub'], sop=0.4),
+           f"<rect x='90' y='340' width='660' height='4' fill='{C['cyan']}' opacity='0.5' filter='url(#glow)'/>"]
+    for i, (col, n, on) in enumerate(members):
+        x = 150 + i * 130
+        out.append(blob(x, 340, 44, col, "happy" if on else "smug", glow=on, opacity=1 if on else 0.55))
+        out.append(text(x, 385, n, 22, C['text'] if on else C['sub'], weight="bold" if on else "normal"))
+    out.append(text(90, 180, "5 участников · 2 в игре", 24, C['sub'], anchor="start", weight="normal"))
+    out.append(rr(60, 430, 720, 340, 28, PANEL, stroke=C['ball'], sop=0.5)
+               + text(90, 480, "Неделя: кто кого", 28, anchor="start") + text(750, 480, "ещё 3 д", 22, C['sub'], anchor="end", weight="normal"))
+    table = [("👑", "JellyBoi", "14 – 6"), ("2", "Slimy_42 · ты", "11 – 8"), ("3", "Vasya_007", "9 – 9"), ("4", "GooGoo", "5 – 10")]
+    for i, (r_, n, wl) in enumerate(table):
+        y = 530 + i * 56
+        out.append(text(110, y, r_, 26, C['ball'] if i == 0 else C['sub']) + text(160, y, n, 26, anchor="start", weight="bold" if i == 1 else "normal")
+                   + text(750, y, wl, 26, C['text'], anchor="end"))
+    out.append(text(90, 750, "лидер недели получает значок 👑 на блоб", 20, C['sub'], anchor="start", weight="normal"))
+    out.append(btn(820, 130, 720, 190, "▶  Играть вместе", size=50, sub="комната компании · 2×2 / 3 команды"))
+    out.append(btn(820, 340, 720, 120, "⚔ 2×2 против случайных", size=34, sub="ты + друг · на рейтинг"))
+    out.append(btn(820, 480, 720, 96, "📣 Позвать всех", "secondary", 30))
+    out.append(text(1180, 640, "Комната компании не исчезает:", 22, C['sub'], weight="normal"))
+    out.append(text(1180, 674, "настройки, арена и счёт запоминаются", 22, C['sub'], weight="normal"))
+    return "".join(out)
+
+def scr_invite():
+    return (stars(1600, 900, 40, 5) + home_body() + topbar_profile() + navbar(0) + dim(0.6)
+            + rr(400, 190, 800, 470, 36, PANEL, stroke=C['lime'], sw=3, sop=0.8)
+            + blob(560, 470, 90, C['lime'], "happy")
+            + text(680, 330, "JellyBoi зовёт тебя", 40, anchor="start")
+            + text(680, 375, "Комната · 2×2 · Неделя льда", 24, C['sub'], anchor="start", weight="normal")
+            + text(680, 420, "в комнате уже 2 из 4", 22, C['lime'], anchor="start", weight="normal")
+            + btn(460, 520, 420, 100, "Принять", size=36)
+            + btn(900, 520, 240, 100, "Позже", "ghost", 30)
+            + text(800, 720, "во время матча приглашение — тихая плашка сверху, не попап", 22, C['sub'], weight="normal"))
+
+def quest_card(x, y, icon, title, prog, frac, reward, done=False):
+    out = rr(x, y, 470, 340, 28, PANEL2, stroke=C['ball'] if done else C['sub'], sw=4 if done else 2, sop=0.9 if done else 0.4)
+    out += text(x + 235, y + 100, icon, 70) + text(x + 235, y + 160, title, 26)
+    out += bar(x + 40, y + 195, 390, 14, frac, C['lime'] if done else C['cyan']) + text(x + 235, y + 240, prog, 22, C['sub'], weight="normal")
+    if done:
+        out += btn(x + 60, y + 262, 350, 62, f"Забрать {reward}", size=26)
+    else:
+        out += text(x + 40, y + 300, reward, 26, anchor="start") + text(x + 430, y + 300, "↻ заменить", 20, C['sub'], anchor="end", weight="normal")
+    return out
+
+def scr_quests():
+    return (stars(1600, 900, 40, 103) + topbar_back("Задания")
+            + rr(60, 130, 1480, 130, 28, PANEL, stroke=C['lime'], sw=3, sop=0.7)
+            + text(100, 185, "🏆 Первая победа дня", 36, anchor="start")
+            + text(100, 228, "×2 монеты за первую победу каждый день · обновится в 00:00", 22, C['sub'], anchor="start", weight="normal")
+            + rr(1250, 165, 250, 60, 30, C['ball'], op=0.15, stroke=C['ball'], sw=2, sop=0.8) + text(1375, 205, "ещё не взята", 24, C['ball'])
+            + quest_card(60, 290, "🎮", "Сыграй 3 матча", "1 / 3", 0.33, "🪙 +30")
+            + quest_card(565, 290, "🔨", "Раздави потолком", "0 / 1", 0.0, "🪙 +60")
+            + quest_card(1070, 290, "🍄", "Победи гигантом", "1 / 1 ✓", 1.0, "🪙 +50", done=True)
+            + rr(60, 660, 1040, 110, 26, PANEL, stroke=C['cyan'], sw=2, sop=0.7)
+            + text(100, 705, "Задание недели: 15 побед на льду 🧊", 28, anchor="start")
+            + bar(100, 728, 660, 14, 0.6, C['cyan']) + text(790, 745, "9 / 15", 22, C['sub'], anchor="start", weight="normal")
+            + text(1070, 745, "🧢 «Сосулька»", 26, anchor="end")
+            + btn(1140, 660, 400, 110, "▶ ИГРАТЬ", size=40)
+            + text(60, 830, "Новые задания через 6 ч · пропуск дней ничего не сжигает · задания учат бафам", 22, C['sub'], anchor="start", weight="normal"))
+
+def scr_weekly():
+    flakes = "".join(text(100 + (i * 137) % 680, 200 + (i * 83) % 300, "❄", 22 + i % 3 * 8, "white", weight="normal", extra="opacity='0.35'") for i in range(12))
+    return (stars(1600, 900, 40, 104) + topbar_back("Неделя льда")
+            + rr(60, 130, 760, 640, 30, C['cyan'], op=0.07, stroke=C['cyan'], sw=3, sop=0.7) + flakes
+            + text(440, 230, "🧊 НЕДЕЛЯ ЛЬДА", 60, C['cyan'], extra="filter='url(#glow)'")
+            + rr(330, 260, 220, 50, 25, PANEL, stroke=C['cyan'], sop=0.7) + text(440, 294, "ещё 3 д 4 ч", 24)
+            + f"<rect x='100' y='680' width='680' height='10' rx='5' fill='{lighten(C['cyan'], 0.6)}' opacity='0.8' filter='url(#glow)'/>"
+            + f"<rect x='436' y='540' width='8' height='140' rx='4' fill='{lighten(C['cyan'], 0.6)}' filter='url(#glow)'/>"
+            + blob(250, 680, 60, C['cyan'], "happy", 1.25, 0.8, look=1)
+            + f"<path d='M150,640 l-50,0 M160,665 l-70,0 M150,615 l-40,0' stroke='white' stroke-width='5' opacity='0.4' stroke-linecap='round'/>"
+            + blob(620, 680, 60, C['mag'], "scared", 0.85, 1.1, look=-1) + ball(440, 420, 30, trail=(-18, 14))
+            + text(880, 200, "Что меняется", 28, C['sub'], anchor="start", weight="normal")
+            + text(880, 260, "❄  Ледяной пол во всех онлайн-матчах", 28, anchor="start")
+            + text(880, 320, "🛼  Новый баф «Коньки» — рывок по льду", 28, anchor="start")
+            + text(880, 380, "🎯  Испытание недели: 3 гола с отскока", 28, anchor="start")
+            + text(880, 440, "🧢  Шапка «Сосулька» за задание недели", 28, anchor="start")
+            + rr(860, 480, 680, 76, 22, PANEL, stroke=C['lime'], sw=2, sop=0.7)
+            + text(1200, 527, "Очередь та же — неделя не делит игроков", 24, C['lime'])
+            + btn(860, 580, 680, 130, "▶  ИГРАТЬ", size=50, sub="онлайн · неделя льда")
+            + rr(860, 730, 680, 70, 22, PANEL, stroke=C['sub'], sop=0.5, dash="10 8")
+            + text(1200, 775, "Скоро: 🌙 Неделя луны · низкая гравитация", 24, C['sub'], weight="normal")
+            + text(60, 830, "Против AI и в комнате неделю можно выбрать отдельно — как пресет «Ice»", 22, C['sub'], anchor="start", weight="normal"))
+
+def scr_news():
+    def card(x, label, art, title, desc):
+        return (rr(x, 200, 480, 380, 28, PANEL2, stroke=C['buff'], sw=3, sop=0.7) + text(x + 240, 245, label, 22, C['buff'])
+                + art + text(x + 240, 500, title, 36) + text(x + 240, 545, desc, 22, C['sub'], weight="normal"))
+    skates = (blob(540, 430, 70, C['cyan'], "happy", look=1)
+              + "<rect x='470' y='432' width='60' height='22' rx='11' fill='#F2F2F2' stroke='#03B8FF' stroke-width='3'/>"
+              + "<rect x='552' y='432' width='60' height='22' rx='11' fill='#F2F2F2' stroke='#03B8FF' stroke-width='3'/>")
+    magnet = blob(1060, 450, 72, C['orange'], "smug", look=-1) + text(1150, 330, "🧲", 56) + ball(980, 320, 24)
+    return (stars(1600, 900, 40, 5) + home_body() + topbar_profile() + navbar(0) + dim(0.75)
+            + rr(260, 90, 1080, 730, 36, PANEL, stroke=C['buff'], sw=3, sop=0.8)
+            + text(800, 160, "Что нового · обновление 0.4", 44)
+            + card(300, "НОВЫЙ БАФ", skates, "🛼 Коньки", "рывок по льду, сносит соперника")
+            + card(820, "НОВЫЙ ПЕРСОНАЖ", magnet, "🧲 Магнитик", "мяч чуть тянется к нему")
+            + text(800, 630, "+ арена «Каток» · баланс: Толстяк прыгает чуть выше", 24, C['sub'], weight="normal")
+            + btn(300, 680, 580, 100, "▶ Попробовать против AI", size=32)
+            + btn(900, 680, 400, 100, "Ок", "ghost", 32)
+            + text(800, 860, "показывается один раз после обновления · новое каждые 2–3 недели", 20, C['sub'], weight="normal"))
+
+def scr_season():
+    ranks = [("🥉", "Бронза", "0+", "🎖 рамка", "done"), ("🥈", "Серебро", "1200+", "🧢 кепка", "here"),
+             ("🥇", "Золото", "1500+", "✨ след", "lock"), ("🏅", "Платина", "1800+", "🎆 победа", "lock"),
+             ("💎", "Алмаз", "2100+", "🐉 скин", "lock"), ("👑", "Легенда", "топ-100", "👑 корона", "lock")]
+    out = [stars(1600, 900, 40, 105), topbar_back("Сезон 3"),
+           text(60, 170, "ещё 41 день · в начале сезона мягкий сброс: рейтинг сжимается к середине", 24, C['sub'], anchor="start", weight="normal")]
+    for i, (ic, name, thr, rew, st) in enumerate(ranks):
+        x = 60 + i * 248; here = st == "here"
+        out.append(rr(x, 210, 228, 400, 26, PANEL2, stroke=C['ball'] if here else (C['lime'] if st == "done" else C['sub']),
+                      sw=4 if here else 2, sop=1 if here else 0.45, glow=here))
+        out.append(text(x + 114, 300, ic, 70, extra="" if st != "lock" else "opacity='0.55'"))
+        out.append(text(x + 114, 360, name, 30) + text(x + 114, 395, thr, 22, C['sub'], weight="normal"))
+        out.append(rr(x + 24, 425, 180, 90, 18, "#000", op=0.3) + text(x + 114, 480, rew, 24))
+        out.append(text(x + 114, 575, {"done": "✓ получено", "here": "ты здесь · 1420", "lock": "🔒"}[st], 22,
+                        {"done": C['lime'], "here": C['ball'], "lock": C['sub']}[st], weight="bold" if here else "normal"))
+    out.append(text(60, 670, "До Золота: 80 очков", 28, anchor="start") + bar(60, 690, 1000, 16, 0.6, C['ball']))
+    out.append(text(60, 760, "Награда — за итоговый ранг сезона. Без пасса и покупок.", 22, C['sub'], anchor="start", weight="normal"))
+    out.append(text(60, 795, "Полученное остаётся навсегда и показывает, когда ты играл.", 22, C['sub'], anchor="start", weight="normal"))
+    out.append(btn(1140, 660, 400, 110, "▶ ИГРАТЬ", size=40))
+    return "".join(out)
+
+def scr_profile():
+    pts = [(700, 330), (780, 318), (860, 335), (940, 300), (1020, 296), (1100, 270), (1180, 282), (1260, 240), (1340, 226), (1420, 205), (1500, 190)]
+    poly = " ".join(f"{x},{y}" for x, y in pts)
+    stats = [("Матчей", "214"), ("Побед", "56%"), ("Серия", "9 🔥"), ("Потолком", "×37 🔨"), ("Взрывов", "×52 💥"), ("Любимый", "🍄 Гигант")]
+    out = [stars(1600, 900, 40, 106), topbar_back("Профиль"),
+           rr(60, 130, 560, 380, 28, PANEL, stroke=C['cyan'], sop=0.5),
+           f"<ellipse cx='340' cy='300' rx='200' ry='120' fill='{C['cyan']}' opacity='0.08' filter='url(#soft)'/>",
+           blob(340, 370, 100, C['cyan'], "smug", look=0.4),
+           text(340, 430, "Slimy_42", 40), text(340, 470, "🥈 Серебро II · 1420", 24, C['sub'], weight="normal"),
+           text(60, 560, "Мастерство персонажей", 24, C['sub'], anchor="start", weight="normal")]
+    for i, (n, lv, f) in enumerate((("🐸 Прыгун", "ур. 7", 0.7), ("🐷 Толстяк", "ур. 3", 0.3), ("🍯 Липкий", "ур. 1", 0.1))):
+        y = 605 + i * 78
+        out.append(text(60, y, n, 26, anchor="start") + text(620, y, lv, 24, C['ball'], anchor="end") + bar(60, y + 16, 560, 12, f, C['ball']))
+    out.append(rr(660, 130, 880, 250, 26, PANEL, stroke=C['sub'], sop=0.4)
+               + text(690, 175, "Рейтинг · 30 дней", 24, C['sub'], anchor="start", weight="normal")
+               + text(1510, 175, "1310 → 1420", 26, C['lime'], anchor="end")
+               + f"<polyline points='{poly}' fill='none' stroke='{C['cyan']}' stroke-width='5' stroke-linejoin='round' filter='url(#glow)'/>"
+               + f"<circle cx='1500' cy='190' r='9' fill='{C['ball']}'/>")
+    for i, (lab, val) in enumerate(stats):
+        x = 660 + (i % 3) * 300; y = 400 + (i // 3) * 125
+        out.append(rr(x, y, 280, 110, 22, PANEL2, stroke=C['sub'], sop=0.35)
+                   + text(x + 140, y + 48, val, 34) + text(x + 140, y + 88, lab, 20, C['sub'], weight="normal"))
+    out.append(btn(660, 670, 420, 100, "🎯 Испытания 12/40 ★", "secondary", 28))
+    out.append(btn(1120, 670, 420, 100, "🎖 Коллекция 34/120", "secondary", 28))
+    out.append(text(1100, 830, "Цифры, которыми хочется хвастаться, — повод для клипа и реванша", 22, C['sub'], weight="normal"))
+    return "".join(out)
+
+def scr_trials():
+    cards = [("🏐", "Подача в угол", "★★★", "done"), ("🦘", "Удар в прыжке", "★★☆", "done"), ("🌀", "Гол через портал", "★☆☆", "open"),
+             ("🙅", "Победи без прыжков", "☆☆☆", "open"), ("🔨", "Потолок на голову", "☆☆☆", "open"), ("🧊", "3 гола с отскока", "☆☆☆", "week"),
+             ("🧲", "Магнит: 3 паса", "", "lock"), ("💥", "Взрыв-сейв", "", "lock")]
+    out = [stars(1600, 900, 40, 107), topbar_back("Испытания"),
+           chips(60, 128, ["Механика", "Бафы", "Неделя 🧊"], 0, size=24, h=60),
+           text(1540, 172, "★ 12 / 40", 34, C['ball'], anchor="end")]
+    for i, (ic, t, st, state) in enumerate(cards):
+        x = 60 + (i % 4) * 378; y = 215 + (i // 4) * 285
+        lock = state == "lock"
+        out.append(rr(x, y, 345, 265, 26, PANEL2, stroke=C['cyan'] if state == "week" else (C['ball'] if state == "open" and i == 2 else C['sub']),
+                      sw=3, sop=0.8 if state != "lock" else 0.3))
+        out.append(text(x + 172, y + 105, ic, 68, extra="opacity='0.4'" if lock else ""))
+        out.append(text(x + 172, y + 165, t, 26, C['sub'] if lock else C['text']))
+        if lock:
+            out.append(text(x + 172, y + 220, "🔒 открой за 15 ★", 22, C['sub'], weight="normal"))
+        else:
+            got = st.count("★")
+            out.append("".join(text(x + 132 + j * 40, y + 222, "★", 36, C['ball'] if j < got else PANEL, extra="" if j < got else f"stroke='{C['sub']}' stroke-width='2'") for j in range(3)))
+        if state == "week":
+            out.append(rr(x + 220, y + 16, 110, 36, 18, C['cyan'], op=0.9) + text(x + 275, y + 41, "неделя", 18, INK))
+    out.append(text(60, 830, "30–60 секунд, офлайн · учат приёмам, которые работают в рейтинге · звёзды открывают новые", 22, C['sub'], anchor="start", weight="normal"))
+    return "".join(out)
+
+def scr_collection():
+    cx, cy, r, frac = 330, 360, 150, 34 / 120
+    a = -math.pi / 2 + frac * 2 * math.pi
+    arc = f"M{cx},{cy - r} A{r},{r} 0 {1 if frac > 0.5 else 0} 1 {cx + r * math.cos(a):.1f},{cy + r * math.sin(a):.1f}"
+    cats = [("🧢", "Шапки", 12, 40), ("🫧", "Скины", 8, 30), ("🏐", "Мячи", 3, 15), ("🎆", "Эффекты победы", 2, 10), ("✨", "Следы", 5, 15), ("😎", "Эмоции", 4, 10)]
+    out = [stars(1600, 900, 40, 108), topbar_back("Коллекция"),
+           f"<circle cx='{cx}' cy='{cy}' r='{r}' fill='none' stroke='{PANEL2}' stroke-width='28'/>",
+           f"<path d='{arc}' fill='none' stroke='{C['ball']}' stroke-width='28' stroke-linecap='round' filter='url(#glow)'/>",
+           text(cx, cy + 10, "34/120", 58), text(cx, cy + 50, "собрано", 24, C['sub'], weight="normal"),
+           text(cx, 570, "видно в матче и в клипах", 22, C['sub'], weight="normal")]
+    for i, (ic, n, have, tot) in enumerate(cats):
+        y = 140 + i * 92
+        out.append(rr(620, y, 920, 78, 20, PANEL2, stroke=C['sub'], sop=0.3)
+                   + text(670, y + 52, ic, 36) + text(720, y + 50, n, 28, anchor="start")
+                   + bar(1060, y + 33, 330, 12, have / tot, C['ball']) + text(1510, y + 50, f"{have}/{tot}", 24, C['ball'], anchor="end"))
+    out.append(text(60, 700, "Только за достижения — не купить", 26, C['ball'], anchor="start"))
+    ach = [("👑 Корона", "100 побед", 0.56, "56/100"), ("🌋 След лавы", "раздави 50 раз", 0.74, "37/50"), ("🤡 Эмоция «Клоун»", "10 взрывов-сейвов", 0.2, "2/10")]
+    for i, (n, how, f, p) in enumerate(ach):
+        x = 60 + i * 500
+        out.append(rr(x, 720, 470, 140, 22, PANEL, stroke=C['ball'], sw=2, sop=0.5)
+                   + text(x + 30, 765, n, 28, anchor="start") + text(x + 440, 765, p, 22, C['sub'], anchor="end", weight="normal")
+                   + text(x + 30, 800, how, 22, C['sub'], anchor="start", weight="normal") + bar(x + 30, 825, 410, 12, f, C['lime']))
+    return "".join(out)
+
+def scr_emote():
+    emos = ["😂", "😎", "🤡", "🙏", "😱"]
+    bar_ = rr(450, 770, 700, 104, 52, PANEL, stroke=C['ball'], sw=2, sop=0.6)
+    for i, e in enumerate(emos):
+        x = 530 + i * 135
+        bar_ += (f"<circle cx='{x}' cy='822' r='42' fill='{C['ball'] if i == 1 else PANEL2}' fill-opacity='{0.25 if i == 1 else 1}' "
+                 f"stroke='{C['ball'] if i == 1 else C['sub']}' stroke-width='3' stroke-opacity='0.8'/>" + text(x, 838, e, 46))
+    def bubble(x, y, e):
+        return (rr(x - 55, y - 100, 110, 96, 30, "white", op=0.95) + f"<polygon points='{x-14},{y-6} {x+14},{y-6} {x},{y+14}' fill='white' opacity='0.95'/>"
+                + text(x, y - 34, e, 56))
+    return (arena(seed=15) + blob(500, 760, 66, C['cyan'], "smug", look=1) + blob(1150, 760, 66, C['mag'], "scared", look=-1)
+            + bubble(500, 610, "😎") + bubble(1150, 610, "😱") + ball(800, 300, 30)
+            + hud_score(5, 3) + pause_btn()
+            + rr(560, 130, 480, 56, 28, PANEL, stroke=C['sub'], sop=0.5) + text(800, 168, "между розыгрышами · 2 с", 24, C['sub'], weight="normal")
+            + bar_)
+
+
 # ---------- navigation map ----------
 def sheet_flow():
     """Interactive flow map: nodes carry data-t=SCREENS key for prototype clicks."""
-    W, H = 2000, 1680
+    W, H = 2000, 2240
     NW, NH = 248, 88
     out = [stars(W, H, 60), text(W / 2, 56, "UI — карта экранов", 44),
            text(W / 2, 94, "жёлтый — матч · циан — аккаунт · клик по окну открывает экран в прототипе", 22, C['sub'], weight="normal"),
@@ -669,6 +936,17 @@ def sheet_flow():
         "shop": (560, 820, "Магазин", "косметика", C['cyan'], "shop"),
         "leader": (840, 820, "Рейтинг", "лидерборд", C['cyan'], "leader"),
         "settings": (1120, 820, "Настройки", "управление…", C['cyan'], "settings"),
+        "friends": (200, 1140, "Друзья", "кто в игре · позвать", C['lime'], "friends"),
+        "crew": (200, 1250, "Компания", "кто кого за неделю", C['lime'], "crew"),
+        "invite": (200, 1360, "Приглашение", "так видит друг", C['lime'], "invite"),
+        "quests": (580, 1140, "Задания дня", "×2 первая победа", C['ball'], "quests"),
+        "weekly": (960, 1140, "Неделя льда", "во всех матчах", C['cyan'], "weekly"),
+        "news": (960, 1250, "Что нового", "после обновления", C['buff'], "news"),
+        "season": (960, 1360, "Сезон", "награда за ранг", C['ball'], "season"),
+        "profile": (1340, 1140, "Профиль", "статистика", C['cyan'], "profile"),
+        "trials": (1340, 1250, "Испытания", "★ приёмы", C['cyan'], "trials"),
+        "collection": (1720, 1140, "Коллекция", "34/120", C['mag'], "collection"),
+        "emote": (1720, 1250, "Эмоции", "между розыгрышами", C['mag'], "emote"),
     }
     colmap = {"Y": C['ball'], "S": C['sub'], "C": C['cyan'], "M": C['mag']}
 
@@ -746,6 +1024,18 @@ def sheet_flow():
     # settings → account is the same screen cluster; show as label only (avoid crossing edge)
     out.append(text(1280, 820, "→ Аккаунт", 18, C['cyan'], anchor="start", weight="normal"))
 
+    # --- retention ---
+    out.append(rr(40, 980, 1920, 460, 28, PANEL, op=0.3, stroke=C['lime'], sw=2, sop=0.45))
+    out.append(text(60, 1020, "УДЕРЖАНИЕ — ЗАЧЕМ ВОЗВРАЩАТЬСЯ", 22, C['lime'], anchor="start"))
+    pillars = [(200, "ДРУЗЬЯ", "вкладка · «3 друга в игре» · «в друзья»"), (580, "ПРИВЫЧКА", "чип «Задания» в шапке · итоги"),
+               (960, "СВЕЖИЙ КОНТЕНТ", "полоса в блоке ИГРАТЬ · рейтинг"), (1340, "МАСТЕРСТВО", "профиль · «Против AI» · VS"),
+               (1720, "КОЛЛЕКЦИЯ", "Блоб · профиль · кнопка 😀 в матче")]
+    for x, t, s_ in pillars:
+        out.append(text(x, 1046, t, 20, C['ball']) + text(x, 1068, "вход: " + s_, 15, C['sub'], weight="normal"))
+    out += [edge("friends", "crew", "S", side="v"), edge("crew", "invite", "S", side="v"),
+            edge("news", "weekly", "S", side="v"), edge("profile", "trials", "S", side="v"),
+            edge("quests", "weekly", "S", label="задание недели"), edge("profile", "collection", "M", label="коллекция")]
+
     # draw nodes (clickable groups)
     for k, (x, y, t, s, col, target) in nodes.items():
         big = k in ("home", "search", "hud")
@@ -773,15 +1063,16 @@ def sheet_flow():
 
     pr = ["1. «ИГРАТЬ» = онлайн на рейтинг, 1 тап.  2. Одна очередь.  3. Дефолты везде.  4. Жёлтые кнопки запуска вместе.",
           "5. Главное действие справа снизу.  6. В матче минимум UI.  7. Цвет = смысл.  8. Иконка + 1–2 слова.",
-          "9. Только косметика.  10. Аккаунт тихо по платформе; линковка добровольно, без стен регистрации."]
-    out.append(rr(40, 980, 1920, 160, 28, PANEL, stroke=C['ball'], sw=2, sop=0.45))
-    out.append(text(70, 1030, "ПРИНЦИПЫ", 24, C['ball'], anchor="start"))
+          "9. Только косметика.  10. Аккаунт тихо по платформе; линковка добровольно, без стен регистрации.",
+          "11. Удержание: друзья важнее рейтинга · задания без энергии и штрафов · новый баф каждые 2–3 недели · неделя не делит очередь."]
+    out.append(rr(40, 1480, 1920, 192, 28, PANEL, stroke=C['ball'], sw=2, sop=0.45))
+    out.append(text(70, 1530, "ПРИНЦИПЫ", 24, C['ball'], anchor="start"))
     for i, p in enumerate(pr):
-        out.append(text(70, 1070 + i * 32, p, 20, anchor="start", weight="normal"))
+        out.append(text(70, 1570 + i * 32, p, 20, anchor="start", weight="normal"))
 
     # variants callouts
-    out.append(rr(40, 1180, 1920, 440, 28, PANEL, stroke=C['cyan'], sw=2, sop=0.4))
-    out.append(text(70, 1230, "ЧТО МОЖЕТ ПРОИЗОЙТИ", 26, C['cyan'], anchor="start"))
+    out.append(rr(40, 1712, 1920, 500, 28, PANEL, stroke=C['cyan'], sw=2, sop=0.4))
+    out.append(text(70, 1762, "ЧТО МОЖЕТ ПРОИЗОЙТИ", 26, C['cyan'], anchor="start"))
     variants = [
         ("A. Магазин (Android / iOS / Steam)", "Загрузка → тихий вход платформы → Главная → ИГРАТЬ. Аккаунт уже есть, форм нет."),
         ("B. Первый запуск", "Загрузка → Обучение (матч с AI) → Главная. Можно пропустить."),
@@ -791,12 +1082,14 @@ def sheet_flow():
         ("F. Уже играл на другом устройстве", "Уже играл? → войти тем же ключом или ввести код → прогресс подтягивается."),
         ("G. Конфликт двух аккаунтов", "Привязали ключ, у которого уже был другой Goofy ID → Два прогресса (выбор / merge косметики)."),
         ("H. После матча", "Победа или поражение → Реванш (VS) / Дальше (Главная) / Клип / редкий Новый ранг."),
+        ("I. Играть с друзьями", "Друзья → Позвать → Комната; друг видит Приглашение → Принять. Компания — постоянная комната."),
+        ("J. Зачем зайти сегодня", "Задания дня и ×2 первая победа · Неделя льда · «Что нового» · Сезон с наградой."),
     ]
     for i, (title, desc) in enumerate(variants):
         col = i % 2
         row = i // 2
         x = 70 + col * 960
-        y = 1270 + row * 80
+        y = 1802 + row * 80
         out.append(text(x, y, title, 22, C['ball'] if i < 3 else C['text'], anchor="start"))
         out.append(text(x, y + 32, desc, 18, C['sub'], anchor="start", weight="normal"))
 
@@ -811,12 +1104,14 @@ FULL = lambda target, label: (0, 0, 1600, 900, target, label)
 SCREENS = {
     "splash": ("Загрузка", scr_splash, ["Тихий вход: Play Games / Game Center / Steam / гость в браузере.", "Игрок не выбирает «как зарегистрироваться» — аккаунт создаётся сам.", "Первый запуск → обучение. Без экранов «введите ник» и стен с паролем."],
                [FULL("tutorial", "Тап → обучение")], (2200, "tutorial")),
-    "home": ("Главная", scr_home, ["Блок запуска: ИГРАТЬ (онлайн, на рейтинг), Против AI, С другом —", "все жёлтые и стоят одной группой. Выбора «быстрый/ранговый» нет.", "Тап по блобу или «✎» → «Блоб». Шапка: профиль и ранг, валюта, ⚙."],
+    "home": ("Главная", scr_home, ["Блок запуска: ИГРАТЬ (онлайн, на рейтинг), Против AI, С другом — жёлтые, одной группой.", "В блоке — полоса «Неделя льда» (не отдельная очередь). Слева — «3 друга в игре».", "Шапка: профиль → статистика, «Задания 1/3 · ×2 🏆», валюта, ⚙. Вкладка «Друзья»."],
              [(880, 200, 660, 220, "search", "ИГРАТЬ"), (880, 445, 320, 110, "ai", "Против AI"), (1220, 445, 320, 110, "friend", "С другом"),
-              (110, 140, 420, 64, "blob", "Персонаж ✎"), (280, 470, 300, 300, "blob", "Блоб"), (400, 800, 400, 100, "blob", "Вкладка «Блоб»"),
-              (800, 800, 400, 100, "shop", "Вкладка «Магазин»"), (1200, 800, 400, 100, "leader", "Вкладка «Рейтинг»"), GEAR], None),
+              (880, 575, 660, 80, "weekly", "Неделя льда"), (110, 140, 420, 64, "blob", "Персонаж ✎"), (280, 470, 300, 300, "blob", "Блоб"),
+              (110, 222, 420, 60, "friends", "3 друга в игре"), (30, 20, 320, 92, "profile", "Профиль"), (600, 28, 400, 60, "quests", "Задания дня"),
+              (320, 800, 320, 100, "friends", "Вкладка «Друзья»"), (640, 800, 320, 100, "blob", "Вкладка «Блоб»"),
+              (960, 800, 320, 100, "shop", "Вкладка «Магазин»"), (1280, 800, 320, 100, "leader", "Вкладка «Рейтинг»"), GEAR], None),
     "home_guest": ("Главная · гость", scr_home_guest, ["Браузер / ещё не сохранил: та же главная + мягкая плашка под блоком запуска.", "«ИГРАТЬ» не блокируется. Сохранение — по желанию, после интереса к прогрессу."],
-                   [(1220, 668, 320, 48, "save", "Сохранить"), (880, 200, 660, 220, "search", "ИГРАТЬ"),
+                   [(1220, 745, 320, 44, "save", "Сохранить"), (880, 200, 660, 220, "search", "ИГРАТЬ"),
                     (880, 445, 320, 110, "ai", "Против AI"), (1220, 445, 320, 110, "friend", "С другом"), GEAR], None),
     "save": ("Сохранить прогресс", scr_save, ["Мягкий шит, не стена перед матчем. Google / Apple / Steam / код с телефона.", "Браузер: Google — основной; код — если уже есть прогресс на телефоне.", "«Позже» оставляет гостя. Пароль и email-формы нет."],
              [(1228, 143, 64, 64, "home_guest", "✕"), (360, 290, 880, 100, "account", "Google"),
@@ -838,16 +1133,16 @@ SCREENS = {
     "friend": ("С другом", scr_friend, ["Модалка из двух вариантов: создать или войти по коду.", "Ссылка-приглашение открывает комнату сразу (в вебе — без установки).", "«Вдвоём на одном ПК» — только PC; на мобильных кнопки нет."],
                [FULL("home", "Тап мимо — закрыть"), (1213, 163, 64, 64, "home", "✕ Закрыть"), (390, 530, 340, 70, "room", "Создать"),
                 (870, 530, 340, 70, "room", "Войти"), (440, 650, 720, 90, "hud", "Вдвоём на одном ПК")], None),
-    "ai": ("Против AI", scr_ai, ["Один экран вместо мастера из шагов. Всё выбрано по умолчанию", "(последний выбор запоминается) — «Играть» можно жать сразу.", "Этот же экран — шаблон настроек комнаты и будущей кампании."],
-           [BACK, GEAR, (1140, 770, 400, 100, "vs", "ИГРАТЬ")], None),
+    "ai": ("Против AI", scr_ai, ["Один экран вместо мастера из шагов. Всё выбрано по умолчанию", "(последний выбор запоминается) — «Играть» можно жать сразу.", "«🎯 Испытания» — офлайн-задачи на мастерство, рядом с игрой против AI."],
+           [BACK, GEAR, (1140, 770, 400, 100, "vs", "ИГРАТЬ"), (80, 770, 460, 100, "trials", "Испытания")], None),
     "search": ("Поиск соперника", scr_search, ["Одна очередь для всех: ищем близкого по рейтингу, диапазон растёт.", "Онлайн не делится на режимы — матч находится даже при малом онлайне.", "Отмена — крупная, снизу по центру. Совет дня обучает механикам."],
                [(620, 760, 360, 90, "home", "Отмена")], (2600, "vs")),
-    "vs": ("VS", scr_vs, ["3 секунды: ники, персонажи, рейтинг и ставка (+ за победу / − за поражение).", "Сильнее соперник → больше за победу и меньше за поражение.", "Слабее → наоборот. Внизу арена и пресет."],
+    "vs": ("VS", scr_vs, ["3 секунды: ники, персонажи, рейтинг и ставка (+ за победу / − за поражение).", "Сильнее соперник → больше за победу и меньше за поражение.", "«Ваши встречи 3 : 1» — личная история с этим соперником (соперничество)."],
            [], (2600, "hud")),
     "room": ("Комната", scr_room, ["Код огромный — его диктуют голосом. «Пригласить» = системный шаринг.", "Слоты по командам; пустой слот → «+ Бот». N команд × N игроков.", "Настройки — чипы-выпадашки в одну строку, меняет только хозяин."],
              [(42, 26, 68, 68, "home", "← Назад"), (1140, 760, 400, 100, "vs", "СТАРТ")], None),
-    "hud": ("HUD 1×1", scr_hud, ["1 пауза (онлайн — меню) · 2 счёт и ники · 3 плашка события за 1–2 с", "4 движение: вся левая половина, drag от точки касания · 5 прыжок", "6 «Действие»: иконка бафа в слоте, пусто → 💥 самоуничтожение"],
-            [FULL("point", "Тап — забить очко (демо)"), (38, 26, 64, 64, "pause", "⏸ Пауза")], (6000, "point")),
+    "hud": ("HUD 1×1", scr_hud, ["1 пауза (онлайн — меню) · 2 счёт и ники · 3 плашка события за 1–2 с", "4 движение: вся левая половина, drag от точки касания · 5 прыжок", "6 «Действие»: иконка бафа в слоте, пусто → 💥 самоуничтожение", "7 😀 эмоции — активны только между розыгрышами"],
+            [FULL("point", "Тап — забить очко (демо)"), (38, 26, 64, 64, "pause", "⏸ Пауза"), (1508, 26, 64, 64, "emote", "😀 Эмоции")], (6000, "point")),
     "tutorial": ("Обучение (1-й запуск)", scr_tutorial, ["Настоящий матч против AI с подсказками поверх: 3 шага —", "движение, прыжок, «Действие». Можно пропустить в любой момент."],
                  [FULL("home", "Тап — завершить обучение (демо)"), (1380, 30, 190, 56, "home", "Пропустить")], None),
     "multi": ("3 команды", scr_multi, ["Вместо счёта — жизни каждой команды над её зоной.", "Плашки в цвете команды. Выбывшая зона гаснет и схлопывается."],
@@ -858,24 +1153,50 @@ SCREENS = {
               [(580, 260, 440, 110, "back", "Продолжить"), (580, 400, 440, 95, "settings", "Настройки"), (580, 525, 440, 95, "lose", "Выйти")], None),
     "reconnect": ("Переподключение", scr_reconnect, ["Соперник отвалился — честный таймер и понятный исход.", "Свой плохой пинг — маленькая плашка справа сверху, не мешает игре."],
                   [FULL("win", "Тап — соперник не вернулся")], (3500, "win")),
-    "win": ("Победа", lambda: scr_result(True), ["Слева эмоция, справа: рейтинг со ставкой от силы соперника, монеты.", "«Лучший момент» с превью — главный вирусный крючок.", "«Дальше» — главная, «Реванш» — второй по важности."],
+    "win": ("Победа", lambda: scr_result(True), ["Справа: рейтинг со ставкой, монеты (×2 за первую победу дня, задание ✓).", "«Лучший момент» с превью — главный вирусный крючок. «Дальше» — главная.", "«BlobKing → в друзья»: случайный соперник становится другом в один тап."],
             [(880, 580, 310, 110, "vs", "Реванш"), (1210, 580, 330, 110, "rankup", "Дальше"), (905, 350, 280, 170, "share", "Превью момента"),
-             (1210, 480, 310, 52, "share", "Поделиться")], None),
+             (1210, 480, 310, 52, "share", "Поделиться"), (880, 710, 660, 76, "friends", "В друзья")], None),
     "lose": ("Поражение", lambda: scr_result(False), ["Та же раскладка. Главная кнопка — «Реванш».", "Совет против персонажа соперника вместо пустого «Вы проиграли»."],
              [(880, 580, 330, 110, "vs", "Реванш"), (1230, 580, 310, 110, "home", "Дальше"), (905, 350, 280, 170, "share", "Превью момента"),
-              (1210, 480, 310, 52, "share", "Поделиться")], None),
+              (1210, 480, 310, 52, "share", "Поделиться"), (880, 710, 660, 76, "friends", "В друзья")], None),
     "share": ("Поделиться клипом", scr_share, ["Превью 9:16 с водяным знаком и подписью. 4 переключателя, без редактора.", "Одна главная кнопка → системное меню шаринга (без логотипов соцсетей).", "«Вызов другу» — ссылка, которая открывает веб-версию."],
               [BACK], None),
     "rankup": ("Новый ранг", scr_rankup, ["Ранг — ступень единого рейтинга. Редкий попап: ранг + награда.", "Не больше одного попапа за раз; очередь наград — по порядку."],
                [(620, 780, 360, 90, "home", "Круто!")], None),
-    "blob": ("Блоб", scr_blob, ["Слева примерка, справа сетка. Тап по предмету = надеть сразу.", "Замок показывает способ получения: цена, ранг, достижение, видео."],
-             [BACK, GEAR], None),
+    "blob": ("Блоб", scr_blob, ["Слева примерка, справа сетка. Тап по предмету = надеть сразу.", "Замок показывает способ получения: цена, ранг, достижение, видео.", "«🎖 Коллекция 34/120» — общий прогресс и предметы за достижения."],
+             [BACK, GEAR, (720, 770, 420, 100, "collection", "Коллекция")], None),
     "shop": ("Магазин", scr_shop, ["Сверху 3 предложения дня, снизу постоянные: без рекламы, набор, видео.", "Только косметика. Без батл-пасса и сундуков за деньги."],
              [BACK, GEAR], None),
-    "leader": ("Рейтинг", scr_leader, ["Один экран без подвкладок, фильтры — чипами.", "Своя строка всегда закреплена внизу."],
-               [BACK, GEAR], None),
+    "leader": ("Рейтинг", scr_leader, ["Один экран без подвкладок, фильтры — чипами (в т.ч. «Друзья»).", "Своя строка всегда закреплена внизу. «Сезон 3» → награды за ранги."],
+               [BACK, GEAR, (1140, 128, 400, 60, "season", "Сезон 3")], None),
     "settings": ("Настройки", scr_settings, ["Слева разделы, справа содержимое. Управление — первым:", "кнопки двигаются прямо на превью, размер и прозрачность — ползунки.", "Вкладка «Аккаунт» → экран линковки входов."],
                  [BACK, (60, 498, 340, 76, "account", "👤 Аккаунт")], None),
+    "friends": ("Друзья", scr_friends, ["Вкладка «Друзья»: кто в игре, личный счёт с каждым, «Позвать» в один тап.", "Офлайн-другу — «Вызов» (ссылка в мессенджер, открывает веб-версию).", "Справа — своя компания: постоянная группа и таблица недели «кто кого»."],
+                [BACK, GEAR, (1060, 128, 480, 60, "friend", "Ссылка-приглашение"), (790, 231, 190, 60, "room", "Позвать JellyBoi"),
+                 (790, 441, 190, 60, "room", "Позвать GooGoo"), (790, 546, 190, 60, "share", "Вызов Splat"),
+                 (1040, 215, 500, 512, "crew", "Компания «Слизни»")], None),
+    "crew": ("Компания", scr_crew, ["Своя компания на 2–8 человек — дешёвая замена кланам.", "Постоянная комната с запомненными настройками + таблица недели «кто кого».", "«2×2 против случайных» — играть вместе важнее, чем друг против друга."],
+             [BACK, GEAR, (820, 130, 720, 190, "room", "Играть вместе"), (820, 340, 720, 120, "search", "2×2 против случайных"),
+              (820, 480, 720, 96, "invite", "Позвать всех (как это видит друг)")], None),
+    "invite": ("Приглашение", scr_invite, ["Так друг видит «Позвать»: попап на главной, «Принять» → сразу в комнату.", "Во время матча — тихая плашка сверху, не прерывает игру."],
+               [(460, 520, 420, 100, "room", "Принять"), (900, 520, 240, 100, "home", "Позже")], None),
+    "quests": ("Задания дня", scr_quests, ["Повод зайти сегодня: ×2 за первую победу дня и 3 задания с монетами.", "Задания учат бафам («раздави потолком»), 1 замена в день. Есть задание недели.", "Никакой энергии и штрафов: пропущенные дни ничего не сжигают."],
+               [BACK, GEAR, (1140, 660, 400, 110, "search", "ИГРАТЬ"), (60, 660, 1040, 110, "weekly", "Задание недели")], None),
+    "weekly": ("Неделя льда", scr_weekly, ["Режим недели — не отдельная очередь: ледяной пол во всех онлайн-матчах недели.", "Новый баф + испытание + задание недели с шапкой. Анонс следующей недели.", "Против AI и в комнате неделю можно выбрать как пресет."],
+               [BACK, GEAR, (860, 580, 680, 130, "search", "ИГРАТЬ"), (870, 345, 660, 50, "trials", "Испытание недели"), (870, 405, 660, 50, "quests", "Задание недели")], None),
+    "news": ("Что нового", scr_news, ["Один раз после обновления: новый баф, персонаж, арена, баланс.", "«Попробовать против AI» — сразу пощупать новинку без риска для рейтинга.", "Ритм: новый баф или событие каждые 2–3 недели."],
+             [(300, 680, 580, 100, "ai", "Попробовать против AI"), (900, 680, 400, 100, "home", "Ок")], None),
+    "season": ("Сезон рейтинга", scr_season, ["Сезон 2–3 месяца, мягкий сброс. Награда-косметика за итоговый ранг.", "Ранги — ступени единого рейтинга. Без пасса и покупок.", "Полученное остаётся навсегда — «ветеранские» шапки."],
+               [BACK, GEAR, (1140, 660, 400, 110, "search", "ИГРАТЬ")], None),
+    "profile": ("Профиль", scr_profile, ["Мастерство: рейтинг за 30 дней, серия побед, смешная статистика.", "Уровни персонажей — растут от игры за персонажа (только косметика).", "Отсюда — испытания и коллекция."],
+                [BACK, GEAR, (660, 670, 420, 100, "trials", "Испытания"), (1120, 670, 420, 100, "collection", "Коллекция")], None),
+    "trials": ("Испытания", scr_trials, ["Короткие офлайн-задачи на механику: 30–60 с, 3 звезды.", "Учат скрытым приёмам, которые потом работают в рейтинге.", "Испытание недели меняется вместе с режимом недели."],
+               [BACK, GEAR, (816, 215, 345, 265, "hud", "Гол через портал (запуск)"), (438, 500, 345, 265, "hud", "3 гола с отскока")], None),
+    "collection": ("Коллекция", scr_collection, ["Общий прогресс 34/120 и по категориям — тап открывает вкладку «Блоб».", "Часть предметов — только за достижения: гордость, а не покупка.", "Всё видно в матче и в клипах — самовыражение и бесплатная реклама."],
+                   [BACK, GEAR, (620, 140, 920, 78, "blob", "Шапки")], None),
+    "emote": ("Эмоции", scr_emote, ["Быстрые эмоции над блобом — только между розыгрышами, на 2 с.", "Никакого свободного чата: аудитория молодая, эмоции безопасны.", "Новые эмоции — в коллекции и за достижения."],
+              [(470, 780, 120, 84, "hud", "😂"), (605, 780, 120, 84, "hud", "😎"), (740, 780, 120, 84, "hud", "🤡"),
+               (38, 26, 64, 64, "pause", "⏸ Пауза")], (2600, "hud")),
 }
 
 GROUPS = [
@@ -885,6 +1206,9 @@ GROUPS = [
     ("ui-match", "Матч", "UI — матч", "минимум интерфейса: всё важное — внутри арены", ["hud", "tutorial", "multi", "point", "pause", "reconnect"]),
     ("ui-results", "Итоги", "UI — итоги и клипы", "после матча: результат, награды и одна кнопка «Поделиться»", ["win", "lose", "share", "rankup"]),
     ("ui-meta", "Меню", "UI — блоб, магазин, рейтинг, настройки", "вкладки нижней навигации и настройки", ["blob", "shop", "leader", "settings"]),
+    ("ui-social", "Друзья", "UI — друзья и компания", "главный рычаг удержания: играть вместе, а не только против", ["friends", "crew", "invite"]),
+    ("ui-habit", "Привычка и контент", "UI — задания, неделя, обновления, сезон", "повод зайти сегодня и что нового — без энергии и штрафов", ["quests", "weekly", "news", "season"]),
+    ("ui-mastery", "Мастерство и коллекция", "UI — профиль, испытания, коллекция, эмоции", "глубина под хаосом и самовыражение", ["profile", "trials", "collection", "emote"]),
 ]
 
 
