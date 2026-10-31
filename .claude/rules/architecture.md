@@ -1,15 +1,28 @@
-# Architecture principles (always)
-Scenes:
-- Every scene runs standalone (F6). Defaults live in an exported `.tres`; when the full game runs, the parent that instantiates the scene passes data via `initialize(data)`, which overrides the defaults (`ResourceUtils.update_resource`).
-- Static UI (all elements known upfront) is authored in the `.tscn`, never built in code. Code only instantiates dynamic/repeated items.
+# Architecture (always) — same as quizmatik
+Reference implementation: `D:\Godot\MyProjects\quizmatik` (`GGamezebo/quizmatik`), rules in its `.claude/rules/godot-paradigm.md` + `architecture.md`. In doubt → copy its pattern; never invent a parallel system.
+Layers (code split by layer; deps point down only):
+- `src/game/` HFSM bootstrap, contexts, scenes (orchestration only) → `src/features/` isolated features → `src/ui/`, `src/common/` shared game widgets/Resources → `core/` project-agnostic libs (never import `src/`).
 HFSM:
-- Large contexts, platforms, and features (onboarding, server-driven features) are separate scenes mounted by HFSM states.
-- Each HFSM scene keeps its main game events as Resources.
+- HFSM creates states, mounts their scenes, drives all transitions between app phases/scenes.
+- Each large context = own HFSM state + scene: phases, platforms, onboarding/tutorial, server-driven features. Host scenes expose only passive hooks (Resource `ev_*`).
+- Platform code lives only in platform HFSM contexts (`App/Platform` → `WEB`/`Android`/`Desktop`/…); parent checks `OS.has_feature` once and opens only the running platform's branch. Game/features stay platform-agnostic, talk to platform via Resource events.
+Context scene:
+- Every scene runs standalone (F6), without HFSM/parent/siblings: defaults = `@export` `.tres` (data + events); empty payload never crashes.
+- In app: HFSM activates state → `initialize(data)` → `ResourceUtils.update_resource(live, data)` overrides defaults.
+- State's events Resource (`ev_*` signals in `.tres`) is global within that state; contexts talk to each other only through these events. No direct refs across contexts.
+UI:
+- Static UI (all elements known upfront) = nodes in `.tscn` built in editor; script only sets state/text/visibility, connects signals.
+- Only dynamic UI in code, via editor-made template `.tscn` + `instantiate()`; never `Control.new()` trees.
+No singletons:
+- No autoloads, static global state, or self-registering instances. Only third-party plugins may bring one (rollback `SyncManager`).
+Reuse placement:
+- Generic and truly project-independent (patterns, utils; e.g. `hfsm`, `fsm`, `EventListener`) → `core/lib/{name}/`. Mixed code → split: generic part to `core/`, game wiring in `src/`.
+- Reusable but game-dependent → components in `src/`.
+- Exception: features keep all their deps inside their folder, even if duplicated.
 Components:
-- Follow SOLID. Split big objects into small components along logical boundaries.
-- A component never holds a reference to its parent. The parent creates children (Godot scene tree), calls their methods directly, and subscribes to their `ev_*` signals; children only emit.
-- Prefer reusable components, but no over-engineering (no abstraction without a second use).
-- Project-agnostic code goes to `core/` as reusable utilities for future projects.
-Misc:
-- Follow Godot best practices (scene composition, signals up / calls down, typed GDScript, `@export`).
-- No singletons (incl. autoloads and static global state); only third-party plugins may bring them.
+- Split big objects into small components by logical responsibility.
+- Parent creates children in the scene tree and calls their methods directly; children only emit `ev_*`; only the parent subscribes. Children never hold/fetch parent (`get_parent()`, `owner`, injected ref). Siblings never call each other.
+- Reusable, but no over-engineering: no abstraction without a second real use.
+SOLID: one reason to change per script; extend via new component/Resource/state, not `if kind ==`; subclasses keep base contract; small public surface; depend on exported Resources/signals/`class_name`, not paths/globals.
+Godot best practices: scene composition, signals up / calls down, typed GDScript, `@export` over `res://`, Resources for data, `RefCounted` for pure logic.
+Logging: `logging.md`.

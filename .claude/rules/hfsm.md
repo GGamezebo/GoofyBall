@@ -11,7 +11,7 @@ paths:
 - JSON: one root; reserved `enter`,`leave`,`consume`,`states`,`scene`; other keys = binding slots. Events `ev.*`, trailing `*` wildcard; omitted `enter` = `["sys.enter"]`.
 - `scene: {id, loading_screen, async_loading, on_event}`; id → `HfsmScenePaths.PATHS`.
 - Transitions post-order (children first); `consume` stops bubbling. Don't change casually.
-- App: `App`(app_root) → `Menu` | `Battle`(game) | `PostBattle`; `WEB` context on `ev.open_web`.
+- App: `App`(app_root) → `Menu` | `Battle`(game) | `PostBattle`; AppRoot emits `ev.open_platform` → `App/Platform` router opens one branch (`WEB`/`Android`/`Desktop` → store contexts), like quizmatik.
 - RootEvents → `hfsm.add_event` bridge lives on app_root scene, not `main.gd`. Start HFSM after 2 idle frames.
 - BoundEntities are light `RefCounted`, never mount scenes. Menu windows are NOT HFSM states.
 - `core/lib/hfsm` has no project types.

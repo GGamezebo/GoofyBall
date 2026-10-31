@@ -9,7 +9,7 @@ Must:
 - Every scene runs alone (F6): defaults in exported `.tres`; parent overrides via event → `initialize(data)` → `ResourceUtils.update_resource`.
 - No new autoloads/singletons (use RootEvents/GameEvents Resources); exception: third-party plugins like rollback `SyncManager`. See `architecture.md`.
 - `class_name`/`@export` over hardcoded `res://`.
-- Mobile + Steam + HTML5: touch and KBM/gamepad; platform code behind `OS.has_feature` helpers.
+- Mobile + Steam + HTML5: touch and KBM/gamepad; platform code only in platform HFSM contexts (`architecture.md`).
 - volley_sim is the only gameplay truth; never assume 2 players/left-right (N teams × N players).
 - No pay-to-win: cosmetics never touch sim.
 - Docs Russian; code/identifiers/commits English.
