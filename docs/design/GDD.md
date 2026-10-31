@@ -1,7 +1,7 @@
 # Goofy Ball — Game Design Document
 
 > Статус: черновик v0.1. Источник — обсуждение концепции (октябрь 2026).
-> Технические решения — в [`../tech/architecture.md`](../tech/architecture.md), этапы — в [`../roadmap.md`](../roadmap.md).
+> Технические решения — в [`../tech/architecture.md`](../tech/architecture.md), итерации разработки — в [`../roadmap.md`](../roadmap.md).
 
 ## 1. Идея
 

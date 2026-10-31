@@ -5,6 +5,6 @@ Core rules: `.claude/rules/` (auto-loaded; path-scoped ones load only for matchi
 Read docs ONLY when the task needs them:
 - game design, buffs, modes, monetization → `docs/design/GDD.md`
 - sim/net/server architecture → `docs/tech/architecture.md`
-- stage order → `docs/roadmap.md`
+- development iterations → `docs/roadmap.md`
 - art style → `concept/art-direction.md`
 - UI screens, navigation, UI principles → `concept/ui.md`

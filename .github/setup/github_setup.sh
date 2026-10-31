@@ -14,12 +14,12 @@ while IFS= read -r line; do
   gh label create "$name" --repo "$REPO" --color "$color" --description "$desc" --force
 done < .github/labels.yml
 
-# Milestones from docs/roadmap.md stages (existing ones are skipped)
+# Milestones from docs/roadmap.md iterations (existing ones are skipped)
 mk() { gh api "repos/$REPO/milestones" -f title="$1" -f description="$2" >/dev/null || true; }
-mk "Stage 1 - Project skeleton" "Godot 4.7 skeleton from quizmatik: core/lib, HFSM, app_root, empty scenes runnable via F6, headless tests, CI, glow check in Compatibility"
-mk "Stage 2 - Simulation core" "MatchSetup, presets, N players/teams, TwoTeamPoints and MultiZoneLives rules, determinism tests"
-mk "Stage 3 - Effects system" "Modifier, BuffBase, BuffRegistry, EnvDirector, self_destruct; first buffs and events"
-mk "Stage 4 - Presentation" "Jelly blob, glow, camera FX, HUD, touch controls"
+mk "Iteration 1 - Network slice" "Smooth 1x1 over the internet: quizmatik skeleton, volley_sim (Classic, arena S), one blob, vs AI, local 2P on PC, room by code via self-hosted Nakama relay, rollback, net overlay, lag emulation, Windows + Android builds, determinism and e2e tests"
+mk "Iteration 2 - Chaos" "Modifier, BuffBase, BuffRegistry, EnvDirector, Action button and self_destruct; first pickups, env events, two characters with passives; all online under rollback"
+mk "Iteration 3 - Look and feel" "Jelly blob, glow check in Compatibility, camera FX, buff visuals, HUD, sound, touch polish"
+mk "Iteration 4 - Online for everyone" "Hosted Nakama, platform sign-in, guest + soft save, rated queue (Glicko-2), ranks, leaderboards, reconnect, web build"
 
 # Protect main: PR only, no force push, no deletion
 gh api -X PUT "repos/$REPO/branches/main/protection" --input - <<JSON

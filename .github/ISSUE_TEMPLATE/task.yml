@@ -14,7 +14,7 @@ body:
       label: Definition of done
       placeholder: "- [ ] ..."
   - type: input
-    id: stage
+    id: iteration
     attributes:
-      label: Roadmap stage
-      placeholder: "e.g. 1 - project skeleton"
+      label: Roadmap iteration
+      placeholder: "e.g. 1 - network slice"
