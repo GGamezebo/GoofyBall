@@ -1,12 +1,13 @@
 """UI concept sheets for Goofy Ball. Every screen is authored in 1600x900 (landscape phone)
 and placed scaled into a phone bezel on a sheet; the same screens also build the clickable
 ui-prototype.html. Run: python concept/generate_ui.py"""
-import os, sys, math, random, shutil, subprocess
+import os, sys, math, random, shutil, subprocess, tempfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from generate_concepts import C, lighten, svg, text, blob, ball, stars, court, burst
+from ui_style import text, icon, button_label, base_text
 
 OUT = os.path.dirname(os.path.abspath(__file__))
-PANEL, PANEL2, INK = "#0A1030", "#111A3F", "#170F00"
+PANEL, PANEL2, INK = "#10182F", "#192440", "#170F00"
 KIND = dict(primary=C['ball'], secondary=C['cyan'], accent=C['mag'], danger=C['danger'], ghost=C['sub'], buff=C['buff'])
 
 
@@ -14,25 +15,24 @@ KIND = dict(primary=C['ball'], secondary=C['cyan'], accent=C['mag'], danger=C['d
 def rr(x, y, w, h, rx=20, fill=PANEL, op=1.0, stroke=None, sw=2, sop=0.45, glow=False, dash=None):
     s = f"<rect x='{x}' y='{y}' width='{w}' height='{h}' rx='{rx}' fill='{fill}' fill-opacity='{op}'"
     if stroke:
-        s += f" stroke='{stroke}' stroke-width='{sw}' stroke-opacity='{sop}'"
+        s += f" stroke='{stroke}' stroke-width='{sw}' stroke-opacity='{sop if sop >= 0.95 else sop * 0.45}'"
     if dash:
         s += f" stroke-dasharray='{dash}'"
-    if glow:
-        s += " filter='url(#glow)'"
+    # Reserve glow for the ball, blobs and effects rather than panels.
     return s + "/>"
 
 def btn(x, y, w, h, label, kind="primary", size=None, sub=None):
     col = KIND[kind]; size = size or min(int(h * 0.42), 44); rx = min(h * 0.32, 36)
     if kind == "primary":
-        out = rr(x, y, w, h, rx, col, glow=True) + rr(x + 6, y + 5, w - 12, h * 0.42, rx * 0.8, "#FFFFFF", op=0.18)
+        out = rr(x, y + 5, w, h, rx, "#806800", op=0.55) + rr(x, y, w, h, rx, col)
         tc = INK
     else:
-        out = rr(x, y, w, h, rx, col, op=0.14, stroke=col, sw=3, sop=0.9)
+        out = rr(x, y, w, h, rx, PANEL2, stroke=col, sw=2, sop=0.7)
         tc = lighten(col, 0.55)
     ty = y + h / 2 + size * 0.36 - (size * 0.33 if sub else 0)
-    out += text(x + w / 2, ty, label, size, tc)
+    out += button_label(x + w / 2, ty, label, size, tc, w - 40)
     if sub:
-        out += text(x + w / 2, ty + size * 0.85, sub, max(18, int(size * 0.5)), tc, weight="normal", extra="opacity='0.75'")
+        out += text(x + w / 2, ty + size * 0.85, sub, max(24, int(size * 0.5)), tc, weight="normal", extra="opacity='0.9'")
     return out
 
 def chip(x, y, w, label, active=False, col=None, h=56, size=24):
@@ -43,9 +43,10 @@ def chip(x, y, w, label, active=False, col=None, h=56, size=24):
 
 def chips(x, y, labels, active=0, col=None, gap=12, size=24, h=56, widths=None):
     out = []
+    group = 'difficulty' if 'Средне' in labels or 'Средний' in labels else f'choice-{x}-{y}'
     for i, lab in enumerate(labels):
         w = widths[i] if widths else int(len(lab) * size * 0.62 + 44)
-        out.append(chip(x, y, w, lab, i == active, col, h, size)); x += w + gap
+        out.append(f"<g class='choice' data-choice='{group}' data-value='{i}' data-color='{col or C['cyan']}' role='button' tabindex='0' aria-label='{lab}' aria-pressed='{str(i == active).lower()}'>" + chip(x, y, w, lab, i == active, col, h, size) + '</g>'); x += w + gap
     return "".join(out)
 
 def iconbtn(cx, cy, r, icon, col=None, size=None):
@@ -105,7 +106,7 @@ def navbar(active=0):
     for i, (ic, lab) in enumerate(tabs):
         cx = 160 + i * 320; on = i == active; col = C['ball'] if on else C['sub']
         out.append(text(cx, 848, ic, 36, extra="" if on else "opacity='0.6'"))
-        out.append(text(cx, 884, lab, 20, col, weight="bold" if on else "normal"))
+        out.append(text(cx, 884, lab, 28, col, weight="bold" if on else "normal"))
         if on:
             out.append(rr(cx - 60, 802, 120, 6, 3, col, glow=True))
         if lab == "Друзья":
@@ -127,10 +128,10 @@ def touch(icon="🍄", col=None):
     col = col or C['buff']
     return (f"<circle cx='190' cy='790' r='70' fill='white' opacity='0.05' stroke='white' stroke-opacity='0.25' stroke-width='3'/>"
             f"<circle cx='215' cy='786' r='30' fill='white' opacity='0.2'/>"
-            f"<circle cx='1310' cy='805' r='60' fill='{C['cyan']}' opacity='0.15' stroke='{C['cyan']}' stroke-width='3' filter='url(#glow)'/>"
-            + text(1310, 820, "⤒", 44, C['cyan'])
-            + f"<circle cx='1465' cy='740' r='72' fill='{col}' opacity='0.22' stroke='{col}' stroke-width='4' filter='url(#glow)'/>"
-            + text(1465, 758, icon, 48))
+            f"<circle cx='1260' cy='800' r='70' fill='{PANEL2}' fill-opacity='0.85' stroke='{C['cyan']}' stroke-width='3'/>"
+            + text(1260, 816, "↑", 50, C['cyan'])
+            + f"<circle cx='1440' cy='800' r='70' fill='{PANEL2}' fill-opacity='0.85' stroke='{col}' stroke-width='3'/>"
+            + text(1440, 817, icon, 48))
 
 def pause_btn():
     return iconbtn(70, 58, 32, "⏸")
@@ -144,7 +145,7 @@ def frame(x, y, title, content, notes):
            rr(x - 12, y - 12, FW + 24, FH + 24, 38, "#151B33", stroke="#2C3658", sw=3, sop=1),
            f"<svg x='{x}' y='{y}' width='{FW}' height='{FH}' viewBox='0 0 1600 900'><rect width='1600' height='900' fill='url(#bgG)'/>{content}</svg>"]
     for j, line in enumerate(notes):
-        out.append(text(x + 4, y + FH + 46 + j * 30, line, 21, C['sub'], anchor="start", weight="normal"))
+        out.append(base_text(x + 4, y + FH + 46 + j * 30, line, 21, '#A6B4D2', anchor="start", weight="normal"))
     return "".join(out)
 
 def save(name, body):
@@ -175,13 +176,13 @@ def scr_splash():
             + blob(900, 690, 58, C['mag'], "scared", 1.15, 0.85)
             + ball(810, 470, 28, trail=(-14, 10))
             + bar(600, 770, 400, 14, 0.6, C['ball']) + text(800, 830, "Загрузка… 60%", 24, C['sub'], weight="normal")
-            + text(800, 860, "тихий вход · аккаунт платформы", 18, C['sub'], weight="normal", extra="opacity='0.75'")
+            + text(800, 860, "Разминаем желе…", 28, C['sub'], weight="normal")
             + text(1560, 880, "v0.1", 18, C['sub'], anchor="end", weight="normal"))
 
 def home_body():
     return (f"<rect x='120' y='757' width='640' height='4' fill='{C['cyan']}' opacity='0.5' filter='url(#glow)'/>"
             + f"<ellipse cx='430' cy='520' rx='300' ry='220' fill='{C['cyan']}' opacity='0.07' filter='url(#soft)'/>"
-            + blob(430, 760, 140, C['cyan'], "happy", look=0.5)
+            + "<g class='hero-jelly'>" + blob(430, 760, 140, C['cyan'], "happy", look=0.5) + "</g>"
             + ball(610, 300, 40)
             + rr(110, 140, 420, 64, 32, PANEL2, stroke=C['cyan'], sop=0.6)
             + text(140, 182, "🐸 Прыгун · прыжок +25%", 24, anchor="start") + text(500, 182, "✎", 26, C['cyan'])
@@ -218,7 +219,25 @@ def scr_friend():
             + cards + btn(440, 650, 720, 90, "🎮 Вдвоём на одном ПК", "ghost", 28, sub="только PC / Steam"))
 
 def scr_ai():
-    out = [stars(1600, 900, 40, 8), topbar_back("Против AI"), text(80, 170, "Персонаж", 24, C['sub'], anchor="start")]
+    return (stars(1600, 900, 30, 8) + topbar_back("Против AI")
+            + rr(60, 140, 540, 590, 40, PANEL2)
+            + blob(330, 525, 120, C['cyan'], "happy", look=0.5)
+            + text(330, 590, "Прыгун", 42)
+            + text(330, 640, "Прыгает выше. Летает дальше!", 28, C['sub'])
+            + btn(140, 660, 380, 64, "Сменить блоба", "secondary", 28)
+            + text(680, 205, "С кем сыграем?", 44, anchor="start")
+            + text(680, 265, "Выбери сложность и выходи на корт", 28, C['sub'], anchor="start")
+            + chips(680, 315, ["Легко", "Средне", "Сложно"], 1, h=80, size=30, widths=[250, 250, 250])
+            + rr(680, 445, 820, 130, 30, PANEL2)
+            + text(720, 495, "1 на 1 · Неоновый корт", 32, anchor="start")
+            + text(720, 540, "Обычная физика · до 7 очков", 28, C['sub'], anchor="start")
+            + btn(680, 610, 820, 84, "Настроить правила  ›", "secondary", 30)
+            + btn(60, 770, 500, 100, "🎯 Испытания", "secondary", 32)
+            + btn(1040, 755, 460, 115, "▶ ИГРАТЬ", size=44))
+
+
+def scr_ai_rules():
+    out = [stars(1600, 900, 40, 8), topbar_back("Правила и персонаж"), text(80, 170, "Персонаж", 28, C['sub'], anchor="start")]
     chars = [("cyan", "Прыгун"), ("mag", "Толстяк"), ("lime", "Липкий"), ("orange", "Резиновый"), ("buff", "Шустрик")]
     for i, (c, n) in enumerate(chars):
         x = 80 + i * 290; on = i == 0
@@ -237,8 +256,7 @@ def scr_ai():
     out.append(text(860, 640, "Физика", 22, C['sub'], anchor="start"))
     out.append(chips(860, 655, ["Classic", "Moon", "Ice", "Bouncy", "Chaos"], 0, C['lime'], size=22))
     out.append(btn(80, 770, 460, 100, "🎯 Испытания 12/40 ★", "secondary", 30))
-    out.append(text(580, 830, "всё уже выбрано — можно сразу «Играть»", 22, C['sub'], anchor="start", weight="normal"))
-    out.append(btn(1140, 770, 400, 100, "▶ ИГРАТЬ", size=44))
+    out.append(btn(1140, 770, 400, 100, "Готово", size=40))
     return "".join(out)
 
 
@@ -302,7 +320,7 @@ def scr_hud():
             + text(800, 171, "⚠ Луна через 2…", 30, "#FFD0D0")
             + hud_score(4, 3) + pause_btn() + touch() + iconbtn(1540, 58, 32, "😀")
             + marker(1470, 110, "7") + marker(130, 58, "1") + marker(985, 112, "2") + marker(1030, 160, "3")
-            + marker(330, 330, "4") + marker(1385, 860, "5") + marker(1555, 660, "6"))
+            + marker(330, 330, "4") + marker(1345, 860, "5") + marker(1530, 860, "6"))
 
 def scr_tutorial():
     floor = 760
@@ -318,8 +336,8 @@ def scr_tutorial():
             + f"<path d='M120,700 L80,700 M300,700 L340,700' stroke='{C['ball']}' stroke-width='6' stroke-linecap='round'/>"
             + f"<polygon points='60,700 90,684 90,716' fill='{C['ball']}'/><polygon points='360,700 330,684 330,716' fill='{C['ball']}'/>"
             + text(210, 720, "👆", 64) + text(210, 640, "Тяни влево-вправо", 26, C['ball'])
-            + f"<circle cx='1310' cy='805' r='86' fill='none' stroke='{C['ball']}' stroke-width='5' opacity='0.8' filter='url(#glow)'/>"
-            + text(1310, 690, "Прыжок!", 30, C['ball']))
+            + f"<circle cx='1260' cy='800' r='80' fill='none' stroke='{C['ball']}' stroke-width='5' opacity='0.8'/>"
+            + text(1260, 660, "Прыжок!", 30, C['ball']))
 
 def scr_multi():
     floor = 760; nets = ((553, 210), (1046, 210))
@@ -404,8 +422,9 @@ def scr_result(win=True):
         out.append(btn(880, 580, 310, 110, "↻ Реванш", "secondary", 32) + btn(1210, 580, 330, 110, "Дальше ›", size=38))
     else:
         out.append(btn(880, 580, 330, 110, "↻ Реванш", size=38) + btn(1230, 580, 310, 110, "Дальше ›", "secondary", 32))
-        out.append(text(1210, 830, "💡 Толстяк плохо прыгает — бей высоко", 22, C['sub'], weight="normal"))
     out.append(btn(880, 710, 660, 76, "👋 BlobKing → в друзья · ваши встречи 3 : 1", "secondary", 24))
+    out.append(rr(880, 800, 660, 76, 22, PANEL, stroke=C['buff'], sw=2, sop=0.9)
+               + text(910, 848, "🌀 Новый баф «Портал» → знакомство · 🪙 +30" if win else "🌀 Тебя поймали порталом → испытание", 24, anchor="start"))
     return "".join(out)
 
 def scr_share():
@@ -418,7 +437,7 @@ def scr_share():
              + f"<polygon points='150,420 330,400 335,450 145,470' fill='#3A4466' stroke='white' stroke-width='3' filter='url(#glow)'/>"
              + blob(250, 540, 45, C['mag'], "dead", 1.9, 0.35) + blob(90, 540, 45, C['cyan'], "smug", look=1)
              + burst(250, 480, 70, C['ball'], 10)
-             + text(180, 600, "когда потолок решил за тебя 💀", 20)
+             + text(180, 600, "Потолок всё решил!", 24)
              + "</svg>")
     return (stars(1600, 900, 40, 31) + topbar_back("Поделиться клипом", money=False)
             + rr(x0 - 10, y0 - 10, w + 20, h + 20, 30, "#151B33", stroke="#2C3658", sw=3, sop=1) + phone
@@ -733,14 +752,14 @@ def scr_quests():
             + text(100, 228, "×2 монеты за первую победу каждый день · обновится в 00:00", 22, C['sub'], anchor="start", weight="normal")
             + rr(1250, 165, 250, 60, 30, C['ball'], op=0.15, stroke=C['ball'], sw=2, sop=0.8) + text(1375, 205, "ещё не взята", 24, C['ball'])
             + quest_card(60, 290, "🎮", "Сыграй 3 матча", "1 / 3", 0.33, "🪙 +30")
-            + quest_card(565, 290, "🔨", "Раздави потолком", "0 / 1", 0.0, "🪙 +60")
+            + quest_card(565, 290, "🛼", "Знакомство: Коньки", "испытание ★ → 0 / 1", 0.0, "🪙 +40")
             + quest_card(1070, 290, "🍄", "Победи гигантом", "1 / 1 ✓", 1.0, "🪙 +50", done=True)
             + rr(60, 660, 1040, 110, 26, PANEL, stroke=C['cyan'], sw=2, sop=0.7)
             + text(100, 705, "Задание недели: 15 побед на льду 🧊", 28, anchor="start")
             + bar(100, 728, 660, 14, 0.6, C['cyan']) + text(790, 745, "9 / 15", 22, C['sub'], anchor="start", weight="normal")
             + text(1070, 745, "🧢 «Сосулька»", 26, anchor="end")
             + btn(1140, 660, 400, 110, "▶ ИГРАТЬ", size=40)
-            + text(60, 830, "Новые задания через 6 ч · пропуск дней ничего не сжигает · задания учат бафам", 22, C['sub'], anchor="start", weight="normal"))
+            + text(60, 830, "Новые задания через 6 ч. Играй в своём темпе!", 28, C['sub'], anchor="start", weight="normal"))
 
 def scr_weekly():
     flakes = "".join(text(100 + (i * 137) % 680, 200 + (i * 83) % 300, "❄", 22 + i % 3 * 8, "white", weight="normal", extra="opacity='0.35'") for i in range(12))
@@ -759,11 +778,11 @@ def scr_weekly():
             + text(880, 380, "🎯  Испытание недели: 3 гола с отскока", 28, anchor="start")
             + text(880, 440, "🧢  Шапка «Сосулька» за задание недели", 28, anchor="start")
             + rr(860, 480, 680, 76, 22, PANEL, stroke=C['lime'], sw=2, sop=0.7)
-            + text(1200, 527, "Очередь та же — неделя не делит игроков", 24, C['lime'])
+            + text(1200, 527, "Выходи на лёд — событие уже идёт!", 28, C['lime'])
             + btn(860, 580, 680, 130, "▶  ИГРАТЬ", size=50, sub="онлайн · неделя льда")
             + rr(860, 730, 680, 70, 22, PANEL, stroke=C['sub'], sop=0.5, dash="10 8")
             + text(1200, 775, "Скоро: 🌙 Неделя луны · низкая гравитация", 24, C['sub'], weight="normal")
-            + text(60, 830, "Против AI и в комнате неделю можно выбрать отдельно — как пресет «Ice»", 22, C['sub'], anchor="start", weight="normal"))
+            + text(60, 830, "Потренируйся на льду против AI или позови друга", 28, C['sub'], anchor="start", weight="normal"))
 
 def scr_news():
     def card(x, label, art, title, desc):
@@ -778,17 +797,17 @@ def scr_news():
             + text(800, 160, "Что нового · обновление 0.4", 44)
             + card(300, "НОВЫЙ БАФ", skates, "🛼 Коньки", "рывок по льду, сносит соперника")
             + card(820, "НОВЫЙ ПЕРСОНАЖ", magnet, "🧲 Магнитик", "мяч чуть тянется к нему")
-            + text(800, 630, "+ арена «Каток» · баланс: Толстяк прыгает чуть выше", 24, C['sub'], weight="normal")
-            + btn(300, 680, 580, 100, "▶ Попробовать против AI", size=32)
+            + text(800, 615, "+ арена «Каток» · Толстяк прыгает чуть выше", 24, C['sub'], weight="normal")
+            + btn(300, 680, 580, 100, "▶ Попробовать в испытании", size=32)
             + btn(900, 680, 400, 100, "Ок", "ghost", 32)
-            + text(800, 860, "показывается один раз после обновления · новое каждые 2–3 недели", 20, C['sub'], weight="normal"))
+            + text(800, 655, "На катке блобы тормозят лицом!", 28, C['sub'], weight="normal"))
 
 def scr_season():
     ranks = [("🥉", "Бронза", "0+", "🎖 рамка", "done"), ("🥈", "Серебро", "1200+", "🧢 кепка", "here"),
              ("🥇", "Золото", "1500+", "✨ след", "lock"), ("🏅", "Платина", "1800+", "🎆 победа", "lock"),
              ("💎", "Алмаз", "2100+", "🐉 скин", "lock"), ("👑", "Легенда", "топ-100", "👑 корона", "lock")]
     out = [stars(1600, 900, 40, 105), topbar_back("Сезон 3"),
-           text(60, 170, "ещё 41 день · в начале сезона мягкий сброс: рейтинг сжимается к середине", 24, C['sub'], anchor="start", weight="normal")]
+           text(60, 170, "До конца сезона 41 день · следующая цель — Золото", 28, C['sub'], anchor="start", weight="normal")]
     for i, (ic, name, thr, rew, st) in enumerate(ranks):
         x = 60 + i * 248; here = st == "here"
         out.append(rr(x, 210, 228, 400, 26, PANEL2, stroke=C['ball'] if here else (C['lime'] if st == "done" else C['sub']),
@@ -831,29 +850,56 @@ def scr_profile():
     out.append(text(1100, 830, "Цифры, которыми хочется хвастаться, — повод для клипа и реванша", 22, C['sub'], weight="normal"))
     return "".join(out)
 
+def trial_stars(x, y, got, size=36):
+    return "".join(text(x + j * (size + 4), y, "★", size, C['ball'] if j < got else PANEL, extra="" if j < got else f"stroke='{C['sub']}' stroke-width='2'") for j in range(3))
+
 def scr_trials():
-    cards = [("🏐", "Подача в угол", "★★★", "done"), ("🦘", "Удар в прыжке", "★★☆", "done"), ("🌀", "Гол через портал", "★☆☆", "open"),
-             ("🙅", "Победи без прыжков", "☆☆☆", "open"), ("🔨", "Потолок на голову", "☆☆☆", "open"), ("🧊", "3 гола с отскока", "☆☆☆", "week"),
-             ("🧲", "Магнит: 3 паса", "", "lock"), ("💥", "Взрыв-сейв", "", "lock")]
+    cards = [("🛼", "Коньки", 0, "new"), ("🌀", "Портал", 1, ""), ("🍄", "Гигант ×2", 3, ""), ("🦵", "Супер-нога", 2, ""),
+             ("🔨", "Пробить потолок", 0, ""), ("🧲", "Магнит", 1, ""), ("👯", "Клон", 0, ""), ("🛝", "Батут", 0, "")]
     out = [stars(1600, 900, 40, 107), topbar_back("Испытания"),
-           chips(60, 128, ["Механика", "Бафы", "Неделя 🧊"], 0, size=24, h=60),
+           chips(60, 128, ["Основы", "Приёмы", "Бафы", "События", "Персонажи", "Неделя 🧊"], 2, size=22, h=60),
            text(1540, 172, "★ 12 / 40", 34, C['ball'], anchor="end")]
-    for i, (ic, t, st, state) in enumerate(cards):
+    for i, (ic, t, got, tag) in enumerate(cards):
         x = 60 + (i % 4) * 378; y = 215 + (i // 4) * 285
-        lock = state == "lock"
-        out.append(rr(x, y, 345, 265, 26, PANEL2, stroke=C['cyan'] if state == "week" else (C['ball'] if state == "open" and i == 2 else C['sub']),
-                      sw=3, sop=0.8 if state != "lock" else 0.3))
-        out.append(text(x + 172, y + 105, ic, 68, extra="opacity='0.4'" if lock else ""))
-        out.append(text(x + 172, y + 165, t, 26, C['sub'] if lock else C['text']))
-        if lock:
-            out.append(text(x + 172, y + 220, "🔒 открой за 15 ★", 22, C['sub'], weight="normal"))
-        else:
-            got = st.count("★")
-            out.append("".join(text(x + 132 + j * 40, y + 222, "★", 36, C['ball'] if j < got else PANEL, extra="" if j < got else f"stroke='{C['sub']}' stroke-width='2'") for j in range(3)))
-        if state == "week":
-            out.append(rr(x + 220, y + 16, 110, 36, 18, C['cyan'], op=0.9) + text(x + 275, y + 41, "неделя", 18, INK))
-    out.append(text(60, 830, "30–60 секунд, офлайн · учат приёмам, которые работают в рейтинге · звёзды открывают новые", 22, C['sub'], anchor="start", weight="normal"))
+        out.append(rr(x, y, 345, 265, 26, PANEL2, stroke=C['ball'] if tag == "new" else (C['lime'] if got == 3 else C['sub']), sw=3, sop=0.9 if tag else 0.5))
+        out.append(text(x + 172, y + 95, ic, 64) + text(x + 172, y + 152, t, 26))
+        out.append(trial_stars(x + 132, y + 200, got))
+        status = ("знакомство · 🪙 +30" if got == 0 else ("✓ мастер" if got == 3 else "★★★ → шапка"))
+        out.append(text(x + 172, y + 243, status, 20, C['lime'] if got == 3 else (C['ball'] if got == 0 else C['sub']), weight="normal"))
+        if tag == "new":
+            out.append(rr(x + 225, y + 16, 105, 36, 18, C['ball'], op=0.95) + text(x + 277, y + 41, "НОВОЕ", 18, INK))
+    out.append(text(60, 830, "★ знакомство — учит механике за 30 с · ★★★ мастерство — косметика", 24, C['sub'], anchor="start", weight="normal"))
     return "".join(out)
+
+def scr_trial_play():
+    def portal(cx, cy, col):
+        return (f"<ellipse cx='{cx}' cy='{cy}' rx='34' ry='78' fill='none' stroke='{col}' stroke-width='10' filter='url(#glow)'/>"
+                + f"<ellipse cx='{cx}' cy='{cy}' rx='18' ry='58' fill='{col}' opacity='0.25'/>")
+    return (arena(seed=17)
+            + portal(330, 560, C['orange']) + portal(1250, 330, C['cyan'])
+            + f"<path d='M330,500 Q300,380 420,330' stroke='{C['ball']}' stroke-width='4' fill='none' stroke-dasharray='6 12' opacity='0.7'/>"
+            + blob(520, 760, 66, C['cyan'], "angry", look=-1) + blob(1150, 760, 66, C['mag'], "scared", look=-1) + ball(420, 330, 30)
+            + rr(560, 22, 480, 64, 32, C['buff'], op=0.25, stroke=C['buff'], sw=2, sop=0.9) + text(800, 64, "ЗНАКОМСТВО · 🌀 Портал", 30)
+            + rr(60, 120, 520, 120, 24, PANEL, stroke=C['ball'], sop=0.8)
+            + text(90, 165, "Цель: забей через портал", 28, anchor="start") + text(90, 210, "0 / 1  ·  0:24", 26, C['ball'], anchor="start")
+            + rr(1060, 120, 480, 120, 24, PANEL, stroke=C['sub'], sop=0.6)
+            + text(1090, 165, "★ 1 гол   ★★ 3 гола", 24, anchor="start") + text(1090, 205, "★★★ 3 гола за 30 с", 24, anchor="start")
+            + rr(1380, 260, 190, 56, 28, PANEL2, stroke=C['sub'], sop=0.6) + text(1475, 297, "Пропустить", 22, C['sub'], weight="normal")
+            + touch("🌀")
+            + rr(1120, 560, 300, 90, 22, C['ball'], op=0.95) + text(1270, 600, "Жми «Действие» —", 24, INK) + text(1270, 632, "поставь портал", 24, INK)
+            + f"<path d='M1400,650 L1440,690' stroke='{C['ball']}' stroke-width='8' stroke-linecap='round'/>")
+
+def scr_trial_done():
+    return (scr_trial_play() + dim(0.75)
+            + rr(400, 150, 800, 620, 36, PANEL, stroke=C['ball'], sw=3, sop=0.9)
+            + text(800, 230, "Знакомство пройдено!", 46, C['ball'], extra="filter='url(#glow)'")
+            + trial_stars(728, 320, 1, 60)
+            + text(800, 400, "🪙 +30  ·  задание «Знакомство с новинкой» ✓", 26, C['lime'])
+            + rr(460, 430, 680, 80, 22, PANEL2, stroke=C['sub'], sop=0.5)
+            + text(800, 480, "Дальше ★★: 3 гола через портал", 28)
+            + btn(460, 545, 330, 100, "↻ Ещё раз", "secondary", 30)
+            + btn(810, 545, 330, 100, "▶ В матч", size=36)
+            + btn(560, 665, 480, 70, "К испытаниям", "ghost", 26))
 
 def scr_collection():
     cx, cy, r, frac = 330, 360, 150, 34 / 120
@@ -944,7 +990,9 @@ def sheet_flow():
         "news": (960, 1250, "Что нового", "после обновления", C['buff'], "news"),
         "season": (960, 1360, "Сезон", "награда за ранг", C['ball'], "season"),
         "profile": (1340, 1140, "Профиль", "статистика", C['cyan'], "profile"),
-        "trials": (1340, 1250, "Испытания", "★ приёмы", C['cyan'], "trials"),
+        "trials": (1340, 1250, "Испытания", "онбординг механик", C['cyan'], "trials"),
+        "trial_play": (1340, 1360, "Испытание", "знакомство ★", C['cyan'], "trial_play"),
+        "ai_rules": (1340, 1360, "Правила и блоб", "из «Против AI»", C['cyan'], "ai_rules"),
         "collection": (1720, 1140, "Коллекция", "34/120", C['mag'], "collection"),
         "emote": (1720, 1250, "Эмоции", "между розыгрышами", C['mag'], "emote"),
     }
@@ -1033,7 +1081,7 @@ def sheet_flow():
     for x, t, s_ in pillars:
         out.append(text(x, 1046, t, 20, C['ball']) + text(x, 1068, "вход: " + s_, 15, C['sub'], weight="normal"))
     out += [edge("friends", "crew", "S", side="v"), edge("crew", "invite", "S", side="v"),
-            edge("news", "weekly", "S", side="v"), edge("profile", "trials", "S", side="v"),
+            edge("news", "weekly", "S", side="v"), edge("profile", "trials", "S", side="v"), edge("trials", "trial_play", "S", side="v"),
             edge("quests", "weekly", "S", label="задание недели"), edge("profile", "collection", "M", label="коллекция")]
 
     # draw nodes (clickable groups)
@@ -1133,8 +1181,11 @@ SCREENS = {
     "friend": ("С другом", scr_friend, ["Модалка из двух вариантов: создать или войти по коду.", "Ссылка-приглашение открывает комнату сразу (в вебе — без установки).", "«Вдвоём на одном ПК» — только PC; на мобильных кнопки нет."],
                [FULL("home", "Тап мимо — закрыть"), (1213, 163, 64, 64, "home", "✕ Закрыть"), (390, 530, 340, 70, "room", "Создать"),
                 (870, 530, 340, 70, "room", "Войти"), (440, 650, 720, 90, "hud", "Вдвоём на одном ПК")], None),
-    "ai": ("Против AI", scr_ai, ["Один экран вместо мастера из шагов. Всё выбрано по умолчанию", "(последний выбор запоминается) — «Играть» можно жать сразу.", "«🎯 Испытания» — офлайн-задачи на мастерство, рядом с игрой против AI."],
-           [BACK, GEAR, (1140, 770, 400, 100, "vs", "ИГРАТЬ"), (80, 770, 460, 100, "trials", "Испытания")], None),
+    "ai": ("Против AI", scr_ai, ["Персонаж, сложность и запуск — сразу. Остальное в «Настроить правила».", "Чипы сложности реагируют на клик и запоминаются при переходах в прототипе.", "«Испытания» — короткие офлайн-задачи на мастерство."],
+           [BACK, GEAR, (1040, 755, 460, 115, "vs", "ИГРАТЬ"), (60, 770, 500, 100, "trials", "Испытания"),
+            (680, 610, 820, 84, "ai_rules", "Настроить правила"), (140, 660, 380, 64, "ai_rules", "Сменить блоба")], None),
+    "ai_rules": ("Правила и персонаж", scr_ai_rules, ["Дополнительные настройки доступны с экрана против AI.", "Персонаж, арена, формат и физика. «Готово» возвращает к запуску."],
+                 [BACK, GEAR, (1140, 770, 400, 100, "ai", "Готово"), (80, 770, 460, 100, "trials", "Испытания")], None),
     "search": ("Поиск соперника", scr_search, ["Одна очередь для всех: ищем близкого по рейтингу, диапазон растёт.", "Онлайн не делится на режимы — матч находится даже при малом онлайне.", "Отмена — крупная, снизу по центру. Совет дня обучает механикам."],
                [(620, 760, 360, 90, "home", "Отмена")], (2600, "vs")),
     "vs": ("VS", scr_vs, ["3 секунды: ники, персонажи, рейтинг и ставка (+ за победу / − за поражение).", "Сильнее соперник → больше за победу и меньше за поражение.", "«Ваши встречи 3 : 1» — личная история с этим соперником (соперничество)."],
@@ -1143,7 +1194,7 @@ SCREENS = {
              [(42, 26, 68, 68, "home", "← Назад"), (1140, 760, 400, 100, "vs", "СТАРТ")], None),
     "hud": ("HUD 1×1", scr_hud, ["1 пауза (онлайн — меню) · 2 счёт и ники · 3 плашка события за 1–2 с", "4 движение: вся левая половина, drag от точки касания · 5 прыжок", "6 «Действие»: иконка бафа в слоте, пусто → 💥 самоуничтожение", "7 😀 эмоции — активны только между розыгрышами"],
             [FULL("point", "Тап — забить очко (демо)"), (38, 26, 64, 64, "pause", "⏸ Пауза"), (1508, 26, 64, 64, "emote", "😀 Эмоции")], (6000, "point")),
-    "tutorial": ("Обучение (1-й запуск)", scr_tutorial, ["Настоящий матч против AI с подсказками поверх: 3 шага —", "движение, прыжок, «Действие». Можно пропустить в любой момент."],
+    "tutorial": ("Обучение (1-й запуск)", scr_tutorial, ["Обучение = первые 3 испытания главы «Основы»: движение, прыжок, «Действие».", "Настоящий матч против AI с подсказками поверх. Можно пропустить в любой момент.", "Пропущенное остаётся в «Испытаниях → Основы»."],
                  [FULL("home", "Тап — завершить обучение (демо)"), (1380, 30, 190, 56, "home", "Пропустить")], None),
     "multi": ("3 команды", scr_multi, ["Вместо счёта — жизни каждой команды над её зоной.", "Плашки в цвете команды. Выбывшая зона гаснет и схлопывается."],
               [FULL("win", "Тап — к итогам (демо)"), (38, 26, 64, 64, "pause", "⏸ Пауза")], None),
@@ -1153,12 +1204,12 @@ SCREENS = {
               [(580, 260, 440, 110, "back", "Продолжить"), (580, 400, 440, 95, "settings", "Настройки"), (580, 525, 440, 95, "lose", "Выйти")], None),
     "reconnect": ("Переподключение", scr_reconnect, ["Соперник отвалился — честный таймер и понятный исход.", "Свой плохой пинг — маленькая плашка справа сверху, не мешает игре."],
                   [FULL("win", "Тап — соперник не вернулся")], (3500, "win")),
-    "win": ("Победа", lambda: scr_result(True), ["Справа: рейтинг со ставкой, монеты (×2 за первую победу дня, задание ✓).", "«Лучший момент» с превью — главный вирусный крючок. «Дальше» — главная.", "«BlobKing → в друзья»: случайный соперник становится другом в один тап."],
+    "win": ("Победа", lambda: scr_result(True), ["Справа: рейтинг со ставкой, монеты (×2 за первую победу дня, задание ✓).", "«Лучший момент» — вирусный крючок. «BlobKing → в друзья» — в один тап.", "Впервые подобрал баф → карточка «знакомство» ведёт в его испытание."],
             [(880, 580, 310, 110, "vs", "Реванш"), (1210, 580, 330, 110, "rankup", "Дальше"), (905, 350, 280, 170, "share", "Превью момента"),
-             (1210, 480, 310, 52, "share", "Поделиться"), (880, 710, 660, 76, "friends", "В друзья")], None),
-    "lose": ("Поражение", lambda: scr_result(False), ["Та же раскладка. Главная кнопка — «Реванш».", "Совет против персонажа соперника вместо пустого «Вы проиграли»."],
+             (1210, 480, 310, 52, "share", "Поделиться"), (880, 710, 660, 76, "friends", "В друзья"), (880, 800, 660, 76, "trial_play", "Новый баф → испытание")], None),
+    "lose": ("Поражение", lambda: scr_result(False), ["Та же раскладка. Главная кнопка — «Реванш».", "Вместо пустого «Вы проиграли» — испытание на то, чем тебя победили."],
              [(880, 580, 330, 110, "vs", "Реванш"), (1230, 580, 310, 110, "home", "Дальше"), (905, 350, 280, 170, "share", "Превью момента"),
-              (1210, 480, 310, 52, "share", "Поделиться"), (880, 710, 660, 76, "friends", "В друзья")], None),
+              (1210, 480, 310, 52, "share", "Поделиться"), (880, 710, 660, 76, "friends", "В друзья"), (880, 800, 660, 76, "trial_play", "Поймали порталом → испытание")], None),
     "share": ("Поделиться клипом", scr_share, ["Превью 9:16 с водяным знаком и подписью. 4 переключателя, без редактора.", "Одна главная кнопка → системное меню шаринга (без логотипов соцсетей).", "«Вызов другу» — ссылка, которая открывает веб-версию."],
               [BACK], None),
     "rankup": ("Новый ранг", scr_rankup, ["Ранг — ступень единого рейтинга. Редкий попап: ранг + награда.", "Не больше одного попапа за раз; очередь наград — по порядку."],
@@ -1180,18 +1231,22 @@ SCREENS = {
               (820, 480, 720, 96, "invite", "Позвать всех (как это видит друг)")], None),
     "invite": ("Приглашение", scr_invite, ["Так друг видит «Позвать»: попап на главной, «Принять» → сразу в комнату.", "Во время матча — тихая плашка сверху, не прерывает игру."],
                [(460, 520, 420, 100, "room", "Принять"), (900, 520, 240, 100, "home", "Позже")], None),
-    "quests": ("Задания дня", scr_quests, ["Повод зайти сегодня: ×2 за первую победу дня и 3 задания с монетами.", "Задания учат бафам («раздави потолком»), 1 замена в день. Есть задание недели.", "Никакой энергии и штрафов: пропущенные дни ничего не сжигают."],
-               [BACK, GEAR, (1140, 660, 400, 110, "search", "ИГРАТЬ"), (60, 660, 1040, 110, "weekly", "Задание недели")], None),
+    "quests": ("Задания дня", scr_quests, ["Задания — счётчики по обычным матчам: повод зайти сегодня, ×2 за первую победу.", "Испытание — отдельный мини-бой. Задание может отправить в испытание («Знакомство»).", "Никакой энергии и штрафов: пропущенные дни ничего не сжигают."],
+               [BACK, GEAR, (565, 290, 470, 340, "trial_play", "Знакомство: Коньки"), (1140, 660, 400, 110, "search", "ИГРАТЬ"), (60, 660, 1040, 110, "weekly", "Задание недели")], None),
     "weekly": ("Неделя льда", scr_weekly, ["Режим недели — не отдельная очередь: ледяной пол во всех онлайн-матчах недели.", "Новый баф + испытание + задание недели с шапкой. Анонс следующей недели.", "Против AI и в комнате неделю можно выбрать как пресет."],
                [BACK, GEAR, (860, 580, 680, 130, "search", "ИГРАТЬ"), (870, 345, 660, 50, "trials", "Испытание недели"), (870, 405, 660, 50, "quests", "Задание недели")], None),
-    "news": ("Что нового", scr_news, ["Один раз после обновления: новый баф, персонаж, арена, баланс.", "«Попробовать против AI» — сразу пощупать новинку без риска для рейтинга.", "Ритм: новый баф или событие каждые 2–3 недели."],
-             [(300, 680, 580, 100, "ai", "Попробовать против AI"), (900, 680, 400, 100, "home", "Ок")], None),
+    "news": ("Что нового", scr_news, ["Один раз после обновления: новый баф, персонаж, арена, баланс.", "«Попробовать в испытании» — знакомство с новинкой за 30 с, без риска для рейтинга.", "Каждая новинка приходит вместе со своим испытанием."],
+             [(300, 680, 580, 100, "trial_play", "Попробовать в испытании"), (900, 680, 400, 100, "home", "Ок")], None),
     "season": ("Сезон рейтинга", scr_season, ["Сезон 2–3 месяца, мягкий сброс. Награда-косметика за итоговый ранг.", "Ранги — ступени единого рейтинга. Без пасса и покупок.", "Полученное остаётся навсегда — «ветеранские» шапки."],
                [BACK, GEAR, (1140, 660, 400, 110, "search", "ИГРАТЬ")], None),
     "profile": ("Профиль", scr_profile, ["Мастерство: рейтинг за 30 дней, серия побед, смешная статистика.", "Уровни персонажей — растут от игры за персонажа (только косметика).", "Отсюда — испытания и коллекция."],
                 [BACK, GEAR, (660, 670, 420, 100, "trials", "Испытания"), (1120, 670, 420, 100, "collection", "Коллекция")], None),
-    "trials": ("Испытания", scr_trials, ["Короткие офлайн-задачи на механику: 30–60 с, 3 звезды.", "Учат скрытым приёмам, которые потом работают в рейтинге.", "Испытание недели меняется вместе с режимом недели."],
-               [BACK, GEAR, (816, 215, 345, 265, "hud", "Гол через портал (запуск)"), (438, 500, 345, 265, "hud", "3 гола с отскока")], None),
+    "trials": ("Испытания", scr_trials, ["Испытания = онбординг механик: у каждого бафа, события, персонажа и приёма — своё.", "★ знакомство (лёгкое, монеты) · ★★–★★★ мастерство (сложнее, косметика).", "Главы: Основы, Приёмы, Бафы, События, Персонажи, Неделя. Ничего не закрыто."],
+               [BACK, GEAR, (60, 215, 345, 265, "trial_play", "Коньки (новое)"), (438, 215, 345, 265, "trial_play", "Портал")], None),
+    "trial_play": ("Испытание: знакомство", scr_trial_play, ["Мини-бой 30–60 с: одна ситуация, одна цель, бот по скрипту, баф сразу в слоте.", "Сверху — пороги звёзд; подсказка показывает, что нажать.", "Ситуация одинакова для всех — испытание нельзя проиграть из-за соперника."],
+                   [FULL("trial_done", "Тап — цель выполнена (демо)"), (1380, 260, 190, 56, "trials", "Пропустить")], (5000, "trial_done")),
+    "trial_done": ("Испытание пройдено", scr_trial_done, ["★ знакомство: монеты и отметка в задании. Сразу предлагается следующая звезда.", "«В матч» — применить новое в бою; задание может попросить сделать это в матче."],
+                   [(460, 545, 330, 100, "trial_play", "Ещё раз"), (810, 545, 330, 100, "search", "В матч"), (560, 665, 480, 70, "trials", "К испытаниям")], None),
     "collection": ("Коллекция", scr_collection, ["Общий прогресс 34/120 и по категориям — тап открывает вкладку «Блоб».", "Часть предметов — только за достижения: гордость, а не покупка.", "Всё видно в матче и в клипах — самовыражение и бесплатная реклама."],
                    [BACK, GEAR, (620, 140, 920, 78, "blob", "Шапки")], None),
     "emote": ("Эмоции", scr_emote, ["Быстрые эмоции над блобом — только между розыгрышами, на 2 с.", "Никакого свободного чата: аудитория молодая, эмоции безопасны.", "Новые эмоции — в коллекции и за достижения."],
@@ -1200,7 +1255,7 @@ SCREENS = {
 }
 
 GROUPS = [
-    ("ui-home", "Вход и главная", "UI — вход и главная", "главный экран = персонаж слева, жёлтый блок запуска справа", ["splash", "home", "friend", "ai"]),
+    ("ui-home", "Вход и главная", "UI — вход и главная", "главный экран = персонаж слева, жёлтый блок запуска справа", ["splash", "home", "friend", "ai", "ai_rules"]),
     ("ui-auth", "Аккаунт", "UI — тихий вход и линковка", "аккаунт создаётся сам; сохранение и линковка — по желанию", ["home_guest", "save", "account", "link", "restore", "merge"]),
     ("ui-lobby", "Поиск и комната", "UI — поиск, VS и комната", "между тапом «Играть» и матчем — максимум два экрана", ["search", "vs", "room"]),
     ("ui-match", "Матч", "UI — матч", "минимум интерфейса: всё важное — внутри арены", ["hud", "tutorial", "multi", "point", "pause", "reconnect"]),
@@ -1208,7 +1263,7 @@ GROUPS = [
     ("ui-meta", "Меню", "UI — блоб, магазин, рейтинг, настройки", "вкладки нижней навигации и настройки", ["blob", "shop", "leader", "settings"]),
     ("ui-social", "Друзья", "UI — друзья и компания", "главный рычаг удержания: играть вместе, а не только против", ["friends", "crew", "invite"]),
     ("ui-habit", "Привычка и контент", "UI — задания, неделя, обновления, сезон", "повод зайти сегодня и что нового — без энергии и штрафов", ["quests", "weekly", "news", "season"]),
-    ("ui-mastery", "Мастерство и коллекция", "UI — профиль, испытания, коллекция, эмоции", "глубина под хаосом и самовыражение", ["profile", "trials", "collection", "emote"]),
+    ("ui-mastery", "Мастерство и коллекция", "UI — профиль, испытания, коллекция, эмоции", "глубина под хаосом и самовыражение", ["profile", "trials", "trial_play", "trial_done", "collection", "emote"]),
 ]
 
 
@@ -1235,12 +1290,19 @@ main{padding:20px clamp(12px,3vw,40px) 40px;display:flex;flex-direction:column;a
 .scr{position:absolute;inset:0;display:none}
 .scr.on{display:block;animation:enter .3s ease}
 @keyframes enter{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
-.scr svg{display:block;width:100%;height:100%}
+.scr>svg{display:block;width:100%;height:100%}
+.scr svg svg{overflow:visible}
+.choice{cursor:pointer;outline:none}.choice:focus-visible>rect{stroke:#FFD20A;stroke-width:4}
+.hero-jelly{transform-box:fill-box;transform-origin:center bottom;animation:jelly 4s ease-in-out infinite}
+@keyframes jelly{0%,85%,100%{transform:scale(1)}90%{transform:scale(1.045,.955)}95%{transform:scale(.98,1.02)}}
+@media(prefers-reduced-motion:reduce){.hero-jelly,.scr.on{animation:none}}
 .hot{position:absolute;background:transparent;border:0;padding:0;border-radius:14px;outline:none}
 .hot:focus-visible{box-shadow:0 0 0 3px var(--ball)}
 .show-hot .hot,.flash .hot{background:rgba(255,210,10,.14);box-shadow:inset 0 0 0 2px rgba(255,210,10,.85)}
 .hot.full{border-radius:0}.show-hot .hot.full,.flash .hot.full{background:transparent;box-shadow:inset 0 0 0 2px rgba(255,210,10,.3)}
 .timer{position:absolute;left:0;bottom:0;height:5px;background:var(--ball);width:0;box-shadow:0 0 10px var(--ball)}
+body.play-mode .app{grid-template-columns:1fr}body.play-mode aside,body.play-mode .info{display:none}
+body.play-mode main{padding:12px;gap:12px}body.play-mode .phone{width:min(100%,calc((100dvh - 100px)*16/9));min-width:0}
 .info{width:min(100%,1280px);display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px 24px;align-items:start}
 .info h3{margin:0;font-size:24px;font-weight:900}
 .info .crumb{color:var(--sub);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
@@ -1259,12 +1321,23 @@ main{padding:20px clamp(12px,3vw,40px) 40px;display:flex;flex-direction:column;a
 .map .map-node text{pointer-events:none}
 .map .map-node:hover rect,.map .map-node:focus-within rect{stroke:#FFD20A!important;stroke-width:6px}
 @media (max-width:900px){.app{grid-template-columns:1fr}aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:12px}
-aside nav{display:flex;gap:4px;overflow-x:auto}aside h2{display:none}aside nav button{white-space:nowrap;width:auto}
+aside{max-height:140px;overflow:auto}aside nav{display:flex;gap:4px;overflow-x:auto}aside h2{display:none}aside nav button{white-space:nowrap;width:auto}
 .phone{width:100%;border-width:6px;border-radius:20px}.info{grid-template-columns:1fr}.links{justify-content:flex-start}.links span{text-align:left}}
 """
 
 PROTO_JS = """
-const S = DATA, scr = {}, hist = [];
+const S = DATA, scr = {}, hist = [], choices = {};
+function choose(node) {
+  const group = node.dataset.choice, value = node.dataset.value;
+  choices[node.closest('.scr').dataset.k + ':' + group] = value;
+  node.closest('.scr').querySelectorAll('[data-choice]').forEach(n => {
+    if(n.dataset.choice !== group) return;
+    const on = n.dataset.value === value;
+    n.setAttribute('aria-pressed', String(on));
+    n.querySelector('rect').setAttribute('fill', on ? n.dataset.color : '#192440');
+    n.querySelectorAll('text').forEach(t => t.setAttribute('fill', on ? '#170F00' : '#E8F0FF'));
+  });
+}
 let cur = null, timer = null, raf = null;
 document.querySelectorAll('.scr').forEach(e => scr[e.dataset.k] = e);
 const $ = s => document.querySelector(s), phone = $('.phone'), bar = $('.timer');
@@ -1298,6 +1371,8 @@ function openFromMap(k) {
   closeMap(); hist.length = 0; show(k);
 }
 document.addEventListener('click', e => {
+  const choice = e.target.closest('[data-choice]');
+  if(choice) { choose(choice); return; }
   // Map nodes: close overlay then jump (don't leave map open over the new screen)
   const mapNode = e.target.closest('.map-node');
   if (mapNode && mapNode.closest('.map') && mapNode.dataset.t) {
@@ -1311,6 +1386,9 @@ document.addEventListener('click', e => {
   if (e.target.closest('.phone')) { phone.classList.add('flash'); setTimeout(() => phone.classList.remove('flash'), 350); }
 });
 document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && document.activeElement?.matches('[data-choice]')) {
+    e.preventDefault(); choose(document.activeElement); return;
+  }
   if ((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.classList.contains('map-node')) {
     e.preventDefault(); openFromMap(document.activeElement.dataset.t); return;
   }
@@ -1321,6 +1399,10 @@ document.addEventListener('keydown', e => {
 $('#restart').onclick = () => { hist.length = 0; cur && scr[cur].classList.remove('on'); cur = null; show('splash'); };
 $('#hot').onclick = e => { document.body.classList.toggle('show-hot'); e.currentTarget.classList.toggle('on'); };
 $('#mapbtn').onclick = () => $('.map').classList.add('on');
+$('#playview').onclick = e => {
+  const on = document.body.classList.toggle('play-mode');
+  e.currentTarget.classList.toggle('on', on); e.currentTarget.setAttribute('aria-pressed', String(on));
+};
 show(location.hash.slice(1) || 'splash');
 """
 
@@ -1353,7 +1435,7 @@ def build_prototype(flow_svg_path):
 <style>{PROTO_CSS}</style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">{svg_defs(colors)}</svg>
 <div class="app"><aside><h1><b>GOOFY</b> <i>BALL</i></h1><p class="lead">Кликабельный прототип UI · 1600×900</p>{''.join(nav)}</aside>
-<main><div class="bar"><button id="restart">⟲ С начала</button><button id="hot">▢ Подсветить клики (H)</button><button id="mapbtn">🗺 Карта экранов</button><button data-t="back">← Назад</button></div>
+<main><div class="bar"><button id="playview" aria-pressed="false">Только игра</button><button id="restart">⟲ С начала</button><button id="hot">▢ Подсветить клики (H)</button><button id="mapbtn">🗺 Карта экранов</button><button data-t="back">← Назад</button></div>
 <div class="phone">{''.join(screens)}<div class="timer"></div></div>
 <div class="info"><div><div class="crumb" id="crumb"></div><h3 id="title"></h3><ul id="notes"></ul></div><div class="links" id="links"></div></div>
 </main></div>
@@ -1376,18 +1458,31 @@ def build():
 
 
 def find_browser():
-    for c in ("chromium", "chromium-browser", "google-chrome", "chrome", "msedge",
-              r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
-              r"C:\Program Files\Google\Chrome\Application\chrome.exe"):
+    # Chrome before Edge: a running Edge session swallows headless --screenshot without writing the file.
+    for c in ("chromium", "chromium-browser", "google-chrome", "chrome",
+              r"C:\Program Files\Google\Chrome\Application\chrome.exe", "msedge",
+              r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"):
         p = shutil.which(c) or (c if os.path.isfile(c) else None)
         if p:
             return p
+
+def shoot(browser, path, w, h, attempts=3):
+    """Headless screenshot of an SVG sheet; retried because Chrome/Edge occasionally exit without writing."""
+    png = path[:-4] + ".png"
+    for _ in range(attempts):
+        # Fresh profile per shot: a still-closing browser on a shared profile swallows the next screenshot.
+        with tempfile.TemporaryDirectory(prefix='goofy-ui-', ignore_cleanup_errors=True) as profile:
+            subprocess.run([browser, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run",
+                            f"--user-data-dir={profile}", "--force-device-scale-factor=1",
+                            f"--window-size={w},{h}", f"--screenshot={png}", "file:///" + path.replace("\\", "/")],
+                           check=True, capture_output=True, timeout=60)
+        if os.path.isfile(png) and os.path.getmtime(png) >= os.path.getmtime(path):
+            return
+    raise RuntimeError(f"{browser} did not write {png}")
 
 if __name__ == "__main__":
     browser = find_browser()
     for path, w, h in build():
         if browser:
-            subprocess.run([browser, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=1",
-                            f"--window-size={w},{h}", f"--screenshot={path[:-4]}.png", "file:///" + path.replace("\\", "/")],
-                           check=True, capture_output=True)
+            shoot(browser, path, w, h)
         print("ok", os.path.basename(path), "+png" if browser else "")
