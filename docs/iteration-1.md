@@ -16,7 +16,7 @@
 | Сессии: `LocalSession` (против AI, вдвоём) и `RollbackSession` (SyncManager поверх Nakama relay) | `src/features/match_session/` |
 | Настройки rollback в `.tres`: задержка ввода 2 тика, буфер 60 тиков (1 с), до 10 с на восстановление синхронизации | `src/features/match_session/net_tuning.tres` |
 | Эмуляция плохой сети (debug): Wi‑Fi, 4G, плохая сеть | `lag_network_adaptor.gd`, `lag_profiles/*.tres` |
-| Плавность: интерполяция между тиками + сглаживание поправок после отката (~0,1 с) | `src/game/scenes/game/match_view.gd` |
+| Плавность: интерполяция между тиками + сглаживание поправок после отката (мелкие гаснут за ~0,1 с, большие «доезжают» не быстрее 25 м/с: 2 м ≈ 0,27 с) | `src/game/scenes/game/match_view.gd`, `correction_smoother.gd` |
 | Комнаты по коду: гостевой вход по id устройства, код из 4 символов, seed от сервера, реванш без новой комнаты | `src/features/online/room_flow.gd`, `src/game/scenes/online/`, `server/` |
 | Прямое соединение игроков в комнате: UDP через WebRTC (P2P), запасной путь — relay | `src/features/online/webrtc_transport.gd`, `addons/webrtc_native`, `src/common/net/` |
 | Экраны по концептам: главная, «С другом», матч (HUD, пауза), итоги | `src/game/scenes/{menu,game,post_battle}/` |

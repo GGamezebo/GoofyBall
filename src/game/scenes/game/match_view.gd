@@ -5,12 +5,12 @@ extends Node2D
 ## - meters → pixels, court fitted into the viewport;
 ## - positions captured per tick into a ring buffer (re-captured during rollback re-simulation);
 ## - rendered between the last two ticks (smooth on 90/120 Hz screens);
-## - after a rollback the visible jump is turned into an offset that fades in ~0.1 s,
-##   so the ball and the opponent glide to the corrected place instead of teleporting.
+## - after a rollback the visible jump is turned into a fading offset (CorrectionSmoother),
+##   so the ball and the opponent glide to the corrected place instead of teleporting;
+##   only a rollback into another serve (ball and blobs reset) is shown as a jump.
 
 const RING := 128
-## Bigger jumps than this (m) are real teleports (serve reset): never smoothed.
-const MAX_CORRECTION_M := 2.0
+## Between two ticks a bigger move than this (m) is a teleport (serve reset): not interpolated.
 const TELEPORT_M := 1.5
 
 @export var court_view: CourtView
@@ -18,8 +18,10 @@ const TELEPORT_M := 1.5
 @export var blobs_parent: Node2D
 @export var blob_template: PackedScene
 @export var palette: TeamPalette
-## Seconds for a rollback correction to fade to ~37 % (≈ gone after 3×).
+## Seconds for a small rollback correction to fade to ~37 % (≈ gone after 3×).
 @export var correction_tau: float = 0.035
+## Big corrections glide no faster than this (m/s); the ball flies at up to ~15.
+@export var correction_max_speed: float = 25.0
 @export var side_margin: float = 60.0
 @export var top_margin: float = 120.0
 @export var bottom_margin: float = 140.0
@@ -32,10 +34,10 @@ var _sim: VolleySim
 var _blobs: Array[BlobView] = []
 var _ring: Array = []
 var _latest: int = -1
-var _err_players: Array[Vector2] = []
-var _err_ball := Vector2.ZERO
+var _smoother := CorrectionSmoother.new()
 var _correction_pending: bool = false
 var _pre_tick: int = -1
+var _pre_serve: int = -1
 var _pre_players: Array[Vector2] = []
 var _pre_ball := Vector2.ZERO
 var _seen_touch: int = 0
@@ -49,13 +51,16 @@ func setup(sim: VolleySim, match_setup: MatchSetup, local_slots: Array[int]) -> 
 	for child in blobs_parent.get_children():
 		child.queue_free()
 	_blobs.clear()
-	_err_players.clear()
 	var slots := match_setup.slots()
 	for i in sim.player_count():
 		var blob: BlobView = blob_template.instantiate()
 		blobs_parent.add_child(blob)
 		_blobs.append(blob)
-		_err_players.append(Vector2.ZERO)
+	# Offsets: one per player, the ball last.
+	_smoother.tau = correction_tau
+	_smoother.max_speed = correction_max_speed
+	_smoother.resize(_blobs.size() + 1)
+	_correction_pending = false
 	_layout()
 	for i in _blobs.size():
 		var team := int(sim.state["players"][i]["team"])
@@ -79,7 +84,7 @@ func capture(tick: int) -> void:
 		vy.append(float(player["vy"]))
 	var ball: Dictionary = state["balls"][0]
 	_ring[tick % RING] = {
-		"tick": tick, "p": p, "vy": vy,
+		"tick": tick, "serve": _serve_number(state), "p": p, "vy": vy,
 		"b": Vector2(float(ball["x"]), float(ball["y"])), "bvx": float(ball["vx"]), "bf": bool(ball["frozen"]),
 	}
 	_latest = tick
@@ -94,6 +99,7 @@ func on_rolled_back() -> void:
 	if entry == null:
 		return
 	_pre_tick = _latest
+	_pre_serve = int(entry["serve"])
 	_pre_players.assign(Array(entry["p"]))
 	_pre_ball = entry["b"]
 	_correction_pending = true
@@ -110,17 +116,15 @@ func _process(delta: float) -> void:
 	if prev == null or int(prev["tick"]) != _latest - 1:
 		prev = cur
 	var frac := Engine.get_physics_interpolation_fraction()
-	var decay := exp(-delta / correction_tau)
 
-	var ball_m := _lerp_m(prev["b"], cur["b"], frac) + _err_ball
-	_err_ball *= decay
+	var ball_m := _lerp_m(prev["b"], cur["b"], frac) + _smoother.offset(_blobs.size())
 	var ball_px := to_px(ball_m)
 	for i in _blobs.size():
-		var pos_m := _lerp_m(prev["p"][i], cur["p"][i], frac) + _err_players[i]
-		_err_players[i] *= decay
+		var pos_m := _lerp_m(prev["p"][i], cur["p"][i], frac) + _smoother.offset(i)
 		var on_floor := pos_m.y <= _sim.param("blob_radius") + 0.01
 		_blobs[i].apply(to_px(pos_m), float(cur["vy"][i]), on_floor, floor_y, ball_px, delta)
 	ball_view.apply(ball_px, float(cur["bvx"]), bool(cur["bf"]), floor_y, px_per_m, delta)
+	_smoother.step(delta)
 	_update_fx()
 
 
@@ -135,9 +139,12 @@ func _apply_correction() -> void:
 	var entry = _ring[_pre_tick % RING]
 	if entry == null or int(entry["tick"]) != _pre_tick:
 		return
-	for i in mini(_pre_players.size(), _err_players.size()):
-		_err_players[i] = _clamp_error(_err_players[i] + _pre_players[i] - entry["p"][i])
-	_err_ball = _clamp_error(_err_ball + _pre_ball - entry["b"])
+	if int(entry["serve"]) != _pre_serve:
+		_smoother.clear()
+		return
+	for i in mini(_pre_players.size(), _blobs.size()):
+		_smoother.add(i, _pre_players[i] - entry["p"][i])
+	_smoother.add(_blobs.size(), _pre_ball - entry["b"])
 
 
 func _update_fx() -> void:
@@ -192,5 +199,8 @@ static func _lerp_m(a: Vector2, b: Vector2, t: float) -> Vector2:
 	return a.lerp(b, t)
 
 
-static func _clamp_error(error: Vector2) -> Vector2:
-	return Vector2.ZERO if error.length() > MAX_CORRECTION_M else error
+## Counts serves begun: changes exactly when ball and blobs are reset to serve places.
+static func _serve_number(state: Dictionary) -> int:
+	var phase := int(state["phase"])
+	var serving := phase == VolleySim.Phase.SERVE or phase == VolleySim.Phase.PLAY
+	return int(state["point_serial"]) + (1 if serving else 0)
