@@ -7,7 +7,8 @@ extends SceneTree
 ##   godot --headless --path . --script res://tests/e2e/online_peer.gd -- role=host  port=24777
 ##   godot --headless --path . --script res://tests/e2e/online_peer.gd -- role=guest port=24777
 ## Options (pass the same to both): lag=none|wifi|4g|bad|spikes (default 4g),
-## input=scripted|idle (idle = nobody moves, predictions always right), stress=1|0 (forced rollbacks).
+## input=scripted|idle (idle = nobody moves, predictions always right), stress=1|0 (forced rollbacks),
+## run=<seconds> (how long this process plays; give the guest less to test "opponent left").
 
 const RUN_SECONDS := 20.0
 const CONNECT_TIMEOUT := 20.0
@@ -20,6 +21,7 @@ var _idle := false
 var _stress := true
 var _sync_lost := 0
 var _sync_regained := 0
+var _run_seconds := RUN_SECONDS
 var _started := false
 var _ticks := 0
 var _state_loads := 0
@@ -39,6 +41,8 @@ func _initialize() -> void:
 			_idle = true
 		elif arg == "stress=0":
 			_stress = false
+		elif arg.begins_with("run="):
+			_run_seconds = float(arg.trim_prefix("run="))
 	_run()
 
 
@@ -95,7 +99,7 @@ func _run() -> void:
 	var session = game.get_node("Sessions/Session")
 	session.set_lag_profile(load(LAG_PROFILE % _lag))
 
-	await create_timer(RUN_SECONDS).timeout
+	await create_timer(_run_seconds).timeout
 
 	var stats: Dictionary = session.get_stats()
 	print("[e2e] %s: lag=%s idle=%s started=%s ticks=%d state_loads=%d sync_lost=%d regained=%d mismatches=%d errors=%d ping=%d max_rollback=%d" % [

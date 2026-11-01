@@ -55,6 +55,13 @@ func send_input_tick(peer_id: int, msg: PackedByteArray) -> void:
 	_enqueue({"kind": Kind.INPUT, "peer": peer_id, "msg": msg}, true)
 
 
+## Sent when the match stops — often because this very peer just left the room, and an RPC
+## to an unknown peer is an engine error. Never delayed: the match scene goes away right after.
+func send_remote_stop(peer_id: int) -> void:
+	if _is_connected(peer_id):
+		super.send_remote_stop(peer_id)
+
+
 func poll() -> void:
 	_flush()
 
@@ -87,7 +94,7 @@ func _flush() -> void:
 
 func _send_now(item: Dictionary) -> void:
 	var peer_id: int = item["peer"]
-	if not multiplayer.has_multiplayer_peer() or not multiplayer.get_peers().has(peer_id):
+	if not _is_connected(peer_id):
 		return
 	match int(item["kind"]):
 		Kind.PING:
@@ -98,3 +105,7 @@ func _send_now(item: Dictionary) -> void:
 			super.send_remote_start(peer_id)
 		Kind.INPUT:
 			super.send_input_tick(peer_id, item["msg"])
+
+
+func _is_connected(peer_id: int) -> bool:
+	return multiplayer != null and multiplayer.has_multiplayer_peer() and multiplayer.get_peers().has(peer_id)

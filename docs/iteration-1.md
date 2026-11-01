@@ -160,7 +160,8 @@ godot --headless --path . --script res://tests/e2e/online_peer.gd -- role=guest 
 ```
 
 Параметры (одинаковые обоим): `lag=none|wifi|4g|bad|spikes|freeze`, `input=idle` (никто не двигается),
-`stress=0` (без принудительных откатов). `lag=freeze input=idle stress=0` — проверка, что игра сама
+`stress=0` (без принудительных откатов), `run=<секунды>` (сколько играет процесс; гостю меньше — проверка
+«соперник вышел»: у хозяина в логе `session_abort reason=opponent_left` и никаких ошибок). `lag=freeze input=idle stress=0` — проверка, что игра сама
 восстанавливается после обрывов связи длиннее буфера (раньше на этом матч обрывался с `Unable to regain synchronization`).
 
 **e2e через настоящий Nakama** (всё приложение: меню → комната → бой; нужен запущенный сервер):
