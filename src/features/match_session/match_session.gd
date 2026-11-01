@@ -52,6 +52,12 @@ func shutdown() -> void:
 	pass
 
 
+## The local player quits a match that is still running (exit button, scene closed).
+## Online sessions tell the opponent first, so they do not sit waiting for our input.
+func leave() -> void:
+	shutdown()
+
+
 func set_paused(_paused: bool) -> void:
 	pass
 

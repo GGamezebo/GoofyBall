@@ -95,7 +95,10 @@ func initialize(data: Dictionary) -> void:
 
 func deinit() -> void:
 	if _session != null:
-		_session.shutdown()
+		if _finished:
+			_session.shutdown()
+		else:
+			_session.leave()
 	hud.deinit()
 	_listener.deinit()
 	super.deinit()
@@ -182,7 +185,7 @@ func _on_exit_requested() -> void:
 		return
 	_finished = true
 	_log.info("match_exit_by_player", {"tick": int(_sim.state["tick"])})
-	_session.shutdown()
+	_session.leave()
 	if _online:
 		online_events.ev_leave_room.emit()
 	root_events.ev_return_to_menu.emit({})

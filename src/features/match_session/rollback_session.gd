@@ -135,6 +135,15 @@ func shutdown() -> void:
 	SyncManager.clear_peers()
 
 
+func leave() -> void:
+	if _active and _started and not _finished and is_inside_tree():
+		_log.info("left_match", {"tick": SyncManager.current_tick})
+		for peer_id in _remote_peers:
+			if multiplayer.get_peers().has(peer_id):
+				_rpc_left.rpc_id(peer_id)
+	shutdown()
+
+
 func is_online() -> bool:
 	return true
 
@@ -252,6 +261,17 @@ func _rpc_ready() -> void:
 	else:
 		# Make sure the host hears us even if its first message came before our scene was up.
 		_announce_ready()
+
+
+## The opponent quit the match on purpose: end it now instead of waiting for input that will
+## never come (and for the server to notice the disconnect).
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_left() -> void:
+	var sender := multiplayer.get_remote_sender_id()
+	if not _active or not _remote_peers.has(sender):
+		return
+	_log.warn("opponent_left_match", {"peer": sender, "tick": SyncManager.current_tick})
+	_abort("opponent_left")
 
 
 func _on_sync_started() -> void:
