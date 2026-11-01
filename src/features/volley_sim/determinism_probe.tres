@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DeterminismProbe" format=3]
+
+[ext_resource type="Script" path="res://src/features/volley_sim/determinism_probe.gd" id="1_s"]
+[ext_resource type="Resource" path="res://src/common/setups/local_2p.tres" id="2_setup"]
+
+[resource]
+script = ExtResource("1_s")
+setup = ExtResource("2_setup")
+ticks = 3600
+expected_hash = 3223861361
