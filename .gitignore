@@ -36,7 +36,7 @@ Thumbs.db
 # Export output
 /bin/
 
-# Developer's own Nakama address baked into local builds (see online_local.cfg.example)
-/online_local.cfg
+# Developer's own Nakama address baked into local builds (see online_local.tres.example)
+/online_local.tres
 # Editor hot-reload copies of GDExtension libraries
 addons/*/lib/~*
