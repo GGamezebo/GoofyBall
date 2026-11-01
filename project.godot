@@ -108,7 +108,8 @@ toggle_net_overlay={
 [network]
 
 rollback/input_delay=2
-rollback/max_buffer_size=30
+rollback/max_buffer_size=60
+rollback/debug/message_bytes=0
 rollback/debug/physics_process_msecs=0.0
 rollback/debug/process_msecs=0.0
 

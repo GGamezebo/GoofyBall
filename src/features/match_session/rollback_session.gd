@@ -35,6 +35,8 @@ var _last_stats_ms: int = 0
 var _last_health_ms: int = 0
 ## Between sync_lost and sync_regained (see `_on_sync_lost` for the deadlock workaround).
 var _sync_lost: bool = false
+var _lost_since_ms: int = 0
+var _notice_shown: bool = false
 
 
 ## `slot_peers[i]` = peer id that owns slot i. Call after `bind_sim()`.
@@ -171,6 +173,9 @@ func _process(delta: float) -> void:
 		return
 	var now := Time.get_ticks_msec()
 	stats.update(now)
+	if _sync_lost and not _notice_shown and now - _lost_since_ms >= _notice_delay_ms():
+		_notice_shown = true
+		ev_status.emit("Связь нестабильна…")
 	if now - _last_stats_ms >= STATS_PERIOD_MS:
 		_last_stats_ms = now
 		_sample_ping()
@@ -268,26 +273,39 @@ func _on_sync_lost() -> void:
 	stats.sync_lost += 1
 	_sample_ping()
 	_log.warn("sync_lost", _health())
-	ev_status.emit("Связь нестабильна…")
+	_lost_since_ms = Time.get_ticks_msec()
+	_notice_shown = false
 	_set_lost_recovery(true)
 
 
 func _on_sync_regained() -> void:
 	_set_lost_recovery(false)
-	_log.info("sync_regained", {"tick": SyncManager.current_tick})
-	ev_status.emit("")
+	_log.info("sync_regained", {"tick": SyncManager.current_tick, "lost_ms": Time.get_ticks_msec() - _lost_since_ms})
+	if _notice_shown:
+		_notice_shown = false
+		ev_status.emit("")
 
 
-## Workaround for a deadlock in godot-rollback-netcode: while sync is lost SyncManager does
-## not tick, and a stored state only becomes "complete" (hashable, retirable) when it is saved
-## again — which never happens if the late inputs matched our prediction (nobody pressed
-## anything new), so it gives up with "Unable to regain synchronization". Re-simulating the
-## last tick each frame while lost re-saves the state and lets the buffers drain.
+func _notice_delay_ms() -> int:
+	return roundi((tuning.unstable_notice_sec if tuning != null else 0.4) * 1000.0)
+
+
+## Workarounds for two deadlocks in godot-rollback-netcode while sync is lost:
+## 1. SyncManager does not tick, and a stored state only becomes "complete" (hashable,
+##    retirable) when it is saved again — never, if the late inputs matched our prediction.
+##    Re-simulating the last tick each frame re-saves it and lets the buffers drain.
+## 2. Acks ("next tick I need") only ride on input messages. A stuck peer has no new input to
+##    send, so the other side keeps an old idea of what it needs and only sends the oldest and
+##    newest few ticks — the middle never arrives. Resending the whole unacknowledged queue
+##    each tick while lost fills that gap.
 func _set_lost_recovery(enabled: bool) -> void:
 	if enabled == _sync_lost:
 		return
 	_sync_lost = enabled
 	SyncManager.debug_rollback_ticks = 1 if enabled else 0
+	var normal := tuning if tuning != null else NetTuning.new()
+	SyncManager.max_input_frames_per_message = normal.recovery_frames_per_message if enabled else normal.max_input_frames_per_message
+	SyncManager.max_messages_at_once = normal.recovery_messages_at_once if enabled else normal.max_messages_at_once
 
 
 func _on_sync_error(msg: String) -> void:

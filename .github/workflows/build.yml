@@ -54,10 +54,10 @@ jobs:
           echo "host=$host_status guest=$guest_status"
           [ $host_status -eq 0 ] && [ $guest_status -eq 0 ]
 
-      - name: Online end-to-end (Wi-Fi stalls, idle players — sync lost must recover)
+      - name: Online end-to-end (1.5 s network freezes, idle players — lost sync must recover)
         run: |
           set +e
-          args="lag=spikes input=idle stress=0"
+          args="lag=freeze input=idle stress=0"
           godot --headless --path . --script res://tests/e2e/online_peer.gd -- role=host port=24778 $args > host2.log 2>&1 &
           host_pid=$!
           sleep 2

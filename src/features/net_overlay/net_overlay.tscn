@@ -12,7 +12,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_no")
 stats_label = NodePath("Panel/Box/Stats")
-lag_buttons = [NodePath("Panel/Box/Debug/Lag/Lag0"), NodePath("Panel/Box/Debug/Lag/Lag1"), NodePath("Panel/Box/Debug/Lag/Lag2"), NodePath("Panel/Box/Debug/Lag/Lag3"), NodePath("Panel/Box/Debug/Lag/Lag4")]
+lag_buttons = [NodePath("Panel/Box/Debug/Lag/Lag0"), NodePath("Panel/Box/Debug/Lag/Lag1"), NodePath("Panel/Box/Debug/Lag/Lag2"), NodePath("Panel/Box/Debug/Lag/Lag3"), NodePath("Panel/Box/Debug/Lag/Lag4"), NodePath("Panel/Box/Debug/Lag/Lag5")]
 debug_box = NodePath("Panel/Box/Debug")
 probe_button = NodePath("Panel/Box/Debug/Probe")
 probe_label = NodePath("Panel/Box/Debug/ProbeResult")
@@ -87,6 +87,13 @@ theme_override_font_sizes/font_size = 20
 text = "—"
 
 [node name="Lag4" type="Button" parent="Panel/Box/Debug/Lag"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"GhostButton"
+theme_override_font_sizes/font_size = 20
+text = "—"
+
+[node name="Lag5" type="Button" parent="Panel/Box/Debug/Lag"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"GhostButton"
