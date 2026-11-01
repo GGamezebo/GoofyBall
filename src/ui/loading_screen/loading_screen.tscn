@@ -1,0 +1,80 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/ui/loading_screen/loading_screen.gd" id="1_ls"]
+[ext_resource type="PackedScene" path="res://src/ui/background/neon_background.tscn" id="2_bg"]
+[ext_resource type="Theme" path="res://src/ui/theme/goofy_theme.tres" id="3_th"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_track"]
+bg_color = Color(0, 0, 0, 0.45)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill"]
+bg_color = Color(1, 0.8235, 0.0392, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[node name="LoadingScreen" type="CanvasLayer" node_paths=PackedStringArray("root", "progress_bar")]
+layer = 100
+script = ExtResource("1_ls")
+root = NodePath("Root")
+progress_bar = NodePath("Root/Center/Box/Progress")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_th")
+
+[node name="Background" parent="Root" instance=ExtResource("2_bg")]
+layout_mode = 1
+
+[node name="Center" type="CenterContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Box" type="VBoxContainer" parent="Root/Center"]
+layout_mode = 2
+theme_override_constants/separation = 36
+
+[node name="Title" type="HBoxContainer" parent="Root/Center/Box"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 28
+
+[node name="Goofy" type="Label" parent="Root/Center/Box/Title"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0118, 0.7216, 1, 1)
+theme_override_font_sizes/font_size = 140
+text = "GOOFY"
+
+[node name="Ball" type="Label" parent="Root/Center/Box/Title"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.0196, 0.6784, 1)
+theme_override_font_sizes/font_size = 140
+text = "BALL"
+
+[node name="Progress" type="ProgressBar" parent="Root/Center/Box"]
+custom_minimum_size = Vector2(400, 14)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/background = SubResource("StyleBoxFlat_track")
+theme_override_styles/fill = SubResource("StyleBoxFlat_fill")
+show_percentage = false
+
+[node name="Hint" type="Label" parent="Root/Center/Box"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Разминаем желе…"
+horizontal_alignment = 1

@@ -1,0 +1,35 @@
+{
+	"App": {
+		"scene": { "id": "app_root", "async_loading": false, "on_event": "ev.open_menu" },
+		"states": {
+			"Platform": {
+				"context": "PlatformRouterContext",
+				"enter": ["ev.open_platform"],
+				"states": {
+					"WEB": { "context": "WEBContext", "enter": ["ev.open_web"] },
+					"Android": { "context": "AndroidContext", "enter": ["ev.open_android"] },
+					"Desktop": { "context": "DesktopContext", "enter": ["ev.open_desktop"] }
+				}
+			},
+			"Online": {
+				"scene": { "id": "online", "async_loading": false },
+				"enter": ["ev.open_online"]
+			},
+			"Menu": {
+				"scene": { "id": "menu", "loading_screen": true, "preload": ["game"] },
+				"enter": ["ev.open_menu"],
+				"leave": ["ev.start_game"]
+			},
+			"Battle": {
+				"scene": { "id": "game", "loading_screen": true, "keep_loaded": true, "preload": ["post_battle"] },
+				"enter": ["ev.start_game"],
+				"leave": ["ev.exit_game", "ev.start_game", "ev.open_menu"]
+			},
+			"PostBattle": {
+				"scene": { "id": "post_battle", "async_loading": false, "keep_loaded": true },
+				"enter": ["ev.exit_game"],
+				"leave": ["ev.open_menu", "ev.start_game"]
+			}
+		}
+	}
+}

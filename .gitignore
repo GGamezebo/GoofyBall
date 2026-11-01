@@ -29,3 +29,9 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+# Public CI debug keystore (password "android") — intentionally committed
+!ci/debug.keystore
+
+# Export output
+/bin/

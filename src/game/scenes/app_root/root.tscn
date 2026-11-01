@@ -1,0 +1,12 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/game/scenes/app_root/root.gd" id="1_root"]
+[ext_resource type="Resource" path="res://src/game/scenes/app_root/root_events.tres" id="2_ev"]
+[ext_resource type="Resource" path="res://src/common/platform_caps.tres" id="3_caps"]
+[ext_resource type="Resource" path="res://src/common/log_settings.tres" id="4_log"]
+
+[node name="AppRoot" type="Node"]
+script = ExtResource("1_root")
+root_events = ExtResource("2_ev")
+platform_caps = ExtResource("3_caps")
+log_settings = ExtResource("4_log")
