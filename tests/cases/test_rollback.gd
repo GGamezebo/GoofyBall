@@ -54,9 +54,9 @@ func test_late_remote_input_rolls_back_to_identical_state() -> void:
 	var right_path := str(session.get_node("Input1").get_path())
 	var misses := 0
 	var calls: int = TOTAL_TICKS + SyncManager.input_delay
-	for call in range(1, calls + 1):
-		SyncManager.mechanized_input_received[1] = {call: {left_path: _scripted(call, 0)}}
-		var arriving := call - REMOTE_DELAY
+	for call_index in range(1, calls + 1):
+		SyncManager.mechanized_input_received[1] = {call_index: {left_path: _scripted(call_index, 0)}}
+		var arriving := call_index - REMOTE_DELAY
 		if arriving >= 1:
 			var actual := {right_path: _scripted(arriving, 7)}
 			SyncManager._calculate_data_hash(actual)

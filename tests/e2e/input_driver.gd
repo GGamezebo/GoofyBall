@@ -9,6 +9,7 @@ var _frame: int = 0
 
 func _physics_process(_delta: float) -> void:
 	_frame += 1
+	@warning_ignore("integer_division")
 	var block := _frame / 25
 	var a := ((block + salt) * 1103515245 + 12345) & 0x7fffffff
 	var b := ((_frame + salt) * 1664525 + 1013904223) & 0x7fffffff

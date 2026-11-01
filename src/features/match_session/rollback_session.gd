@@ -9,6 +9,8 @@ extends MatchSession
 
 const READY_RESEND_SEC := 0.5
 const STATS_PERIOD_MS := 1000
+## INFO health line period: enough to read a stall from a phone log, not per-frame spam.
+const HEALTH_LOG_PERIOD_MS := 5000
 
 @export var tuning: NetTuning
 ## Network emulation for debug builds; null or inactive = real network only.
@@ -30,6 +32,9 @@ var _start_requested: bool = false
 var _resend_left: float = 0.0
 var _handshake_left: float = 0.0
 var _last_stats_ms: int = 0
+var _last_health_ms: int = 0
+## Between sync_lost and sync_regained (see `_on_sync_lost` for the deadlock workaround).
+var _sync_lost: bool = false
 
 
 ## `slot_peers[i]` = peer id that owns slot i. Call after `bind_sim()`.
@@ -122,6 +127,7 @@ func shutdown() -> void:
 	remove_from_group("network_sync")
 	for node in _inputs:
 		node.remove_from_group("network_sync")
+	_set_lost_recovery(false)
 	if SyncManager.started:
 		SyncManager.stop()
 	SyncManager.clear_peers()
@@ -138,6 +144,7 @@ func is_tick_confirmed() -> bool:
 func get_stats() -> Dictionary:
 	var out := stats.snapshot()
 	out["input_delay"] = SyncManager.input_delay
+	out["buffer"] = SyncManager.max_buffer_size
 	out["lag"] = lag_profile.title if lag_profile != null and lag_profile.is_active() else ""
 	return out
 
@@ -167,6 +174,9 @@ func _process(delta: float) -> void:
 	if now - _last_stats_ms >= STATS_PERIOD_MS:
 		_last_stats_ms = now
 		_sample_ping()
+	if now - _last_health_ms >= HEALTH_LOG_PERIOD_MS:
+		_last_health_ms = now
+		_log.info("net_health", _health())
 
 
 func _sample_ping() -> void:
@@ -176,6 +186,19 @@ func _sample_ping() -> void:
 			stats.on_ping(peer.rtt, peer.local_lag, peer.remote_lag)
 			_log.debug("net_tick", {"tick": SyncManager.current_tick, "ping": peer.rtt,
 				"rollbacks_s": stats.snapshot()["rollbacks_per_sec"], "max_rb": stats.max_rollback})
+
+
+## One line with everything needed to tell a slow device from a slow network.
+func _health() -> Dictionary:
+	var snap := stats.snapshot()
+	return {
+		"tick": SyncManager.current_tick, "ping": snap["ping_ms"], "ping_max": snap["ping_max"],
+		"local_lag": snap["local_lag"], "remote_lag": snap["remote_lag"], "buffer": SyncManager.max_buffer_size,
+		"rollbacks_s": snap["rollbacks_per_sec"], "max_rollback": snap["max_rollback"],
+		"skipped": snap["skipped_ticks"], "sync_lost": snap["sync_lost"],
+		"fps": Engine.get_frames_per_second(),
+		"physics_ms": Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0,
+	}
 
 
 # --- SyncManager callbacks (every peer, in lockstep) ------------------------------------
@@ -243,13 +266,28 @@ func _on_sync_stopped() -> void:
 
 func _on_sync_lost() -> void:
 	stats.sync_lost += 1
-	_log.warn("sync_lost", {"tick": SyncManager.current_tick})
+	_sample_ping()
+	_log.warn("sync_lost", _health())
 	ev_status.emit("Связь нестабильна…")
+	_set_lost_recovery(true)
 
 
 func _on_sync_regained() -> void:
+	_set_lost_recovery(false)
 	_log.info("sync_regained", {"tick": SyncManager.current_tick})
 	ev_status.emit("")
+
+
+## Workaround for a deadlock in godot-rollback-netcode: while sync is lost SyncManager does
+## not tick, and a stored state only becomes "complete" (hashable, retirable) when it is saved
+## again — which never happens if the late inputs matched our prediction (nobody pressed
+## anything new), so it gives up with "Unable to regain synchronization". Re-simulating the
+## last tick each frame while lost re-saves the state and lets the buffers drain.
+func _set_lost_recovery(enabled: bool) -> void:
+	if enabled == _sync_lost:
+		return
+	_sync_lost = enabled
+	SyncManager.debug_rollback_ticks = 1 if enabled else 0
 
 
 func _on_sync_error(msg: String) -> void:

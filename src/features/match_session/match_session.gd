@@ -9,16 +9,22 @@ extends Node
 ##   save() -> Dictionary / load(state) -> void   snapshot / restore (rollback only)
 
 ## The tick loop runs (online: both peers are in sync).
+@warning_ignore("unused_signal")
 signal ev_started
 ## After every sim step, including re-simulated ones during a rollback.
+@warning_ignore("unused_signal")
 signal ev_ticked(tick: int)
 ## State was restored `ticks` back; the following ev_ticked calls re-simulate them.
+@warning_ignore("unused_signal")
 signal ev_rolled_back(ticks: int)
 ## Short status for the HUD ("" = clear).
+@warning_ignore("unused_signal")
 signal ev_status(text: String)
 ## The tick loop stopped normally (online: the host stopped the match).
+@warning_ignore("unused_signal")
 signal ev_stopped
 ## The match cannot continue (opponent left, sync lost, desync).
+@warning_ignore("unused_signal")
 signal ev_aborted(reason: String)
 
 var _sample: Callable
@@ -29,12 +35,12 @@ var _slot_count: int = 0
 var _neutral: Dictionary = {}
 
 
-func bind_sim(slot_count: int, sample: Callable, step: Callable, save: Callable, load: Callable, neutral: Dictionary) -> void:
+func bind_sim(slot_count: int, sample: Callable, step: Callable, save_fn: Callable, load_fn: Callable, neutral: Dictionary) -> void:
 	_slot_count = slot_count
 	_sample = sample
 	_step = step
-	_save = save
-	_load = load
+	_save = save_fn
+	_load = load_fn
 	_neutral = neutral
 
 

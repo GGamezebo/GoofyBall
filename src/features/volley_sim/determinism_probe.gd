@@ -33,6 +33,7 @@ func run() -> Dictionary:
 
 ## Integer LCG: the stick changes every 20 ticks, jumps come in short bursts.
 static func scripted_input(tick: int, player: int) -> Dictionary:
+	@warning_ignore("integer_division")
 	var block := tick / 20
 	var v := (block * 1103515245 + 12345 + player * 7919) & 0x7FFFFFFF
 	v = (v * 1103515245 + 12345) & 0x7FFFFFFF

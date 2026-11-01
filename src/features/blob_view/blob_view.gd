@@ -34,8 +34,8 @@ func setup(p_color: Color, p_radius_px: float, display_name: String, is_local: b
 	queue_redraw()
 
 
-## `pos` = body center (px), `floor_y` = floor line (px), `look_at` = ball (px).
-func apply(pos: Vector2, vy_mps: float, on_floor: bool, floor_y: float, look_at: Vector2, delta: float) -> void:
+## `pos` = body center (px), `floor_y` = floor line (px), `look_target` = ball (px).
+func apply(pos: Vector2, vy_mps: float, on_floor: bool, floor_y: float, look_target: Vector2, delta: float) -> void:
 	position = pos
 	_floor_offset = floor_y - pos.y
 	_height_px = maxf(0.0, _floor_offset - radius_px)
@@ -51,7 +51,7 @@ func apply(pos: Vector2, vy_mps: float, on_floor: bool, floor_y: float, look_at:
 	var squash := 1.0 - 0.06 * (1.0 if on_floor else 0.0) - 0.28 * _land_t - 0.12 * _hit_t
 	var sy := stretch * squash
 	_scale = Vector2(1.0 / sy, sy)
-	var to_ball := look_at - pos
+	var to_ball := look_target - pos
 	_look = to_ball.normalized() if to_ball.length() > 1.0 else Vector2.ZERO
 	queue_redraw()
 

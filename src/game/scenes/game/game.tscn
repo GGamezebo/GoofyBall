@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" path="res://src/features/blob_view/blob_view.tscn" id="18_blob"]
 [ext_resource type="PackedScene" path="res://src/game/scenes/game/hud.tscn" id="19_hud"]
 [ext_resource type="Script" path="res://src/features/match_session/lag_profile.gd" id="20_lp"]
+[ext_resource type="Resource" path="res://src/features/match_session/lag_profiles/lag_spikes.tres" id="21_l4"]
 
 [node name="Game" type="Node" node_paths=PackedStringArray("match_view", "hud", "session_parent")]
 script = ExtResource("1_game")
@@ -30,7 +31,7 @@ default_setup = ExtResource("5_setup")
 palette = ExtResource("6_pal")
 log_settings = ExtResource("7_log")
 net_tuning = ExtResource("8_tune")
-lag_profiles = Array[ExtResource("20_lp")]([ExtResource("9_l0"), ExtResource("10_l1"), ExtResource("11_l2"), ExtResource("12_l3")])
+lag_profiles = Array[ExtResource("20_lp")]([ExtResource("9_l0"), ExtResource("10_l1"), ExtResource("11_l2"), ExtResource("12_l3"), ExtResource("21_l4")])
 determinism_probe = ExtResource("13_probe")
 match_view = NodePath("MatchView")
 hud = NodePath("Hud")

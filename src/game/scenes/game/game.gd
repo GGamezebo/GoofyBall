@@ -46,7 +46,10 @@ func initialize(data: Dictionary) -> void:
 	_online = _setup.has_remote_peers(my_id)
 	_inputs = MatchInputs.new(_setup, my_id, _sim)
 
-	_session = RollbackSession.new() if _online else LocalSession.new()
+	if _online:
+		_session = RollbackSession.new()
+	else:
+		_session = LocalSession.new()
 	_session.name = "Session"
 	session_parent.add_child(_session)
 	_session.bind_sim(_inputs.slot_count(), _inputs.sample, _step, _sim.save_state, _sim.load_state, VolleySim.neutral_input())

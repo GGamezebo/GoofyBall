@@ -51,7 +51,7 @@ func update(now_ms: int) -> void:
 
 
 func ping_avg() -> int:
-	return _ping_sum / _ping_samples if _ping_samples > 0 else 0
+	return roundi(float(_ping_sum) / _ping_samples) if _ping_samples > 0 else 0
 
 
 func snapshot() -> Dictionary:
