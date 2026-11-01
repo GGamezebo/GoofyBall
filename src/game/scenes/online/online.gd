@@ -10,6 +10,8 @@ extends IScene
 ## Template for an online 1×1: peers and names are filled per match.
 @export var online_setup: MatchSetup
 @export var log_settings: LogSettings
+## Where the battle picks up the direct link to the opponent.
+@export var net_link: NetLink
 @export var room_flow: RoomFlow
 
 var _listener := EventListener.new()
@@ -31,6 +33,7 @@ func initialize(_data: Dictionary) -> void:
 	_listener.add(room_flow.ev_rematch_status, func(text: String) -> void: online_events.ev_rematch_status.emit(text))
 	_listener.add(room_flow.ev_opponent_left, func() -> void: online_events.ev_opponent_left.emit())
 	_listener.add(room_flow.ev_match_ready, _on_match_ready)
+	_listener.add(room_flow.ev_transport_changed, _on_transport_changed)
 	_log.info("ready", {"server": online_config.address(), "name": room_flow.display_name})
 
 
@@ -49,6 +52,10 @@ func _on_set_server(address: String) -> void:
 		_log.info("server_changed", {"server": online_config.address()})
 	else:
 		online_events.ev_room_error.emit("Адрес вида 192.168.1.10:7350")
+
+
+func _on_transport_changed(transport: PeerTransport) -> void:
+	net_link.transport = transport
 
 
 func _on_match_ready(info: Dictionary) -> void:

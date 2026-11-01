@@ -8,6 +8,7 @@
 [ext_resource type="Resource" path="res://src/common/log_settings.tres" id="6_log"]
 [ext_resource type="Script" path="res://src/features/online/room_flow.gd" id="7_flow"]
 [ext_resource type="Script" path="res://addons/com.heroiclabs.nakama/Nakama.gd" id="8_nakama"]
+[ext_resource type="Resource" path="res://src/common/net/net_link.tres" id="9_link"]
 
 [node name="Online" type="Node" node_paths=PackedStringArray("room_flow")]
 script = ExtResource("1_online")
@@ -16,6 +17,7 @@ online_events = ExtResource("3_online_ev")
 online_config = ExtResource("4_cfg")
 online_setup = ExtResource("5_setup")
 log_settings = ExtResource("6_log")
+net_link = ExtResource("9_link")
 room_flow = NodePath("RoomFlow")
 
 [node name="Nakama" type="Node" parent="."]

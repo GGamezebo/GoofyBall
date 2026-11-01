@@ -80,7 +80,9 @@ func _process(delta: float) -> void:
 static func format_stats(stats: Dictionary, fps: float) -> String:
 	if stats.is_empty():
 		return "Офлайн\nFPS %d" % fps
+	var link := "напрямую (UDP)" if str(stats.get("link", "")) == "p2p" else "через сервер (TCP)"
 	var lines: Array[String] = [
+		"Связь: %s" % link,
 		"Ping %d мс  (ср. %d, макс. %d)" % [stats.get("ping_ms", 0), stats.get("ping_avg", 0), stats.get("ping_max", 0)],
 		"Задержка ввода %d тик." % stats.get("input_delay", 0),
 		"Откаты %.1f/с, макс. %d тик." % [stats.get("rollbacks_per_sec", 0.0), stats.get("max_rollback", 0)],

@@ -11,6 +11,8 @@ extends IScene
 @export var palette: TeamPalette
 @export var log_settings: LogSettings
 @export var net_tuning: NetTuning
+## Direct link to the opponent, put there by App/Online (null = relay only).
+@export var net_link: NetLink
 ## Network emulation presets for the debug overlay (index 0 = off).
 @export var lag_profiles: Array[LagProfile] = []
 @export var determinism_probe: DeterminismProbe
@@ -88,6 +90,7 @@ func initialize(data: Dictionary) -> void:
 		for slot in _setup.slots():
 			slot_peers.append(slot.peer_id)
 		(_session as RollbackSession).tuning = net_tuning
+		(_session as RollbackSession).transport = net_link.transport if net_link != null else null
 		(_session as RollbackSession).setup(slot_peers, LogChannel.new("net", log_settings))
 	else:
 		_session.start()

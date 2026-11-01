@@ -12,6 +12,13 @@ const OVERRIDE_PATH := "user://online.cfg"
 @export var server_key: String = "goofyball_dev_key"
 @export var use_ssl: bool = false
 @export var timeout_sec: int = 5
+@export_group("Direct link (WebRTC)")
+## Play over a direct UDP link when it can be set up; the relay stays as the fallback.
+@export var p2p_enabled: bool = true
+## STUN servers help both sides find a path through home routers.
+@export var stun_servers: PackedStringArray = ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"]
+## The host starts on the relay if the direct link is not open by then.
+@export var p2p_timeout_sec: float = 4.0
 
 
 func address() -> String:
@@ -28,12 +35,15 @@ func load_overrides() -> void:
 		host = str(file.get_value("nakama", "host", host))
 		port = int(file.get_value("nakama", "port", port))
 		server_key = str(file.get_value("nakama", "server_key", server_key))
+		p2p_enabled = bool(file.get_value("p2p", "enabled", p2p_enabled))
 	if not OS.get_environment("GOOFY_NAKAMA_HOST").is_empty():
 		host = OS.get_environment("GOOFY_NAKAMA_HOST")
 	if not OS.get_environment("GOOFY_NAKAMA_PORT").is_empty():
 		port = int(OS.get_environment("GOOFY_NAKAMA_PORT"))
 	if not OS.get_environment("GOOFY_NAKAMA_KEY").is_empty():
 		server_key = OS.get_environment("GOOFY_NAKAMA_KEY")
+	if OS.get_environment("GOOFY_P2P") == "0":
+		p2p_enabled = false
 
 
 ## Parses "host[:port]" and saves it; returns false when the text is not an address.

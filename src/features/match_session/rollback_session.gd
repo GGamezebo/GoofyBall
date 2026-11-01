@@ -15,6 +15,8 @@ const HEALTH_LOG_PERIOD_MS := 5000
 @export var tuning: NetTuning
 ## Network emulation for debug builds; null or inactive = real network only.
 @export var lag_profile: LagProfile
+## Direct P2P link to the opponent (set before setup); null = relay only.
+var transport: PeerTransport
 
 var stats := NetStats.new()
 
@@ -60,6 +62,9 @@ func setup(slot_peers: Array[int], log_channel: LogChannel) -> bool:
 	var lag := lag_profile if lag_profile != null and OS.is_debug_build() else null
 	_adaptor = LagNetworkAdaptor.new()
 	_adaptor.profile = lag
+	if transport != null:
+		transport.receive() # drop late packets of the previous match
+	_adaptor.transport = transport
 	SyncManager.set_network_adaptor(_adaptor)
 	if tuning != null:
 		tuning.apply_to(SyncManager)
@@ -84,6 +89,7 @@ func setup(slot_peers: Array[int], log_channel: LogChannel) -> bool:
 		"me": my_id, "host": multiplayer.is_server(), "remote": _remote_peers,
 		"input_delay": SyncManager.input_delay, "buffer": SyncManager.max_buffer_size,
 		"lag": lag.title if lag != null and lag.is_active() else "none",
+		"link": _link_name(),
 	})
 	ev_status.emit("Ждём соперника…")
 	_announce_ready()
@@ -156,6 +162,7 @@ func get_stats() -> Dictionary:
 	var out := stats.snapshot()
 	out["input_delay"] = SyncManager.input_delay
 	out["buffer"] = SyncManager.max_buffer_size
+	out["link"] = _link_name()
 	out["lag"] = lag_profile.title if lag_profile != null and lag_profile.is_active() else ""
 	return out
 
@@ -206,7 +213,7 @@ func _sample_ping() -> void:
 func _health() -> Dictionary:
 	var snap := stats.snapshot()
 	return {
-		"tick": SyncManager.current_tick, "ping": snap["ping_ms"], "ping_max": snap["ping_max"],
+		"tick": SyncManager.current_tick, "link": _link_name(), "ping": snap["ping_ms"], "ping_max": snap["ping_max"],
 		"local_lag": snap["local_lag"], "remote_lag": snap["remote_lag"], "buffer": SyncManager.max_buffer_size,
 		"rollbacks_s": snap["rollbacks_per_sec"], "max_rollback": snap["max_rollback"],
 		"skipped": snap["skipped_ticks"], "sync_lost": snap["sync_lost"],
@@ -274,9 +281,16 @@ func _rpc_left() -> void:
 	_abort("opponent_left")
 
 
+## "p2p" when traffic to the opponent goes over the direct link, "relay" otherwise.
+func _link_name() -> String:
+	if _adaptor == null or _remote_peers.is_empty():
+		return "relay"
+	return _adaptor.link_name(_remote_peers[0])
+
+
 func _on_sync_started() -> void:
 	_started = true
-	_log.info("sync_started", {"input_delay": SyncManager.input_delay})
+	_log.info("sync_started", {"input_delay": SyncManager.input_delay, "link": _link_name()})
 	ev_status.emit("")
 	ev_started.emit()
 

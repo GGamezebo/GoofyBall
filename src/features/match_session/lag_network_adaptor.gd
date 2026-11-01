@@ -1,14 +1,19 @@
 class_name LagNetworkAdaptor
 extends "res://addons/godot-rollback-netcode/RPCNetworkAdaptor.gd"
 
-## RPC network adaptor with optional network emulation (debug builds): delays every outgoing
-## message by `delay ± jitter` (order kept, like TCP through the relay) and drops a share of
-## input packets. Pings are delayed too, so the measured RTT includes the fake lag.
+## Rollback network adaptor with two paths and optional network emulation:
+## - direct: a P2P `transport` (UDP) whenever it is ready for that peer;
+## - relay: Godot RPCs over the multiplayer peer (Nakama relay = TCP) otherwise.
+## Every message picks its path when it leaves, so a match keeps running if P2P comes up or
+## drops halfway. Emulation (debug builds) delays outgoing messages by `delay ± jitter` (order
+## kept), stalls them, and drops a share of input packets; pings are delayed too.
 ## Both peers must use this script (RPC methods are matched by node path and script).
 
-enum Kind { PING, PING_BACK, REMOTE_START, INPUT }
+enum Kind { PING, PING_BACK, REMOTE_START, REMOTE_STOP, INPUT }
 
 var profile: LagProfile
+## Direct link to the other peer; null or not ready = relay only.
+var transport: PeerTransport
 
 var _sync_manager: Node
 var _queue: Array[Dictionary] = []
@@ -29,14 +34,16 @@ func stop_network_adaptor(_sync_manager_arg) -> void:
 	_queue.clear()
 
 
+## "p2p" when messages to this peer go over the direct link, else "relay".
+func link_name(peer_id: int) -> String:
+	return "p2p" if transport != null and transport.is_ready(peer_id) else "relay"
+
+
 ## A ping answer can arrive after the match stopped and SyncManager forgot the peer
 ## (it would index its peer list and crash): drop it.
 @rpc("any_peer", "unreliable")
 func _remote_ping_back(msg: Dictionary) -> void:
-	var peer_id := multiplayer.get_remote_sender_id()
-	if _sync_manager != null and not _sync_manager.peers.has(peer_id):
-		return
-	received_ping_back.emit(peer_id, msg)
+	_deliver_ping_back(multiplayer.get_remote_sender_id(), msg)
 
 
 func send_ping(peer_id: int, msg: Dictionary) -> void:
@@ -55,19 +62,20 @@ func send_input_tick(peer_id: int, msg: PackedByteArray) -> void:
 	_enqueue({"kind": Kind.INPUT, "peer": peer_id, "msg": msg}, true)
 
 
-## Sent when the match stops — often because this very peer just left the room, and an RPC
-## to an unknown peer is an engine error. Never delayed: the match scene goes away right after.
+## Sent when the match stops — often because this very peer just left the room. Never delayed:
+## the match scene goes away right after.
 func send_remote_stop(peer_id: int) -> void:
-	if _is_connected(peer_id):
-		super.send_remote_stop(peer_id)
+	_send_now({"kind": Kind.REMOTE_STOP, "peer": peer_id})
 
 
 func poll() -> void:
 	_flush()
+	_receive_direct()
 
 
 func _process(_delta: float) -> void:
 	_flush()
+	_receive_direct()
 
 
 func _enqueue(item: Dictionary, droppable: bool) -> void:
@@ -94,17 +102,53 @@ func _flush() -> void:
 
 func _send_now(item: Dictionary) -> void:
 	var peer_id: int = item["peer"]
+	var kind := int(item["kind"])
+	if transport != null and transport.is_ready(peer_id):
+		var reliable := kind == Kind.REMOTE_START or kind == Kind.REMOTE_STOP
+		if transport.send(peer_id, reliable, var_to_bytes([kind, item.get("msg")])):
+			return
+	# Relay. The peer may already be gone (it left the room): an RPC to an unknown peer is an
+	# engine error, so skip it.
 	if not _is_connected(peer_id):
 		return
-	match int(item["kind"]):
+	match kind:
 		Kind.PING:
 			super.send_ping(peer_id, item["msg"])
 		Kind.PING_BACK:
 			super.send_ping_back(peer_id, item["msg"])
 		Kind.REMOTE_START:
 			super.send_remote_start(peer_id)
+		Kind.REMOTE_STOP:
+			super.send_remote_stop(peer_id)
 		Kind.INPUT:
 			super.send_input_tick(peer_id, item["msg"])
+
+
+func _receive_direct() -> void:
+	if transport == null:
+		return
+	for packet in transport.receive():
+		var decoded = bytes_to_var(packet[1])
+		if not (decoded is Array and decoded.size() == 2):
+			continue
+		var peer_id: int = packet[0]
+		match int(decoded[0]):
+			Kind.PING:
+				received_ping.emit(peer_id, decoded[1])
+			Kind.PING_BACK:
+				_deliver_ping_back(peer_id, decoded[1])
+			Kind.REMOTE_START:
+				received_remote_start.emit()
+			Kind.REMOTE_STOP:
+				received_remote_stop.emit()
+			Kind.INPUT:
+				received_input_tick.emit(peer_id, decoded[1])
+
+
+func _deliver_ping_back(peer_id: int, msg: Dictionary) -> void:
+	if _sync_manager != null and not _sync_manager.peers.has(peer_id):
+		return
+	received_ping_back.emit(peer_id, msg)
 
 
 func _is_connected(peer_id: int) -> bool:

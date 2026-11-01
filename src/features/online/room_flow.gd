@@ -4,7 +4,9 @@ extends Node
 ## Friend room by code over the Nakama relay:
 ## sign in (device id) → RPC `room_create` / `room_join` (server returns code, match name, seed)
 ## → join the relayed named match through `NakamaMultiplayerBridge` (first in = host = peer 1)
-## → peers say hello → host starts the match (and every rematch) for both.
+## → peers say hello → the host sets up a direct WebRTC link (UDP; offer / answer / ICE go as
+## room RPCs over the relay) and starts the match once it is open, or after `p2p_timeout_sec`
+## on the relay → the host starts every rematch for both.
 ## The connection lives until `leave()`, so a rematch needs no new room. Two players max.
 
 signal ev_room_created(code: String)
@@ -14,6 +16,8 @@ signal ev_error(text: String)
 signal ev_match_ready(info: Dictionary)
 signal ev_rematch_status(text: String)
 signal ev_opponent_left
+## The direct link to the opponent appeared (or went away: null).
+signal ev_transport_changed(transport: PeerTransport)
 
 enum State { IDLE, CONNECTING, WAITING, IN_MATCH }
 
@@ -37,6 +41,25 @@ var _opponent_peer: int = 0
 var _names: Dictionary = {}
 var _rematch: Dictionary = {}
 var _profile: String = ""
+var _transport: WebRTCTransport
+## Seconds the host still waits for the direct link before starting on the relay (-1 = not waiting).
+var _p2p_wait_left: float = -1.0
+var _p2p_started_ms: int = 0
+
+
+func _process(delta: float) -> void:
+	if _transport != null:
+		_transport.poll()
+	if _p2p_wait_left < 0.0:
+		return
+	_p2p_wait_left -= delta
+	var ready := _transport != null and _transport.is_ready(_opponent_peer)
+	if ready or _p2p_wait_left <= 0.0:
+		_p2p_wait_left = -1.0
+		if not ready:
+			_log.warn("p2p_timeout", {"state": _transport.connection_state() if _transport != null else "none"})
+		if _state == State.WAITING and multiplayer.is_server() and _opponent_peer != 0:
+			_start_round()
 
 
 func setup(config: OnlineConfig, log_channel: LogChannel) -> void:
@@ -117,6 +140,8 @@ func leave() -> void:
 	_opponent_peer = 0
 	_names.clear()
 	_rematch.clear()
+	_p2p_wait_left = -1.0
+	_close_transport()
 	var bridge := _bridge
 	var socket := _socket
 	_bridge = null
@@ -202,6 +227,8 @@ func _on_peer_disconnected(peer_id: int) -> void:
 		return
 	_log.warn("opponent_left", {"peer": peer_id, "state": State.keys()[_state]})
 	_opponent_peer = 0
+	_p2p_wait_left = -1.0
+	_close_transport()
 	ev_opponent_left.emit()
 	if _state == State.WAITING and multiplayer.is_server():
 		ev_status.emit("Друг вышел. Ждём снова…")
@@ -253,7 +280,79 @@ func _rpc_hello(peer_name: String) -> void:
 	_names[sender] = peer_name.left(24)
 	_log.info("hello", {"peer": sender})
 	if multiplayer.is_server() and _state == State.WAITING:
+		_begin_p2p()
+
+
+# --- direct link (WebRTC) ---------------------------------------------------------------
+
+## Host: ask the guest to prepare its side, then offer. The match starts from `_process`.
+func _begin_p2p() -> void:
+	if not _config.p2p_enabled or not WebRTCTransport.is_supported():
+		_log.info("p2p_skipped", {"enabled": _config.p2p_enabled, "supported": WebRTCTransport.is_supported()})
 		_start_round()
+		return
+	_p2p_started_ms = Time.get_ticks_msec()
+	_p2p_wait_left = _config.p2p_timeout_sec
+	ev_status.emit("Соединяемся напрямую…")
+	_log.info("p2p_begin", {"peer": _opponent_peer})
+	_rpc_p2p_prepare.rpc_id(_opponent_peer)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_p2p_prepare() -> void:
+	_p2p_started_ms = Time.get_ticks_msec()
+	if _open_transport(1):
+		_rpc_p2p_prepared.rpc_id(1)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_p2p_prepared() -> void:
+	if multiplayer.get_remote_sender_id() != _opponent_peer or not multiplayer.is_server():
+		return
+	if _open_transport(_opponent_peer):
+		_transport.make_offer()
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_p2p_signal(message: Dictionary) -> void:
+	var sender := multiplayer.get_remote_sender_id()
+	if _transport != null and sender == _transport.remote_peer_id:
+		_transport.on_signal_in(message)
+
+
+func _open_transport(remote_peer: int) -> bool:
+	_close_transport()
+	var transport := WebRTCTransport.new()
+	if not WebRTCTransport.is_supported() or not transport.open(remote_peer, _config.stun_servers):
+		_log.warn("p2p_unavailable", {"peer": remote_peer})
+		return false
+	transport.ev_signal_out.connect(_send_signal.bind(remote_peer))
+	transport.ev_ready.connect(_on_transport_ready.bind(remote_peer))
+	transport.ev_closed.connect(_on_transport_closed.bind(remote_peer))
+	_transport = transport
+	ev_transport_changed.emit(transport)
+	return true
+
+
+func _send_signal(message: Dictionary, remote_peer: int) -> void:
+	if _opponent_peer != 0 and is_inside_tree():
+		_rpc_p2p_signal.rpc_id(remote_peer, message)
+
+
+func _on_transport_ready(remote_peer: int) -> void:
+	_log.info("p2p_ready", {"peer": remote_peer, "ms": Time.get_ticks_msec() - _p2p_started_ms})
+
+
+func _on_transport_closed(remote_peer: int) -> void:
+	_log.warn("p2p_closed", {"peer": remote_peer})
+
+
+func _close_transport() -> void:
+	if _transport == null:
+		return
+	_transport.close()
+	_transport = null
+	ev_transport_changed.emit(null)
 
 
 @rpc("authority", "call_remote", "reliable")
