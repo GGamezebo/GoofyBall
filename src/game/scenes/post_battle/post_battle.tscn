@@ -1,0 +1,148 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/game/scenes/post_battle/post_battle.gd" id="1_pb"]
+[ext_resource type="Resource" path="res://src/game/scenes/app_root/root_events.tres" id="2_root_ev"]
+[ext_resource type="Resource" path="res://src/game/scenes/online/online_events.tres" id="3_online_ev"]
+[ext_resource type="Resource" path="res://src/common/team_palette.tres" id="4_pal"]
+[ext_resource type="Resource" path="res://src/common/log_settings.tres" id="5_log"]
+[ext_resource type="Resource" path="res://src/common/setups/vs_ai.tres" id="6_setup"]
+[ext_resource type="Theme" path="res://src/ui/theme/goofy_theme.tres" id="7_th"]
+[ext_resource type="PackedScene" path="res://src/ui/background/neon_background.tscn" id="8_bg"]
+[ext_resource type="PackedScene" path="res://src/features/blob_view/blob_view.tscn" id="9_blob"]
+
+[node name="PostBattle" type="Control" node_paths=PackedStringArray("title_label", "score_label", "subtitle_label", "status_label", "rematch_button", "next_button", "hero_blob")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("7_th")
+script = ExtResource("1_pb")
+root_events = ExtResource("2_root_ev")
+online_events = ExtResource("3_online_ev")
+palette = ExtResource("4_pal")
+log_settings = ExtResource("5_log")
+preview_setup = ExtResource("6_setup")
+title_label = NodePath("Left/Box/Title")
+score_label = NodePath("Left/Box/Score")
+subtitle_label = NodePath("Left/Box/Subtitle")
+status_label = NodePath("Right/Box/Status")
+rematch_button = NodePath("Right/Box/Buttons/Rematch")
+next_button = NodePath("Right/Box/Buttons/Next")
+hero_blob = NodePath("Left/HeroAnchor/Hero")
+
+[node name="Background" parent="." instance=ExtResource("8_bg")]
+layout_mode = 1
+
+[node name="Left" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 860.0
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Box" type="VBoxContainer" parent="Left"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 70.0
+offset_bottom = 330.0
+grow_horizontal = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Left/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8235, 0.0392, 1)
+theme_override_colors/font_outline_color = Color(0.0039, 0.0118, 0.0627, 1)
+theme_override_constants/outline_size = 14
+theme_override_font_sizes/font_size = 96
+text = "ПОБЕДА!"
+horizontal_alignment = 1
+
+[node name="Score" type="Label" parent="Left/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "7 : 4"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Left/Box"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+
+[node name="HeroAnchor" type="Control" parent="Left"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -460.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Floor" type="ColorRect" parent="Left/HeroAnchor"]
+layout_mode = 0
+offset_left = 200.0
+offset_top = 380.0
+offset_right = 660.0
+offset_bottom = 384.0
+mouse_filter = 2
+color = Color(0.0118, 0.7216, 1, 0.9)
+
+[node name="Hero" parent="Left/HeroAnchor" instance=ExtResource("9_blob")]
+position = Vector2(430, 250)
+
+[node name="Right" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -760.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Box" type="VBoxContainer" parent="Right"]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 20.0
+offset_top = -140.0
+offset_right = -80.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 24
+
+[node name="Status" type="Label" parent="Right/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8235, 0.0392, 1)
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Right/Box"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Rematch" type="Button" parent="Right/Box/Buttons"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 42
+text = "↻ Реванш"
+
+[node name="Next" type="Button" parent="Right/Box/Buttons"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PrimaryButton"
+theme_override_font_sizes/font_size = 42
+text = "Дальше ›"

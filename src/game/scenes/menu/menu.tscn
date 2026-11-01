@@ -1,0 +1,359 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/game/scenes/menu/menu.gd" id="1_menu"]
+[ext_resource type="Resource" path="res://src/game/scenes/app_root/root_events.tres" id="2_root_ev"]
+[ext_resource type="Resource" path="res://src/game/scenes/online/online_events.tres" id="3_online_ev"]
+[ext_resource type="Resource" path="res://src/common/platform_caps.tres" id="4_caps"]
+[ext_resource type="Resource" path="res://src/features/online/online_config.tres" id="5_cfg"]
+[ext_resource type="Resource" path="res://src/common/setups/vs_ai.tres" id="6_ai"]
+[ext_resource type="Resource" path="res://src/common/setups/local_2p.tres" id="7_2p"]
+[ext_resource type="Resource" path="res://src/common/log_settings.tres" id="8_log"]
+[ext_resource type="Resource" path="res://src/common/team_palette.tres" id="9_pal"]
+[ext_resource type="Theme" path="res://src/ui/theme/goofy_theme.tres" id="10_th"]
+[ext_resource type="PackedScene" path="res://src/ui/background/neon_background.tscn" id="11_bg"]
+[ext_resource type="PackedScene" path="res://src/features/blob_view/blob_view.tscn" id="12_blob"]
+[ext_resource type="Script" path="res://src/game/scenes/menu/friend_window.gd" id="13_fw"]
+[ext_resource type="Script" path="res://core/lib/window_stack_manager/window_stack_manager.gd" id="14_wsm"]
+[ext_resource type="Script" path="res://core/lib/window_stack_manager/button_window_stack_transition.gd" id="15_fwd"]
+[ext_resource type="Script" path="res://core/lib/window_stack_manager/button_window_back.gd" id="16_back"]
+
+[node name="Menu" type="Control" node_paths=PackedStringArray("vs_ai_button", "local_2p_button", "friend_window", "hero_blob")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("10_th")
+script = ExtResource("1_menu")
+root_events = ExtResource("2_root_ev")
+online_events = ExtResource("3_online_ev")
+platform_caps = ExtResource("4_caps")
+online_config = ExtResource("5_cfg")
+vs_ai_setup = ExtResource("6_ai")
+local_2p_setup = ExtResource("7_2p")
+log_settings = ExtResource("8_log")
+vs_ai_button = NodePath("Windows/MainWindow/LaunchBlock/VsAi")
+local_2p_button = NodePath("Windows/MainWindow/LaunchBlock/Local2P")
+friend_window = NodePath("Windows/FriendWindow")
+hero_blob = NodePath("Windows/MainWindow/HeroAnchor/Hero")
+palette = ExtResource("9_pal")
+
+[node name="Background" parent="." instance=ExtResource("11_bg")]
+layout_mode = 1
+
+[node name="Windows" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MainWindow" type="Control" parent="Windows"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Title" type="HBoxContainer" parent="Windows/MainWindow"]
+layout_mode = 0
+offset_left = 90.0
+offset_top = 50.0
+offset_right = 800.0
+offset_bottom = 190.0
+theme_override_constants/separation = 24
+
+[node name="Goofy" type="Label" parent="Windows/MainWindow/Title"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0118, 0.7216, 1, 1)
+theme_override_font_sizes/font_size = 110
+text = "GOOFY"
+
+[node name="Ball" type="Label" parent="Windows/MainWindow/Title"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.0196, 0.6784, 1)
+theme_override_font_sizes/font_size = 110
+text = "BALL"
+
+[node name="Tagline" type="Label" parent="Windows/MainWindow"]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 190.0
+offset_right = 800.0
+offset_bottom = 230.0
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 30
+text = "Волейбол слаймов. Итерация 1: сетевой срез"
+
+[node name="HeroAnchor" type="Control" parent="Windows/MainWindow"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -450.0
+offset_right = 800.0
+offset_bottom = 450.0
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Floor" type="ColorRect" parent="Windows/MainWindow/HeroAnchor"]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 680.0
+offset_right = 720.0
+offset_bottom = 684.0
+mouse_filter = 2
+color = Color(0.0118, 0.7216, 1, 0.9)
+
+[node name="Hero" parent="Windows/MainWindow/HeroAnchor" instance=ExtResource("12_blob")]
+position = Vector2(430, 560)
+
+[node name="LaunchBlock" type="VBoxContainer" parent="Windows/MainWindow"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -740.0
+offset_top = -230.0
+offset_right = -80.0
+offset_bottom = 290.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_constants/separation = 26
+
+[node name="VsAi" type="Button" parent="Windows/MainWindow/LaunchBlock"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+theme_override_font_sizes/font_size = 58
+text = "Против AI"
+
+[node name="Friend" type="Button" parent="Windows/MainWindow/LaunchBlock"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+theme_override_font_sizes/font_size = 58
+text = "С другом"
+
+[node name="Local2P" type="Button" parent="Windows/MainWindow/LaunchBlock"]
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+theme_type_variation = &"GhostButton"
+theme_override_font_sizes/font_size = 38
+text = "Вдвоём на одном ПК"
+
+[node name="Hint" type="Label" parent="Windows/MainWindow/LaunchBlock"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 24
+text = "P1: A / D, W — прыжок · P2: ← / →, ↑
+F3 — сетевой оверлей"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="FriendWindow" type="Control" parent="Windows" node_paths=PackedStringArray("create_button", "code_box", "code_label", "copy_button", "code_edit", "join_button", "status_label", "server_edit", "server_button")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("13_fw")
+create_button = NodePath("Center/Panel/Box/Cards/Create/Box/CreateButton")
+code_box = NodePath("Center/Panel/Box/Cards/Create/Box/CodeBox")
+code_label = NodePath("Center/Panel/Box/Cards/Create/Box/CodeBox/Code")
+copy_button = NodePath("Center/Panel/Box/Cards/Create/Box/CodeBox/Copy")
+code_edit = NodePath("Center/Panel/Box/Cards/Join/Box/CodeEdit")
+join_button = NodePath("Center/Panel/Box/Cards/Join/Box/JoinButton")
+status_label = NodePath("Center/Panel/Box/Status")
+server_edit = NodePath("Center/Panel/Box/Server/Address")
+server_button = NodePath("Center/Panel/Box/Server/Save")
+
+[node name="Dim" type="ColorRect" parent="Windows/FriendWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.0078, 0.0392, 0.68)
+
+[node name="Center" type="CenterContainer" parent="Windows/FriendWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Windows/FriendWindow/Center"]
+custom_minimum_size = Vector2(1040, 0)
+layout_mode = 2
+
+[node name="Box" type="VBoxContainer" parent="Windows/FriendWindow/Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Header" type="HBoxContainer" parent="Windows/FriendWindow/Center/Panel/Box"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Windows/FriendWindow/Center/Panel/Box/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"TitleLabel"
+text = "Играть с другом"
+
+[node name="Back" type="Button" parent="Windows/FriendWindow/Center/Panel/Box/Header"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+theme_type_variation = &"GhostButton"
+text = "✕"
+
+[node name="Cards" type="HBoxContainer" parent="Windows/FriendWindow/Center/Panel/Box"]
+layout_mode = 2
+theme_override_constants/separation = 36
+
+[node name="Create" type="PanelContainer" parent="Windows/FriendWindow/Center/Panel/Box/Cards"]
+custom_minimum_size = Vector2(0, 360)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CardPanel"
+
+[node name="Box" type="VBoxContainer" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Create"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Create/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Создать комнату"
+horizontal_alignment = 1
+
+[node name="Sub" type="Label" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Create/Box"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "получишь код для друга"
+horizontal_alignment = 1
+
+[node name="CreateButton" type="Button" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Create/Box"]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+size_flags_vertical = 6
+theme_type_variation = &"PrimaryButton"
+theme_override_font_sizes/font_size = 40
+text = "Создать"
+
+[node name="CodeBox" type="VBoxContainer" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Create/Box"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 6
+theme_override_constants/separation = 8
+
+[node name="Caption" type="Label" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Create/Box/CodeBox"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Код комнаты"
+horizontal_alignment = 1
+
+[node name="Code" type="Label" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Create/Box/CodeBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8235, 0.0392, 1)
+theme_override_font_sizes/font_size = 84
+text = "K7QX"
+horizontal_alignment = 1
+
+[node name="Copy" type="Button" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Create/Box/CodeBox"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Копировать"
+
+[node name="Join" type="PanelContainer" parent="Windows/FriendWindow/Center/Panel/Box/Cards"]
+custom_minimum_size = Vector2(0, 360)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CardPanel"
+
+[node name="Box" type="VBoxContainer" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Join"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Join/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Войти по коду"
+horizontal_alignment = 1
+
+[node name="Sub" type="Label" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Join/Box"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "4 символа от друга"
+horizontal_alignment = 1
+
+[node name="CodeEdit" type="LineEdit" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Join/Box"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+placeholder_text = "КОД"
+alignment = 1
+max_length = 4
+virtual_keyboard_type = 0
+
+[node name="JoinButton" type="Button" parent="Windows/FriendWindow/Center/Panel/Box/Cards/Join/Box"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+disabled = true
+theme_override_font_sizes/font_size = 36
+text = "Войти"
+
+[node name="Status" type="Label" parent="Windows/FriendWindow/Center/Panel/Box"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8235, 0.0392, 1)
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Server" type="HBoxContainer" parent="Windows/FriendWindow/Center/Panel/Box"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Caption" type="Label" parent="Windows/FriendWindow/Center/Panel/Box/Server"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Сервер:"
+
+[node name="Address" type="LineEdit" parent="Windows/FriendWindow/Center/Panel/Box/Server"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 26
+placeholder_text = "192.168.1.10:7350"
+
+[node name="Save" type="Button" parent="Windows/FriendWindow/Center/Panel/Box/Server"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_type_variation = &"GhostButton"
+theme_override_font_sizes/font_size = 26
+text = "Сохранить"
+
+[node name="StackManager" type="Node" parent="." node_paths=PackedStringArray("default_window")]
+script = ExtResource("14_wsm")
+default_window = NodePath("../Windows/MainWindow")
+
+[node name="OpenFriend" type="Node" parent="StackManager" node_paths=PackedStringArray("button", "target_window")]
+script = ExtResource("15_fwd")
+button = NodePath("../../Windows/MainWindow/LaunchBlock/Friend")
+target_window = NodePath("../../Windows/FriendWindow")
+
+[node name="CloseFriend" type="Node" parent="StackManager" node_paths=PackedStringArray("button")]
+script = ExtResource("16_back")
+button = NodePath("../../Windows/FriendWindow/Center/Panel/Box/Header/Back")

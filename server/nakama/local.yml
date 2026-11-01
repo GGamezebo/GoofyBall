@@ -1,0 +1,29 @@
+# Nakama config for Goofy Ball on your own computer.
+# Secrets (server key, session keys, console password) come from server/.env via CLI flags.
+# Spaces only (no tabs).
+
+name: goofyball
+data_dir: "/nakama/data/"
+
+logger:
+  level: "INFO"
+  stdout: true
+
+session:
+  token_expiry_sec: 86400
+  refresh_token_expiry_sec: 2592000
+
+socket:
+  port: 7350
+  max_message_size_bytes: 8192
+  # Relay latency matters more than throughput: flush small realtime messages immediately.
+  outgoing_queue_size: 64
+
+match:
+  input_queue_size: 128
+
+console:
+  port: 7351
+
+runtime:
+  path: "/nakama/data/modules"
