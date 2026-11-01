@@ -13,13 +13,13 @@
 | Путь | Роль |
 |---|---|
 | `main.tscn` → `src/game/main.gd` | Запуск HFSM приложения |
-| `src/game/hfsm/app_hfsm.json` | Фазы приложения: `App` → `Menu` / `Battle` / `PostBattle`, контекст `WEB` |
-| `src/game/scenes/{app_root,menu,game,post_battle}` | Экраны — только оркестрация (`IScene`: `initialize` / `deinit` / `on_event`) |
-| `src/features/{name}/` | Изолированные фичи: `volley_sim` (+`buffs/`), `blob_view`, `ball_view`, `buff_fx`, `online`, `virtual_controls`, `ai_opponent` |
+| `src/game/hfsm/app_hfsm.json` | Фазы приложения: `App` → `Menu` / `Battle` / `PostBattle`; параллельно `Platform` (`WEB` / `Android` / `Desktop`) и `Online` |
+| `src/game/scenes/{app_root,online,menu,game,post_battle}` | Экраны и контексты — только оркестрация (`IScene`: `initialize` / `deinit` / `on_event`). `online` держит соединение с Nakama, пока игрок в комнате |
+| `src/features/{name}/` | Изолированные фичи: `volley_sim` (+`buffs/`), `match_session` (сессии, настройки rollback, эмуляция сети), `blob_view`, `ball_view`, `court_view`, `buff_fx`, `online` (клиент Nakama, комнаты), `net_overlay`, `virtual_controls`, `ai_opponent` |
 | `src/common/` | Общие ресурсы: пресеты физики, арены, правила, персонажи, `MatchSetup` |
 | `src/ui/` | Общие виджеты (кнопки, диалоги, загрузка) |
 | `src/game/account/` | Прогресс, статистика, сохранения |
-| `core/lib/` | Библиотеки без зависимостей от игры: `hfsm`, `fsm`, `event_listener`, `ResourceUtils`, `window_stack_manager`, `shackers` (берём из quizmatik) |
+| `core/lib/` | Библиотеки без зависимостей от игры: `hfsm`, `event_listener`, `ResourceUtils`, `window_stack_manager`, `log` (из quizmatik; `fsm`, `shackers` — когда понадобятся) |
 | `addons/` | `hfsm_editor`, `GodotSavesAddon`, Nakama, `godot-rollback-netcode` |
 | `server/`, `tests/`, `tools/`, `concept/` | Сервер, headless-тесты, генераторы, арты |
 
@@ -95,8 +95,12 @@ MatchSession: Local | Rollback(relay) | Authoritative(позже)
 
 ## 8. Сеть
 ### Сессии
-- `LocalSession`: против AI и вдвоём на одном ПК (на мобильных скрыт через `OS.has_feature("mobile")`).
-- `RollbackSession`: `SyncManager` поверх Nakama relay. Поддерживает несколько peer-ов, ориентир — до 8 игроков.
+- `LocalSession`: против AI и вдвоём на одном ПК (кнопку «Вдвоём» показывает только `DesktopContext` через `PlatformCaps`).
+- `RollbackSession`: `SyncManager` поверх Nakama relay. Поддерживает несколько peer-ов, ориентир — до 8 игроков. Один узел `RollbackInput` на слот, authority = `peer_id` слота из `MatchSetup`.
+- Ручки rollback — `NetTuning` (`.tres`): задержка ввода (2 тика), буфер отката (20 тиков), лимиты сообщений, допуск рассинхрона.
+- `LagNetworkAdaptor` (в debug-сборках): эмуляция задержки, джиттера и потерь исходящих пакетов (`LagProfile`: Wi‑Fi, 4G, плохая сеть). Порядок пакетов сохраняется, как в TCP relay.
+- Плавность на экране — во `View`: позиции пишутся в кольцевой буфер по тикам (и переписываются при пересчёте после отката), рисуются между двумя последними тиками, а скачок после отката превращается в смещение, которое гаснет за ~0,1 с.
+- Сетевой оверлей (F3 / три пальца): ping, откаты, пропуски тиков, рассинхроны, FPS, проверка детерминизма (`DeterminismProbe`).
 - `AuthoritativeSession` (позже): headless-Godot на сервере запускает **ту же** симуляцию, клиент предсказывает и откатывается к серверному состоянию.
 
 ### Почему rollback + relay

@@ -1,0 +1,117 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [develop, "feature/**"]
+  pull_request:
+    branches: [develop, main]
+
+env:
+  GODOT_VERSION: 4.7.1-stable
+  GODOT_TEMPLATES_DIR: 4.7.1.stable
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Install Godot
+        run: |
+          base=https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}
+          curl -fsSL -o godot.zip "$base/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q godot.zip && sudo mv Godot_v${GODOT_VERSION}_linux.x86_64 /usr/local/bin/godot
+
+      - name: Import project
+        run: godot --headless --path . --import || true
+
+      - name: Headless tests (sim, determinism, rollback, scenes)
+        run: |
+          set +e
+          godot --headless --path . --script res://tests/run_all.gd 2>&1 | tee test.log
+          status=${PIPESTATUS[0]}
+          if grep -E "^(SCRIPT ERROR|ERROR):|Parse Error" test.log | grep -v "resources still in use at exit" | sort | uniq -c | head -20 | grep .; then
+            echo "::error::Engine/GDScript errors in the test log"
+            status=1
+          fi
+          exit $status
+
+      - name: Online end-to-end (two processes, ENet, 4G emulation, forced rollbacks)
+        run: |
+          set +e
+          godot --headless --path . --script res://tests/e2e/online_peer.gd -- role=host port=24777 > host.log 2>&1 &
+          host_pid=$!
+          sleep 2
+          godot --headless --path . --script res://tests/e2e/online_peer.gd -- role=guest port=24777 > guest.log 2>&1
+          guest_status=$?
+          wait $host_pid
+          host_status=$?
+          grep -hE "^\[e2e\]" host.log guest.log
+          grep -hE "^(SCRIPT ERROR|ERROR):" host.log guest.log | sort | uniq -c | head -10
+          echo "host=$host_status guest=$guest_status"
+          [ $host_status -eq 0 ] && [ $guest_status -eq 0 ]
+
+  export:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Android SDK components
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "build-tools;35.0.1" "platforms;android-35"
+
+      - name: Install Godot and export templates
+        run: |
+          base=https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}
+          curl -fsSL -o godot.zip "$base/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          curl -fsSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          unzip -q godot.zip && sudo mv Godot_v${GODOT_VERSION}_linux.x86_64 /usr/local/bin/godot
+          mkdir -p ~/.local/share/godot/export_templates
+          unzip -q templates.tpz -d tpl && mv tpl/templates ~/.local/share/godot/export_templates/${GODOT_TEMPLATES_DIR}
+
+      - name: Configure editor for Android export
+        run: |
+          # Public DEBUG keystore (ci/debug.keystore, password "android"): every CI build is signed
+          # the same way, so a new APK installs over the old one. Release signing needs real secrets.
+          cp ci/debug.keystore "$HOME/debug.keystore"
+          mkdir -p ~/.config/godot
+          for f in editor_settings-4.tres editor_settings-4.7.tres; do
+            printf '%s\n' '[gd_resource type="EditorSettings" format=3]' '' '[resource]' \
+              "export/android/android_sdk_path = \"$ANDROID_HOME\"" \
+              "export/android/java_sdk_path = \"$JAVA_HOME\"" \
+              "export/android/debug_keystore = \"$HOME/debug.keystore\"" \
+              'export/android/debug_keystore_user = "androiddebugkey"' \
+              'export/android/debug_keystore_pass = "android"' > ~/.config/godot/$f
+          done
+
+      - name: Import project
+        run: godot --headless --path . --import || true
+
+      - name: Export Windows (debug) and Android APK (debug)
+        run: |
+          mkdir -p bin/windows bin/android
+          godot --headless --path . --export-debug "Windows Desktop" bin/windows/GoofyBall.exe
+          godot --headless --path . --export-debug "Android" bin/android/GoofyBall.apk
+          ls -la bin/windows bin/android
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: goofyball-windows
+          path: bin/windows/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: goofyball-android
+          path: bin/android/*.apk
