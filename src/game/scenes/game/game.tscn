@@ -1,6 +1,6 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bvx2lokvpfw8q"]
 
-[ext_resource type="Script" path="res://src/game/scenes/game/game.gd" id="1_game"]
+[ext_resource type="Script" uid="uid://d2nk4e537poh1" path="res://src/game/scenes/game/game.gd" id="1_game"]
 [ext_resource type="Resource" path="res://src/game/scenes/app_root/root_events.tres" id="2_root_ev"]
 [ext_resource type="Resource" path="res://src/game/scenes/online/online_events.tres" id="3_online_ev"]
 [ext_resource type="Resource" path="res://src/game/scenes/game/game_events.tres" id="4_game_ev"]
@@ -14,17 +14,17 @@
 [ext_resource type="Resource" path="res://src/features/match_session/lag_profiles/lag_bad.tres" id="12_l3"]
 [ext_resource type="Resource" path="res://src/features/volley_sim/determinism_probe.tres" id="13_probe"]
 [ext_resource type="PackedScene" path="res://src/ui/background/neon_background.tscn" id="14_bg"]
-[ext_resource type="Script" path="res://src/game/scenes/game/match_view.gd" id="15_mv"]
+[ext_resource type="Script" uid="uid://sfgo7sr8r0jm" path="res://src/game/scenes/game/match_view.gd" id="15_mv"]
 [ext_resource type="PackedScene" path="res://src/features/court_view/court_view.tscn" id="16_court"]
 [ext_resource type="PackedScene" path="res://src/features/ball_view/ball_view.tscn" id="17_ball"]
 [ext_resource type="PackedScene" path="res://src/features/blob_view/blob_view.tscn" id="18_blob"]
 [ext_resource type="PackedScene" path="res://src/game/scenes/game/hud.tscn" id="19_hud"]
-[ext_resource type="Script" path="res://src/features/match_session/lag_profile.gd" id="20_lp"]
+[ext_resource type="Script" uid="uid://dh34wd0gpr5nh" path="res://src/features/match_session/lag_profile.gd" id="20_lp"]
 [ext_resource type="Resource" path="res://src/features/match_session/lag_profiles/lag_spikes.tres" id="21_l4"]
 [ext_resource type="Resource" path="res://src/features/match_session/lag_profiles/lag_freeze.tres" id="22_l5"]
 [ext_resource type="Resource" path="res://src/common/net/net_link.tres" id="23_link"]
 
-[node name="Game" type="Node" node_paths=PackedStringArray("match_view", "hud", "session_parent")]
+[node name="Game" type="Node" unique_id=2146771662 node_paths=PackedStringArray("match_view", "hud", "session_parent")]
 script = ExtResource("1_game")
 root_events = ExtResource("2_root_ev")
 online_events = ExtResource("3_online_ev")
@@ -40,9 +40,9 @@ match_view = NodePath("MatchView")
 hud = NodePath("Hud")
 session_parent = NodePath("Sessions")
 
-[node name="Background" parent="." instance=ExtResource("14_bg")]
+[node name="Background" parent="." unique_id=369274248 instance=ExtResource("14_bg")]
 
-[node name="MatchView" type="Node2D" parent="." node_paths=PackedStringArray("court_view", "ball_view", "blobs_parent")]
+[node name="MatchView" type="Node2D" parent="." unique_id=1175076562 node_paths=PackedStringArray("court_view", "ball_view", "blobs_parent")]
 script = ExtResource("15_mv")
 court_view = NodePath("CourtView")
 ball_view = NodePath("BallView")
@@ -50,12 +50,12 @@ blobs_parent = NodePath("Blobs")
 blob_template = ExtResource("18_blob")
 palette = ExtResource("6_pal")
 
-[node name="CourtView" parent="MatchView" instance=ExtResource("16_court")]
+[node name="CourtView" parent="MatchView" unique_id=1370606984 instance=ExtResource("16_court")]
 
-[node name="Blobs" type="Node2D" parent="MatchView"]
+[node name="Blobs" type="Node2D" parent="MatchView" unique_id=2069434272]
 
-[node name="BallView" parent="MatchView" instance=ExtResource("17_ball")]
+[node name="BallView" parent="MatchView" unique_id=769631520 instance=ExtResource("17_ball")]
 
-[node name="Sessions" type="Node" parent="."]
+[node name="Sessions" type="Node" parent="." unique_id=973574078]
 
-[node name="Hud" parent="." instance=ExtResource("19_hud")]
+[node name="Hud" parent="." unique_id=2020183513 instance=ExtResource("19_hud")]

@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="MatchSetup" format=3]
+[gd_resource type="Resource" script_class="MatchSetup" format=3 uid="uid://bi16sukxauin2"]
 
-[ext_resource type="Script" path="res://src/common/match_setup.gd" id="1_ms"]
-[ext_resource type="Script" path="res://src/common/team_setup.gd" id="2_ts"]
-[ext_resource type="Script" path="res://src/common/slot_setup.gd" id="3_ss"]
+[ext_resource type="Script" uid="uid://cmioethm80hy7" path="res://src/common/match_setup.gd" id="1_ms"]
+[ext_resource type="Script" uid="uid://cwvhm5ykhp16t" path="res://src/common/team_setup.gd" id="2_ts"]
+[ext_resource type="Script" uid="uid://cdlifcbdrw7o5" path="res://src/common/slot_setup.gd" id="3_ss"]
 [ext_resource type="Resource" path="res://src/common/presets/physics_classic.tres" id="4_ph"]
 [ext_resource type="Resource" path="res://src/common/presets/arena_s.tres" id="5_ar"]
 [ext_resource type="Resource" path="res://src/common/presets/rules_points_7.tres" id="6_ru"]
@@ -13,15 +13,15 @@ player_id = "p1"
 display_name = "Ты"
 local_input = &"p1"
 
+[sub_resource type="Resource" id="Resource_team_a"]
+script = ExtResource("2_ts")
+slots = Array[ExtResource("3_ss")]([SubResource("Resource_slot_a")])
+
 [sub_resource type="Resource" id="Resource_slot_b"]
 script = ExtResource("3_ss")
 player_id = "bot"
 display_name = "Бот"
 is_bot = true
-
-[sub_resource type="Resource" id="Resource_team_a"]
-script = ExtResource("2_ts")
-slots = Array[ExtResource("3_ss")]([SubResource("Resource_slot_a")])
 
 [sub_resource type="Resource" id="Resource_team_b"]
 script = ExtResource("2_ts")
@@ -33,4 +33,3 @@ teams = Array[ExtResource("2_ts")]([SubResource("Resource_team_a"), SubResource(
 physics = ExtResource("4_ph")
 arena = ExtResource("5_ar")
 rules = ExtResource("6_ru")
-match_seed = 1
