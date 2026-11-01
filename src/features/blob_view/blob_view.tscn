@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/features/blob_view/blob_view.gd" id="1_blob"]
+
+[node name="BlobView" type="Node2D" node_paths=PackedStringArray("name_label")]
+script = ExtResource("1_blob")
+name_label = NodePath("NameLabel")
+
+[node name="NameLabel" type="Label" parent="."]
+offset_left = -120.0
+offset_top = -112.0
+offset_right = 120.0
+offset_bottom = -76.0
+theme_override_font_sizes/font_size = 24
+text = "ТЫ"
+horizontal_alignment = 1
+vertical_alignment = 1

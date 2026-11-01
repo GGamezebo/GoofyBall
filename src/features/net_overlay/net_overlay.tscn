@@ -1,0 +1,97 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/features/net_overlay/net_overlay.gd" id="1_no"]
+
+[node name="NetOverlay" type="Control" node_paths=PackedStringArray("stats_label", "lag_buttons", "debug_box", "probe_button", "probe_label")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_no")
+stats_label = NodePath("Panel/Box/Stats")
+lag_buttons = [NodePath("Panel/Box/Debug/Lag/Lag0"), NodePath("Panel/Box/Debug/Lag/Lag1"), NodePath("Panel/Box/Debug/Lag/Lag2"), NodePath("Panel/Box/Debug/Lag/Lag3")]
+debug_box = NodePath("Panel/Box/Debug")
+probe_button = NodePath("Panel/Box/Debug/Probe")
+probe_label = NodePath("Panel/Box/Debug/ProbeResult")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -620.0
+offset_top = 110.0
+offset_right = -24.0
+offset_bottom = 520.0
+grow_horizontal = 0
+theme_type_variation = &"PillPanel"
+
+[node name="Box" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Panel/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8235, 0.0392, 1)
+theme_override_font_sizes/font_size = 26
+text = "Сеть (F3)"
+
+[node name="Stats" type="Label" parent="Panel/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Офлайн"
+
+[node name="Debug" type="VBoxContainer" parent="Panel/Box"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LagTitle" type="Label" parent="Panel/Box/Debug"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 22
+text = "Эмуляция плохой сети (наш исходящий трафик):"
+
+[node name="Lag" type="GridContainer" parent="Panel/Box/Debug"]
+layout_mode = 2
+columns = 2
+
+[node name="Lag0" type="Button" parent="Panel/Box/Debug/Lag"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"GhostButton"
+theme_override_font_sizes/font_size = 20
+text = "—"
+
+[node name="Lag1" type="Button" parent="Panel/Box/Debug/Lag"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"GhostButton"
+theme_override_font_sizes/font_size = 20
+text = "—"
+
+[node name="Lag2" type="Button" parent="Panel/Box/Debug/Lag"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"GhostButton"
+theme_override_font_sizes/font_size = 20
+text = "—"
+
+[node name="Lag3" type="Button" parent="Panel/Box/Debug/Lag"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"GhostButton"
+theme_override_font_sizes/font_size = 20
+text = "—"
+
+[node name="Probe" type="Button" parent="Panel/Box/Debug"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Проверить детерминизм"
+
+[node name="ProbeResult" type="Label" parent="Panel/Box/Debug"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+autowrap_mode = 3

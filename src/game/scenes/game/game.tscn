@@ -1,0 +1,57 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/game/scenes/game/game.gd" id="1_game"]
+[ext_resource type="Resource" path="res://src/game/scenes/app_root/root_events.tres" id="2_root_ev"]
+[ext_resource type="Resource" path="res://src/game/scenes/online/online_events.tres" id="3_online_ev"]
+[ext_resource type="Resource" path="res://src/game/scenes/game/game_events.tres" id="4_game_ev"]
+[ext_resource type="Resource" path="res://src/common/setups/vs_ai.tres" id="5_setup"]
+[ext_resource type="Resource" path="res://src/common/team_palette.tres" id="6_pal"]
+[ext_resource type="Resource" path="res://src/common/log_settings.tres" id="7_log"]
+[ext_resource type="Resource" path="res://src/features/match_session/net_tuning.tres" id="8_tune"]
+[ext_resource type="Resource" path="res://src/features/match_session/lag_profiles/lag_none.tres" id="9_l0"]
+[ext_resource type="Resource" path="res://src/features/match_session/lag_profiles/lag_wifi.tres" id="10_l1"]
+[ext_resource type="Resource" path="res://src/features/match_session/lag_profiles/lag_4g.tres" id="11_l2"]
+[ext_resource type="Resource" path="res://src/features/match_session/lag_profiles/lag_bad.tres" id="12_l3"]
+[ext_resource type="Resource" path="res://src/features/volley_sim/determinism_probe.tres" id="13_probe"]
+[ext_resource type="PackedScene" path="res://src/ui/background/neon_background.tscn" id="14_bg"]
+[ext_resource type="Script" path="res://src/game/scenes/game/match_view.gd" id="15_mv"]
+[ext_resource type="PackedScene" path="res://src/features/court_view/court_view.tscn" id="16_court"]
+[ext_resource type="PackedScene" path="res://src/features/ball_view/ball_view.tscn" id="17_ball"]
+[ext_resource type="PackedScene" path="res://src/features/blob_view/blob_view.tscn" id="18_blob"]
+[ext_resource type="PackedScene" path="res://src/game/scenes/game/hud.tscn" id="19_hud"]
+[ext_resource type="Script" path="res://src/features/match_session/lag_profile.gd" id="20_lp"]
+
+[node name="Game" type="Node" node_paths=PackedStringArray("match_view", "hud", "session_parent")]
+script = ExtResource("1_game")
+root_events = ExtResource("2_root_ev")
+online_events = ExtResource("3_online_ev")
+game_events = ExtResource("4_game_ev")
+default_setup = ExtResource("5_setup")
+palette = ExtResource("6_pal")
+log_settings = ExtResource("7_log")
+net_tuning = ExtResource("8_tune")
+lag_profiles = Array[ExtResource("20_lp")]([ExtResource("9_l0"), ExtResource("10_l1"), ExtResource("11_l2"), ExtResource("12_l3")])
+determinism_probe = ExtResource("13_probe")
+match_view = NodePath("MatchView")
+hud = NodePath("Hud")
+session_parent = NodePath("Sessions")
+
+[node name="Background" parent="." instance=ExtResource("14_bg")]
+
+[node name="MatchView" type="Node2D" parent="." node_paths=PackedStringArray("court_view", "ball_view", "blobs_parent")]
+script = ExtResource("15_mv")
+court_view = NodePath("CourtView")
+ball_view = NodePath("BallView")
+blobs_parent = NodePath("Blobs")
+blob_template = ExtResource("18_blob")
+palette = ExtResource("6_pal")
+
+[node name="CourtView" parent="MatchView" instance=ExtResource("16_court")]
+
+[node name="Blobs" type="Node2D" parent="MatchView"]
+
+[node name="BallView" parent="MatchView" instance=ExtResource("17_ball")]
+
+[node name="Sessions" type="Node" parent="."]
+
+[node name="Hud" parent="." instance=ExtResource("19_hud")]

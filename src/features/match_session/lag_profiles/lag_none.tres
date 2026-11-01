@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="LagProfile" format=3]
+
+[ext_resource type="Script" path="res://src/features/match_session/lag_profile.gd" id="1_s"]
+
+[resource]
+script = ExtResource("1_s")
+title = "Без эмуляции"

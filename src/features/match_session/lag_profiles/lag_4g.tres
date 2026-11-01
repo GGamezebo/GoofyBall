@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="LagProfile" format=3]
+
+[ext_resource type="Script" path="res://src/features/match_session/lag_profile.gd" id="1_s"]
+
+[resource]
+script = ExtResource("1_s")
+title = "4G (80 мс)"
+delay_ms = 35
+jitter_ms = 20
+drop_rate = 0.01

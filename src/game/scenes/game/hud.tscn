@@ -1,0 +1,226 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/game/scenes/game/hud.gd" id="1_hud"]
+[ext_resource type="Resource" path="res://src/game/scenes/game/game_events.tres" id="2_ev"]
+[ext_resource type="Resource" path="res://src/common/team_palette.tres" id="3_pal"]
+[ext_resource type="PackedScene" path="res://src/features/virtual_controls/virtual_controls.tscn" id="4_vc"]
+[ext_resource type="PackedScene" path="res://src/features/net_overlay/net_overlay.tscn" id="5_no"]
+[ext_resource type="Theme" path="res://src/ui/theme/goofy_theme.tres" id="6_th"]
+
+[node name="Hud" type="CanvasLayer" node_paths=PackedStringArray("score_labels", "name_labels", "point_label", "point_sub_label", "status_label", "pause_button", "pause_overlay", "resume_button", "exit_button", "pause_note", "virtual_controls", "net_overlay")]
+script = ExtResource("1_hud")
+game_events = ExtResource("2_ev")
+palette = ExtResource("3_pal")
+score_labels = [NodePath("Root/ScorePanel/Row/ScoreA"), NodePath("Root/ScorePanel/Row/ScoreB")]
+name_labels = [NodePath("Root/NameA"), NodePath("Root/NameB")]
+point_label = NodePath("Root/PointLabel")
+point_sub_label = NodePath("Root/PointSub")
+status_label = NodePath("Root/Status")
+pause_button = NodePath("Root/PauseButton")
+pause_overlay = NodePath("Root/PauseOverlay")
+resume_button = NodePath("Root/PauseOverlay/Center/Panel/Box/Resume")
+exit_button = NodePath("Root/PauseOverlay/Center/Panel/Box/Exit")
+pause_note = NodePath("Root/PauseOverlay/Center/Panel/Box/Note")
+virtual_controls = NodePath("Root/VirtualControls")
+net_overlay = NodePath("Root/NetOverlay")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("6_th")
+
+[node name="VirtualControls" parent="Root" instance=ExtResource("4_vc")]
+layout_mode = 1
+
+[node name="ScorePanel" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -150.0
+offset_top = 18.0
+offset_right = 150.0
+offset_bottom = 98.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_type_variation = &"PillPanel"
+
+[node name="Row" type="HBoxContainer" parent="Root/ScorePanel"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="ScoreA" type="Label" parent="Root/ScorePanel/Row"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 54
+text = "0"
+
+[node name="Colon" type="Label" parent="Root/ScorePanel/Row"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 54
+text = ":"
+
+[node name="ScoreB" type="Label" parent="Root/ScorePanel/Row"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 54
+text = "0"
+
+[node name="NameA" type="Label" parent="Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -560.0
+offset_top = 38.0
+offset_right = -170.0
+offset_bottom = 80.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 28
+text = "Игрок 1"
+horizontal_alignment = 2
+vertical_alignment = 1
+text_overrun_behavior = 3
+
+[node name="NameB" type="Label" parent="Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 170.0
+offset_top = 38.0
+offset_right = 560.0
+offset_bottom = 80.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 28
+text = "Игрок 2"
+vertical_alignment = 1
+text_overrun_behavior = 3
+
+[node name="PauseButton" type="Button" parent="Root"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 104.0
+offset_bottom = 100.0
+focus_mode = 0
+theme_type_variation = &"GhostButton"
+theme_override_font_sizes/font_size = 34
+text = "II"
+
+[node name="PointLabel" type="Label" parent="Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -600.0
+offset_top = 200.0
+offset_right = 600.0
+offset_bottom = 350.0
+grow_horizontal = 2
+pivot_offset = Vector2(600, 75)
+theme_override_colors/font_outline_color = Color(0.0039, 0.0118, 0.0627, 1)
+theme_override_constants/outline_size = 18
+theme_override_font_sizes/font_size = 110
+text = "ОЧКО!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PointSub" type="Label" parent="Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -500.0
+offset_top = 350.0
+offset_right = 500.0
+offset_bottom = 400.0
+grow_horizontal = 2
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+
+[node name="Status" type="Label" parent="Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -500.0
+offset_top = 120.0
+offset_right = 500.0
+offset_bottom = 170.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.8235, 0.0392, 1)
+theme_override_colors/font_outline_color = Color(0.0039, 0.0118, 0.0627, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 34
+text = "Ждём соперника…"
+horizontal_alignment = 1
+
+[node name="NetOverlay" parent="Root" instance=ExtResource("5_no")]
+layout_mode = 1
+
+[node name="PauseOverlay" type="Control" parent="Root"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="Root/PauseOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.0078, 0.0392, 0.68)
+
+[node name="Center" type="CenterContainer" parent="Root/PauseOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Root/PauseOverlay/Center"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+
+[node name="Box" type="VBoxContainer" parent="Root/PauseOverlay/Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="Root/PauseOverlay/Center/Panel/Box"]
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "Пауза"
+horizontal_alignment = 1
+
+[node name="Resume" type="Button" parent="Root/PauseOverlay/Center/Panel/Box"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+theme_override_font_sizes/font_size = 40
+text = "▶  Продолжить"
+
+[node name="Exit" type="Button" parent="Root/PauseOverlay/Center/Panel/Box"]
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+theme_type_variation = &"DangerButton"
+theme_override_font_sizes/font_size = 36
+text = "Выйти в меню"
+
+[node name="Note" type="Label" parent="Root/PauseOverlay/Center/Panel/Box"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Игра на паузе."
+horizontal_alignment = 1
