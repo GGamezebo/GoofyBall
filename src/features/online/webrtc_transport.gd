@@ -111,12 +111,12 @@ func poll() -> void:
 	if _conn == null:
 		return
 	_conn.poll()
-	var open := _fast.get_ready_state() == WebRTCDataChannel.STATE_OPEN \
+	var channels_open := _fast.get_ready_state() == WebRTCDataChannel.STATE_OPEN \
 		and _sure.get_ready_state() == WebRTCDataChannel.STATE_OPEN
-	if open and not _ready:
+	if channels_open and not _ready:
 		_ready = true
 		ev_ready.emit()
-	elif _ready and not open:
+	elif _ready and not channels_open:
 		_ready = false
 		ev_closed.emit()
 

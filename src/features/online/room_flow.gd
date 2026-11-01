@@ -53,10 +53,10 @@ func _process(delta: float) -> void:
 	if _p2p_wait_left < 0.0:
 		return
 	_p2p_wait_left -= delta
-	var ready := _transport != null and _transport.is_ready(_opponent_peer)
-	if ready or _p2p_wait_left <= 0.0:
+	var linked := _transport != null and _transport.is_ready(_opponent_peer)
+	if linked or _p2p_wait_left <= 0.0:
 		_p2p_wait_left = -1.0
-		if not ready:
+		if not linked:
 			_log.warn("p2p_timeout", {"state": _transport.connection_state() if _transport != null else "none"})
 		if _state == State.WAITING and multiplayer.is_server() and _opponent_peer != 0:
 			_start_round()
