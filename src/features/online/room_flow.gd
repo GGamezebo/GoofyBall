@@ -136,7 +136,7 @@ func leave() -> void:
 func _connect() -> bool:
 	ev_status.emit("Подключаемся к серверу…")
 	if not await client.sign_in_async(_profile):
-		_fail("sign_in_failed", "Нет связи с сервером %s" % _config.address(), {"error": client.last_error})
+		_fail("sign_in_failed", _no_server_text(), {"error": client.last_error, "server": _config.address()})
 		return false
 	if _state != State.CONNECTING:
 		return false
@@ -145,7 +145,7 @@ func _connect() -> bool:
 	_socket.closed.connect(_on_socket_closed)
 	var connected = await _socket.connect_async(client.session)
 	if connected != null and connected.is_exception():
-		_fail("socket_failed", "Нет связи с сервером %s" % _config.address(), {"error": str(connected.get_exception().message)})
+		_fail("socket_failed", _no_server_text(), {"error": str(connected.get_exception().message), "server": _config.address()})
 		return false
 	_bridge = NakamaMultiplayerBridge.new(_socket)
 	multiplayer.multiplayer_peer = _bridge.multiplayer_peer
@@ -226,6 +226,15 @@ func _disconnect_multiplayer_signals() -> void:
 		multiplayer.peer_connected.disconnect(_on_peer_connected)
 	if multiplayer.peer_disconnected.is_connected(_on_peer_disconnected):
 		multiplayer.peer_disconnected.disconnect(_on_peer_disconnected)
+
+
+## 127.0.0.1 only works when the server runs on this same device (PC); on a phone it points
+## at the phone itself, so say what to type instead.
+func _no_server_text() -> String:
+	var text := "Нет связи с сервером %s" % _config.address()
+	if _config.host == "127.0.0.1" or _config.host == "localhost":
+		text += ".\n127.0.0.1 — это само устройство. Впиши в «Сервер» IP компьютера с сервером, например 192.168.1.10:7350"
+	return text
 
 
 func _fail(event: String, text: String, kv: Dictionary) -> void:
