@@ -1,10 +1,13 @@
 class_name OnlineConfig
 extends Resource
 
-## Where the Nakama server is. Defaults below → overridden by `user://online.cfg` (written when
-## the player saves an address) → overridden by env vars GOOFY_NAKAMA_HOST / _PORT / _KEY.
+## Where the Nakama server is. Defaults below → `res://online_local.cfg` (developer's own server,
+## git-ignored, shipped inside builds) → `user://online.cfg` (written when the player saves an
+## address) → env vars GOOFY_NAKAMA_HOST / _PORT / _KEY. Both files: section [nakama] with
+## host / port / server_key, optional [p2p] enabled.
 ## The server key must match NAKAMA_SERVER_KEY in server/.env.
 
+const LOCAL_DEFAULTS_PATH := "res://online_local.cfg"
 const OVERRIDE_PATH := "user://online.cfg"
 
 @export var host: String = "127.0.0.1"
@@ -30,12 +33,8 @@ func scheme() -> String:
 
 
 func load_overrides() -> void:
-	var file := ConfigFile.new()
-	if file.load(OVERRIDE_PATH) == OK:
-		host = str(file.get_value("nakama", "host", host))
-		port = int(file.get_value("nakama", "port", port))
-		server_key = str(file.get_value("nakama", "server_key", server_key))
-		p2p_enabled = bool(file.get_value("p2p", "enabled", p2p_enabled))
+	_apply_file(LOCAL_DEFAULTS_PATH)
+	_apply_file(OVERRIDE_PATH)
 	if not OS.get_environment("GOOFY_NAKAMA_HOST").is_empty():
 		host = OS.get_environment("GOOFY_NAKAMA_HOST")
 	if not OS.get_environment("GOOFY_NAKAMA_PORT").is_empty():
@@ -44,6 +43,16 @@ func load_overrides() -> void:
 		server_key = OS.get_environment("GOOFY_NAKAMA_KEY")
 	if OS.get_environment("GOOFY_P2P") == "0":
 		p2p_enabled = false
+
+
+func _apply_file(path: String) -> void:
+	var file := ConfigFile.new()
+	if file.load(path) != OK:
+		return
+	host = str(file.get_value("nakama", "host", host))
+	port = int(file.get_value("nakama", "port", port))
+	server_key = str(file.get_value("nakama", "server_key", server_key))
+	p2p_enabled = bool(file.get_value("p2p", "enabled", p2p_enabled))
 
 
 ## Parses "host[:port]" and saves it; returns false when the text is not an address.

@@ -1,0 +1,6 @@
+; Copy to online_local.cfg (git-ignored) to bake your own server into local builds:
+; the phone then connects without typing an address. The "Сервер" field still overrides it.
+[nakama]
+
+host="192.168.1.10"
+port=7350
